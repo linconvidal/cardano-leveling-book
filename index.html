@@ -2,7 +2,7 @@
 <html lang="pt-BR"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Apostila de apoio · Cardano e DPP</title>
+<title>Guia de nivelamento técnico · Cardano e DPP</title>
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&amp;family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet"/>
@@ -2291,8 +2291,9 @@ pre { max-width: 100%; overflow-x: auto; }
 
 <button aria-controls="toc" aria-expanded="false" aria-label="Abrir conteúdo" class="toc-toggle" id="toc-toggle" type="button"><span aria-hidden="true" class="toc-toggle-icon"><span></span><span></span><span></span></span></button>
 <button aria-label="Fechar conteúdo" class="toc-backdrop" id="toc-backdrop" tabindex="-1" type="button"></button>
-<nav aria-label="Conteúdo da apostila" class="toc" id="toc">
+<nav aria-label="Conteúdo do guia" class="toc" id="toc">
 <a class="nav-top" href="#capa">Capa</a>
+<a class="nav-top" href="#rotas-de-leitura">Rotas de leitura</a>
 <a class="nav-top" href="#sumario">Sumário</a>
 <a class="nav-top" href="#caso-guia">Caso-guia</a>
 <button id="theme-toggle" type="button">Modo escuro</button>
@@ -2345,20 +2346,36 @@ pre { max-width: 100%; overflow-x: auto; }
 
 <section class="cover" id="capa">
   <div class="cover-kicker">Cardano · Passaporte Digital de Produto</div>
-  <h1>Apostila de apoio ao workshop</h1>
-  <p class="cover-sub">Material de consulta e prática para o workshop: dos bytes ao passaporte digital de produto em Cardano.</p>
+  <h1>Guia de nivelamento técnico</h1>
+  <p class="cover-sub">Pre-work reutilizável e referência de consulta: dos bytes ao passaporte digital de produto em Cardano.</p>
   <div class="cover-how">
     <strong>Como usar este material</strong>
-    Use a apostila durante a aula para consultar conceitos, figuras, exemplos e atividades indicados pelo facilitador. A leitura integral não é pré-requisito para acompanhar o primeiro dia.
-    Os oito trechos Python marcados como executáveis rodam no navegador; as demais atividades apoiam a discussão e a revisão. Depois do encontro, retome as respostas e as referências conforme a necessidade. Para gerar um PDF, use a função de imprimir do navegador.
+    Escolha uma rota de leitura conforme seu papel e o encontro que será realizado. A rota essencial prepara o workshop; as rotas de aprofundamento apoiam arquitetura, implementação e revisão posterior. A leitura integral não é obrigatória antes do primeiro dia.
+    Os oito trechos Python marcados como executáveis rodam no navegador; as demais atividades registram decisões, justificativas e limites da evidência. Este guia complementa, mas não substitui, os cursos publicados da Cardano Academy nem as especificações do protocolo. Para gerar um PDF, use a função de imprimir do navegador.
   </div>
   <div class="flow">
-    <div class="flow-step"><b>1 · Explicação</b>Slides, discussão e demonstrações conduzidas em sala.</div>
+    <div class="flow-step"><b>1 · Pre-work</b>Rota essencial, primeira atividade e autoavaliação das aulas indicadas.</div>
     <div class="flow-arrow">→</div>
-    <div class="flow-step current"><b>2 · Esta apostila</b>Consulta de conceitos, figuras, exemplos e atividades.</div>
+    <div class="flow-step current"><b>2 · Workshop</b>Demonstrações, decisões e construção conjunta do caso.</div>
     <div class="flow-arrow">→</div>
-    <div class="flow-step"><b>3 · Aplicação</b>Construção conjunta do DPP de bateria veicular.</div>
+    <div class="flow-step"><b>3 · Referência</b>Rotas de aprofundamento, respostas e fontes primárias.</div>
   </div>
+</section>
+
+<section class="book-intro" id="rotas-de-leitura">
+<header class="lesson-head">
+  <div class="lesson-kicker">Posicionamento e escopo</div>
+  <h2 class="lesson-title">Rotas de leitura</h2>
+  <p class="lesson-meta">Use o guia como pre-work, apoio ao encontro e referência posterior. Não o trate como substituto da Cardano Academy ou das especificações oficiais.</p>
+</header>
+<div class="sp-grid3">
+  <div class="sp-col"><div class="sp-box"><span class="sp-col-title">Rota essencial antes do workshop</span><p>Leia <a href="#aula-0-1">0.1</a>, <a href="#aula-0-2">0.2</a>, <a href="#aula-0-4">0.4</a>, <a href="#aula-0-7">0.7</a>, <a href="#aula-0-8">0.8</a>, <a href="#aula-1-1">1.1</a>, <a href="#aula-1-2">1.2</a>, <a href="#aula-1-4">1.4</a>, <a href="#aula-1-6">1.6</a>, <a href="#aula-3-1">3.1</a>, <a href="#aula-3-6">3.6</a> e <a href="#aula-3-7">3.7</a>. Faça a primeira atividade e use a autoavaliação para registrar dúvidas.</p></div></div>
+  <div class="sp-col"><div class="sp-box"><span class="sp-col-title">Rota de arquitetura e implementação</span><p>Depois da rota essencial, percorra <a href="#modulo-2">todo o Módulo 2</a> e as Aulas <a href="#aula-3-4">3.4</a>, <a href="#aula-3-5">3.5</a>, <a href="#aula-3-9">3.9</a> e <a href="#aula-3-10">3.10</a>. Consulte o Módulo 1 quando precisar conferir ledger, metadata ou ativos.</p></div></div>
+  <div class="sp-col"><div class="sp-box"><span class="sp-col-title">Rota de DPP, evidência e regulação</span><p>Leia <a href="#modulo-3">todo o Módulo 3</a>. Use a fonte oficial da legislação ao lado do guia. A Aula 3.8 oferece leitura didática e não constitui parecer jurídico.</p></div></div>
+</div>
+<div class="sp-box"><span class="sp-col-title">Carga planejada e entrega acumulada</span><p>O guia contém <strong>30 aulas</strong>. Para planejamento antes do piloto, reserve de <strong>6 a 8 horas</strong> para a rota essencial, divididas em blocos; as rotas de aprofundamento são opcionais antes do workshop. A leitura integral, com atividades, é referência de <strong>18 a 24 horas</strong>, não uma tarefa única de pre-work. Ao longo do percurso, mantenha um caderno de evidências com previsões, saídas de código, decisões, justificativas, URLs consultadas e dúvidas. Os tempos são estimativas editoriais e devem ser recalibrados com dados do primeiro grupo.</p></div>
+<div class="sp-box note"><span class="sp-col-title">Relação com a Cardano Academy</span><p>O guia usa a Academy para alinhamento curricular e vocabulário, mas recorre a RFCs, CIPs, especificações do ledger, NIST, W3C e EUR-Lex para afirmações normativas. Consulte a <a href="https://academy.cardanofoundation.org/" rel="noopener" target="_blank">Cardano Academy</a> para o percurso oficial de formação.</p></div>
+<div class="sp-box note"><span class="sp-col-title">Proveniência da baseline pt-BR</span><p>Identificador editorial <code>pt-br-2026-08-31</code>, revisão técnica concluída em 31 de agosto de 2026. A comparação curricular usou a Cardano Academy no commit <a href="https://github.com/cardano-foundation/cardano-academy/tree/6333f4637132664933879288b94bd1fc5b28a02c" rel="noopener" target="_blank"><code>6333f463</code></a>. O snapshot técnico usou os CIPs no commit <a href="https://github.com/cardano-foundation/CIPs/tree/eb4510345f0ce7c014a7d83f85d43e86c537897f" rel="noopener" target="_blank"><code>eb451034</code></a>, o ledger no commit <a href="https://github.com/IntersectMBO/cardano-ledger/tree/e236411501c5929fdbf88ce265a294e8a11d1c55" rel="noopener" target="_blank"><code>e2364115</code></a> e a especificação KERI no commit <a href="https://github.com/trustoverip/kswg-keri-specification/tree/fbdd4a6155e48248873cccd5cf6f79b6b631a021" rel="noopener" target="_blank"><code>fbdd4a61</code></a>. As normas legais foram conferidas nas publicações oficiais vinculadas, na mesma data. O commit aceito, o tamanho e o SHA-256 desta edição ficam no registro de validação do projeto. Antes de implementar, reconfirme o texto e o status atuais das especificações.</p></div>
 </section>
 
 <section class="sumario" id="sumario">
@@ -2428,7 +2445,7 @@ pre { max-width: 100%; overflow-x: auto; }
 
 <section class="book-intro" id="caso-guia">
 <header class="lesson-head">
-  <div class="lesson-kicker">Caso-guia da apostila</div>
+  <div class="lesson-kicker">Caso-guia do material</div>
   <h2 class="lesson-title">Uma bateria, três falhas de evidência</h2>
   <p class="lesson-meta">O mesmo caso acompanha bytes, autorização, ledger, regulação e verificação ao longo dos quatro módulos.</p>
 </header>
@@ -2825,14 +2842,15 @@ print("amostra Unicode:", amostra_unicode.decode("utf-8"))
 <p>Na execução, <code>sort_keys=True</code> ordena alfabeticamente as chaves do objeto externo e também as dos objetos aninhados. <code>separators=(",", ":")</code> elimina os espaços opcionais. <code>ensure_ascii=False</code> mantém os caracteres da amostra Unicode no texto. O JSON do payload ocupa <code>356</code> bytes depois da codificação.</p>
 
 
-<div class="emwords"><span class="emwords-label">Em palavras</span><p>Canonicalizar, aqui, é aplicar uma regra única de serialização e codificação para definir exatamente quais bytes representarão o payload.</p></div></div></details><div class="closing"><h3>Fechamento</h3><p>Nesta aula, você começou antes da parte que costuma chamar mais atenção em blockchain. Em vez de perguntar como uma rede verifica algo, você perguntou o que exatamente está sendo entregue para verificação.</p>
+<div class="emwords"><span class="emwords-label">Em palavras</span><p>Canonicalizar, aqui, é aplicar uma regra única de serialização e codificação para definir exatamente quais bytes representarão o payload.</p></div>
+<p>A receita <code>json.dumps(..., ensure_ascii=False, sort_keys=True, separators=(",", ":"))</code> é um perfil didático local, não uma canonicalização JSON universal. Para interoperabilidade, nomeie e versione o perfil ou adote uma especificação publicada, como RFC 8785 JCS, com as mesmas regras em todos os produtores e verificadores.</p></div></details><div class="closing"><h3>Fechamento</h3><p>Nesta aula, você começou antes da parte que costuma chamar mais atenção em blockchain. Em vez de perguntar como uma rede verifica algo, você perguntou o que exatamente está sendo entregue para verificação.</p>
 
 </div>
 <div class="selfcheck"><div class="box-label">Autoavaliação</div><p>Para revisar: Objetivo 1, atividade 2; Objetivo 2, atividade 1; Objetivo 3, atividade 1 ou 2. Retome antes a seção correspondente e, se necessário, as referências do módulo.</p>
 <ul>
-<li><strong>Objetivo 1.</strong> explicar por que <code>len("ação")</code> e <code>len("ação".encode("utf-8"))</code> podem ser diferentes;</li>
-<li><strong>Objetivo 2.</strong> converter bytes para hexadecimal e base64, depois voltar aos mesmos bytes;</li>
-<li><strong>Objetivo 3.</strong> identificar quando uma diferença de espaço, acento, ordem de chaves ou serialização pode mudar os bytes;</li>
+<li><strong>Objetivo 1.</strong> diferenciar uma string em Python da sequência de bytes produzida por uma codificação;</li>
+<li><strong>Objetivo 2.</strong> converter bytes entre UTF-8, hexadecimal e base64 sem alterar a informação original;</li>
+<li><strong>Objetivo 3.</strong> explicar por que duas mensagens visualmente parecidas podem produzir bytes diferentes.</li>
 
 
 </ul></div>
@@ -2946,11 +2964,12 @@ print("mesmo digest?", resumo_alterado_hex == resumo_hex)
 
 
 <p>Hash puro não é solução adequada para senha. Senhas escolhidas por pessoas costumam ter baixa entropia e podem ser testadas em grande quantidade. Sistemas de senha precisam de mecanismos próprios, com sal e custo computacional, não apenas uma chamada direta a SHA-256.</p>
+<p>Use uma função de derivação de senha mantida e configurável. Argon2id é a opção preferencial quando a plataforma o oferece; scrypt é uma alternativa com custo de memória; PBKDF2 pode ser necessário em ambientes com requisitos específicos de compatibilidade. Parâmetros, versão, sal aleatório por senha e estratégia de atualização precisam ser documentados e revistos conforme o hardware e a orientação vigente. Não invente parâmetros a partir deste resumo.</p>
 <div class="activity">
 <div class="box-label">Atividade 2: escolha a ferramenta para cada objetivo</div>
 <p><strong>Diagnostique cada decisão de projeto e entregue seis classificações.</strong> Não escolha pela ferramenta citada no enunciado. Escolha pela proteção que o cenário realmente exige.</p>
 <ol>
-<li>Reduza cada objetivo a uma pergunta: os bytes são iguais, quem assumiu a mensagem, quem pode ler, a afirmação é verdadeira ou como proteger uma senha?</li>
+<li>Reduza cada objetivo a uma pergunta: os bytes são iguais, qual chave autorizou a mensagem, quem pode ler, a afirmação é verdadeira ou como proteger uma senha?</li>
 <li>Selecione a solução principal para cada caso e confira o conjunto.</li>
 <li>Para cada erro, registre uma correção no formato: <q>Eu precisava de ___ porque o objetivo era ___; hash sozinho apenas ___.</q></li>
 </ol>
@@ -2959,7 +2978,7 @@ print("mesmo digest?", resumo_alterado_hex == resumo_hex)
 <legend>Qual decisão atende ao objetivo de cada cenário?</legend>
 <div class="quiz-items">
 <label class="quiz-item"><span class="quiz-item-text">Um distribuidor publica um arquivo grande. O destinatário já recebeu o resumo esperado por um caminho confiável e quer confirmar se o arquivo baixado tem exatamente os mesmos bytes.</span><select class="quiz-select" data-correct="hash"><option value="">selecione</option><option value="hash">hash é adequado</option><option value="assinatura">assinatura é necessária</option><option value="criptografia">criptografia é necessária</option><option value="outra">outra solução ou processo é necessário</option></select><span class="quiz-verdict"></span></label>
-<label class="quiz-item"><span class="quiz-item-text">Uma equipe anexou o SHA-256 de uma mensagem à própria mensagem. Agora quer demonstrar que uma chave específica assumiu responsabilidade por ela.</span><select class="quiz-select" data-correct="assinatura"><option value="">selecione</option><option value="hash">hash é adequado</option><option value="assinatura">assinatura é necessária</option><option value="criptografia">criptografia é necessária</option><option value="outra">outra solução ou processo é necessário</option></select><span class="quiz-verdict"></span></label>
+<label class="quiz-item"><span class="quiz-item-text">Uma equipe anexou o SHA-256 de uma mensagem à própria mensagem. Agora quer demonstrar que a chave privada correspondente a uma chave pública específica autorizou aqueles bytes.</span><select class="quiz-select" data-correct="assinatura"><option value="">selecione</option><option value="hash">hash é adequado</option><option value="assinatura">assinatura é necessária</option><option value="criptografia">criptografia é necessária</option><option value="outra">outra solução ou processo é necessário</option></select><span class="quiz-verdict"></span></label>
 <label class="quiz-item"><span class="quiz-item-text">Uma pessoa calculou o hash de um relatório e pretende enviar o relatório em texto legível por um canal observado. O conteúdo precisa permanecer sigiloso.</span><select class="quiz-select" data-correct="criptografia"><option value="">selecione</option><option value="hash">hash é adequado</option><option value="assinatura">assinatura é necessária</option><option value="criptografia">criptografia é necessária</option><option value="outra">outra solução ou processo é necessário</option></select><span class="quiz-verdict"></span></label>
 <label class="quiz-item"><span class="quiz-item-text">Um documento técnico tem hash estável e assinatura válida. A equipe quer concluir, apenas com esses dados, que uma afirmação do documento é verdadeira no mundo real.</span><select class="quiz-select" data-correct="outra"><option value="">selecione</option><option value="hash">hash é adequado</option><option value="assinatura">assinatura é necessária</option><option value="criptografia">criptografia é necessária</option><option value="outra">outra solução ou processo é necessário</option></select><span class="quiz-verdict"></span></label>
 <label class="quiz-item"><span class="quiz-item-text">Dois sistemas querem fazer uma primeira comparação entre conteúdos grandes sem transmitir os conteúdos inteiros. Se os resumos diferirem, já podem concluir que os bytes diferem.</span><select class="quiz-select" data-correct="hash"><option value="">selecione</option><option value="hash">hash é adequado</option><option value="assinatura">assinatura é necessária</option><option value="criptografia">criptografia é necessária</option><option value="outra">outra solução ou processo é necessário</option></select><span class="quiz-verdict"></span></label>
@@ -2973,13 +2992,13 @@ print("mesmo digest?", resumo_alterado_hex == resumo_hex)
 <details class="answer" id="answer-aula-0-2-a4"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Resposta da atividade 2</summary><div class="answer-body">
 <ol>
 <li><p><strong>Hash é adequado.</strong> A pergunta é se o arquivo baixado tem os mesmos bytes do arquivo esperado. Calcula-se o hash do download e compara-se com o resumo recebido pelo caminho confiável. Essa condição importa: se um atacante puder substituir no mesmo local tanto o arquivo quanto o resumo, a igualdade entre eles não identifica a substituição.</p></li>
-<li><p><strong>Assinatura é necessária.</strong> Qualquer pessoa com acesso à mensagem consegue calcular o mesmo SHA-256. Portanto, o resumo não mostra qual parte assumiu responsabilidade. O objetivo contém a pista decisiva: vincular a mensagem a uma chave específica.</p></li>
+<li><p><strong>Assinatura é necessária.</strong> Qualquer pessoa com acesso à mensagem consegue calcular o mesmo SHA-256. Portanto, o resumo não mostra qual chave autorizou os bytes. A assinatura cria o vínculo criptográfico com uma chave específica; identidade, custódia e responsabilidade são verificações adicionais.</p></li>
 <li><p><strong>Criptografia é necessária.</strong> O objetivo é impedir a leitura por quem observa o canal. Calcular um hash não altera nem esconde o relatório enviado em texto legível. Hash pode ajudar a comparar bytes, mas não fornece confidencialidade.</p></li>
 <li><p><strong>Outra solução ou processo é necessário.</strong> O hash estável permite verificar os bytes, e a assinatura pode indicar responsabilidade pelo documento. Nenhum dos dois demonstra que a afirmação corresponde ao mundo real. Isso exige evidência externa, como medição, fonte confiável, auditoria ou revisão apropriada ao caso.</p></li>
 <li><p><strong>Hash é adequado como primeira etapa.</strong> Cada sistema calcula um resumo dos próprios bytes e compara os resultados. Resumos diferentes bastam para detectar que os conteúdos diferem, evitando a transmissão integral nessa triagem inicial.</p></li>
 <li><p><strong>Outra solução é necessária.</strong> O problema não é esconder a senha para depois recuperá-la, mas resistir a muitas tentativas de adivinhação. SHA-256 puro é rápido e, sem sal, não atende ao requisito. Senhas precisam de um mecanismo próprio, com sal e custo computacional ajustável.</p></li>
 </ol>
-<p>A palavra <q>hash</q> no cenário não decide a ferramenta. A decisão deve seguir o objetivo: igualdade de bytes aponta para hash; responsabilidade por uma mensagem aponta para assinatura; impedir leitura aponta para criptografia; verdade factual e armazenamento de senhas exigem processos ou mecanismos próprios. Em especial, uma assinatura válida informa quem assumiu um conteúdo, não que esse conteúdo seja verdadeiro.</p>
+<p>A palavra <q>hash</q> no cenário não decide a ferramenta. A decisão deve seguir o objetivo: igualdade de bytes aponta para hash; responsabilidade por uma mensagem aponta para assinatura; impedir leitura aponta para criptografia; verdade factual e armazenamento de senhas exigem processos ou mecanismos próprios. Em especial, uma assinatura válida prova que a chave privada correspondente autorizou bytes específicos. Atribuir esse ato a uma pessoa ou organização ainda depende da associação entre chave e identidade, da custódia e do contexto de autorização; nada disso torna o conteúdo verdadeiro.</p>
 </div></details>
 
 <h3 id="aula-0-2-s5">5. Três propriedades em linguagem prática</h3>
@@ -3060,14 +3079,13 @@ assert digest == "82b8d92e8002fb361fbb51df3bbc4195ccac0052baa0e124eda709122e38e2
 </div>
 <div class="selfcheck"><div class="box-label">Autoavaliação</div><p>Para revisar: Objetivo 1, atividade 1 ou 3; Objetivo 2, atividade 1; Objetivo 3, atividade 2 ou 3. Retome antes a seção correspondente e, se necessário, as referências do módulo.</p>
 <ul>
-<li><strong>Objetivo 1.</strong> calcular <code>hashlib.sha256(dados).digest()</code> e <code>hexdigest()</code> para bytes produzidos com UTF-8;</li>
-<li><strong>Objetivo 2.</strong> explicar por que um resumo SHA-256 tem 32 bytes e 64 caracteres em hexadecimal;</li>
-<li><strong>Objetivo 3.</strong> mostrar, com código, que mensagens quase iguais podem ter hashes muito diferentes;</li>
-
+<li><strong>Objetivo 1.</strong> calcular o SHA-256 de uma mensagem textual depois de convertê-la para bytes;</li>
+<li><strong>Objetivo 2.</strong> explicar por que dois inputs quase iguais podem produzir hashes visualmente muito diferentes;</li>
+<li><strong>Objetivo 3.</strong> diferenciar o hash do texto JSON original do hash de uma forma canônica e delimitar o que esse compromisso prova;</li>
 
 
 </ul></div>
-<div class="bridge"><div class="box-label">Ponte para a próxima aula</div><p>Se qualquer pessoa consegue recalcular o mesmo hash para os mesmos bytes, como uma máquina pode verificar que uma parte específica assumiu responsabilidade por aqueles bytes? Essa pergunta leva naturalmente a chaves e assinaturas digitais.</p></div>
+<div class="bridge"><div class="box-label">Ponte para a próxima aula</div><p>Se qualquer pessoa consegue recalcular o mesmo hash para os mesmos bytes, como uma máquina pode verificar que uma chave privada específica autorizou aqueles bytes? Essa pergunta leva naturalmente a chaves e assinaturas digitais.</p></div>
 </article>
 <article class="lesson" data-module="0" id="aula-0-3">
 <header class="lesson-head">
@@ -3084,7 +3102,7 @@ assert digest == "82b8d92e8002fb361fbb51df3bbc4195ccac0052baa0e124eda709122e38e2
 
 
 </ol></div>
-<div class="prereq"><div class="box-label">Antes de começar</div><p>Você precisa saber executar trechos curtos de Python, reconhecer objetos <code>bytes</code>, ler representações em hexadecimal e base64, e lembrar que um hash permite conferir integridade dos bytes, mas não aponta sozinho quem assumiu responsabilidade por eles.</p>
+<div class="prereq"><div class="box-label">Antes de começar</div><p>Você precisa saber executar trechos curtos de Python, reconhecer objetos <code>bytes</code>, ler representações em hexadecimal e base64, e lembrar que um hash permite conferir integridade dos bytes, mas não aponta sozinho qual chave os autorizou nem quem controla essa chave.</p>
 
 <div class="guide-q"><span class="guide-q-label">Pergunta-guia</span><p>O que faz de uma chave privada um segredo técnico, e por que dela pode surgir uma parte pública compartilhável?</p></div></div>
 <h3 id="aula-0-3-s1">1. O hash confere bytes, mas não aponta responsabilidade</h3>
@@ -3095,7 +3113,7 @@ assert digest == "82b8d92e8002fb361fbb51df3bbc4195ccac0052baa0e124eda709122e38e2
 <h3 id="aula-0-3-s2">2. Um segredo técnico precisa de entropia</h3>
 <p>Uma chave privada não deve ser uma frase que você inventou, um nome de usuário, uma data importante ou uma palavra com substituições previsíveis. Humanos são ruins em produzir aleatoriedade. Tendemos a escolher padrões, lembranças, nomes, sequências de teclado e frases que parecem criativas, mas caem em espaços pequenos de tentativa.</p>
 <p>Um segredo técnico precisa de entropia. Em termos práticos, isso significa que ele deve vir de uma fonte de aleatoriedade adequada para segurança e ter tamanho suficiente para tornar tentativas em massa inviáveis. Em Python, o módulo <code>secrets</code> existe para esse tipo de geração.</p>
-<p>Para um exercício descartável, <code>import secrets</code> seguido de <code>segredo = secrets.token_bytes(32)</code> pede 32 bytes à fonte de aleatoriedade do sistema operacional. <code>segredo.hex()</code> e <code>base64.b64encode(segredo)</code> apenas mudam a representação; não criam nem fortalecem o segredo.</p>
+<p>Para um exercício descartável, <code>import secrets</code> seguido de <code>segredo = secrets.token_bytes(32)</code> pede 32 bytes à fonte de aleatoriedade do sistema operacional. <code>segredo.hex()</code> e <code>base64.b64encode(segredo)</code> apenas mudam a representação; não criam nem fortalecem o segredo. Esses bytes são apenas material secreto didático. Transformá-los em uma chave privada válida exige o construtor, os formatos e as verificações do esquema ou da biblioteca escolhida.</p>
 
 <p>Uma chave privada é material binário sensível, gerado por máquina, com alta entropia, que precisa ser protegido desde o primeiro instante. Ela não deve ser tratada como senha memorizável.</p>
 
@@ -3171,9 +3189,9 @@ assert digest == "82b8d92e8002fb361fbb51df3bbc4195ccac0052baa0e124eda709122e38e2
 </div>
 <div class="selfcheck"><div class="box-label">Autoavaliação</div><p>Em caso de dúvida, retome a seção, refaça a Atividade 1 e consulte as referências do módulo.</p>
 <ul>
-<li><strong>Objetivo 1.</strong> gerar 32 bytes com <code>secrets.token_bytes(32)</code> e explicar por que isso é diferente de inventar uma frase;</li>
-<li><strong>Objetivo 2.</strong> converter um segredo descartável para hexadecimal e base64 sem confundir representação com proteção;</li>
-<li><strong>Objetivo 3.</strong> explicar, em suas palavras, a relação entre parte privada e parte pública;</li>
+<li><strong>Objetivo 1.</strong> gerar material secreto descartável como bytes usando a biblioteca padrão do Python;</li>
+<li><strong>Objetivo 2.</strong> explicar por que uma chave privada não deve ser inventada como frase humana simples;</li>
+<li><strong>Objetivo 3.</strong> diferenciar a parte privada, que deve ficar secreta, da parte pública, que pode ser compartilhada;</li>
 
 
 </ul></div>
@@ -3415,10 +3433,9 @@ print(assinatura)
 </div>
 <div class="selfcheck"><div class="box-label">Autoavaliação</div><p>Para revisar: Objetivo 1, atividade 2; Objetivo 2, atividade 1 ou 2 ou 3; Objetivo 3, atividade 1 ou 3. Retome antes a seção correspondente e, se necessário, as referências do módulo.</p>
 <ul>
-<li><strong>Objetivo 1.</strong> explicar por que uma imagem de assinatura não equivale a uma assinatura digital criptográfica;</li>
-<li><strong>Objetivo 2.</strong> listar as entradas e saídas das etapas de assinatura e verificação;</li>
-<li><strong>Objetivo 3.</strong> executar o modelo didático e identificar onde aparecem bytes, assinatura, parte privada e parte pública;</li>
-
+<li><strong>Objetivo 1.</strong> diferenciar uma assinatura manuscrita digitalizada de uma assinatura digital criptográfica;</li>
+<li><strong>Objetivo 2.</strong> descrever o que entra e o que sai de um processo de assinatura e verificação;</li>
+<li><strong>Objetivo 3.</strong> executar um modelo didático de assinatura e verificação usando apenas a biblioteca padrão do Python;</li>
 
 
 </ul></div>
@@ -3472,6 +3489,7 @@ print(assinatura)
 
 <h3 id="aula-0-5-s3">3. O que Cardano acrescenta ao contrato</h3>
 <p>Cardano não aceita uma assinatura isolada sem contexto. Para uma autorização por chave, o signer produz uma witness relacionada ao hash do corpo da transação. A witness contém a verification key e a assinatura. O ledger confere a assinatura e também relaciona o hash da verification key à credencial exigida pela entrada consumida.</p>
+<p>O gasto por credencial de chave é apenas um caso. O transaction body também pode declarar required signers; scripts nativos ou Plutus podem impor condições; minting policies controlam mint e burn. Por isso, não reduza toda autorização Cardano à frase “a assinatura corresponde ao input consumido”.</p>
 <p>Isso acrescenta regras que não pertencem ao Ed25519 genérico: formato da transação, cálculo do body hash, estrutura da witness, credencial de pagamento, rede e regras da era do ledger. Uma assinatura Ed25519 válida sobre outros bytes continua inadequada para aquela transação.</p>
 <p>As wallets de Cardano também usam derivação hierárquica de chaves. A CIP-1852 define caminhos para funções diferentes, e as ferramentas podem trabalhar com chaves estendidas. Portanto, um arquivo de chave Ed25519 criado por outra ferramenta não deve ser tratado como payment signing key de Cardano apenas porque menciona o mesmo esquema.</p>
 <p>A verificação do ledger sustenta uma conclusão delimitada: a chave exigida autorizou o corpo de transação aceito. Identidade institucional, competência para aprovar, correção do documento e verdade de um evento físico exigem evidências e regras adicionais.</p>
@@ -3525,9 +3543,11 @@ print(assinatura)
 <div class="closing"><h3>Fechamento</h3><p>Nesta aula, você separou a curva Edwards25519, o esquema Ed25519, sua implementação em biblioteca e o uso da assinatura em uma witness de Cardano. Essa separação permite ler APIs e resultados sem atribuir à curva ou à assinatura conclusões que pertencem ao protocolo, à custódia ou à governança.</p></div>
 <div class="selfcheck"><div class="box-label">Autoavaliação</div><p>Em caso de dúvida, retome a seção, refaça a Atividade 1 e consulte as referências do módulo.</p>
 <ul>
-<li><strong>Objetivo 1.</strong> explicar a diferença entre base matemática, esquema, implementação e protocolo;</li>
-<li><strong>Objetivo 2.</strong> listar as entradas e saídas de assinatura e verificação Ed25519;</li>
-<li><strong>Objetivo 3.</strong> delimitar o que a aplicação, a biblioteca e Cardano verificam.</li>
+<li><strong>Objetivo 1.</strong> diferenciar curva, esquema criptográfico, implementação e uso pelo protocolo;</li>
+<li><strong>Objetivo 2.</strong> identificar as entradas, as saídas e os limites das operações Ed25519;</li>
+<li><strong>Objetivo 3.</strong> separar as responsabilidades da aplicação, da biblioteca criptográfica e de Cardano.</li>
+
+
 </ul></div>
 <div class="bridge"><div class="box-label">Ponte para a próxima aula</div><p>Se a assinatura depende de material privado e as wallets derivam várias chaves, como uma frase de recuperação participa desse processo sem ser confundida com a própria chave de assinatura?</p></div>
 </article>
@@ -3621,7 +3641,8 @@ print(assinatura)
 <figure class="fig"><svg role="img" viewBox="0 0 640 210"><text class="dim" x="60" y="22">entropia · 128 bits</text><text class="dim" x="456" y="22">checksum · 4 bits</text><rect fill="var(--paper)" height="26" stroke="var(--ink)" stroke-width="1.1" width="384" x="60" y="30"></rect><text text-anchor="middle" x="252.0" y="47.5"></text><rect fill="var(--tint)" height="26" stroke="var(--ink)" stroke-width="1.1" width="14" x="444" y="30"></rect><text text-anchor="middle" x="451.0" y="47.5"></text><rect fill="var(--paper)" height="24" stroke="var(--ink)" stroke-width="1.1" width="30" x="60" y="100"></rect><text class="dim" text-anchor="middle" x="75.0" y="116.5">1</text><rect fill="var(--paper)" height="24" stroke="var(--ink)" stroke-width="1.1" width="30" x="94" y="100"></rect><text class="dim" text-anchor="middle" x="109.0" y="116.5">2</text><rect fill="var(--paper)" height="24" stroke="var(--ink)" stroke-width="1.1" width="30" x="128" y="100"></rect><text class="dim" text-anchor="middle" x="143.0" y="116.5">3</text><rect fill="var(--paper)" height="24" stroke="var(--ink)" stroke-width="1.1" width="30" x="162" y="100"></rect><text class="dim" text-anchor="middle" x="177.0" y="116.5">4</text><rect fill="var(--paper)" height="24" stroke="var(--ink)" stroke-width="1.1" width="30" x="196" y="100"></rect><text class="dim" text-anchor="middle" x="211.0" y="116.5">5</text><rect fill="var(--paper)" height="24" stroke="var(--ink)" stroke-width="1.1" width="30" x="230" y="100"></rect><text class="dim" text-anchor="middle" x="245.0" y="116.5">6</text><rect fill="var(--paper)" height="24" stroke="var(--ink)" stroke-width="1.1" width="30" x="264" y="100"></rect><text class="dim" text-anchor="middle" x="279.0" y="116.5">7</text><rect fill="var(--paper)" height="24" stroke="var(--ink)" stroke-width="1.1" width="30" x="298" y="100"></rect><text class="dim" text-anchor="middle" x="313.0" y="116.5">8</text><rect fill="var(--paper)" height="24" stroke="var(--ink)" stroke-width="1.1" width="30" x="332" y="100"></rect><text class="dim" text-anchor="middle" x="347.0" y="116.5">9</text><rect fill="var(--paper)" height="24" stroke="var(--ink)" stroke-width="1.1" width="30" x="366" y="100"></rect><text class="dim" text-anchor="middle" x="381.0" y="116.5">10</text><rect fill="var(--paper)" height="24" stroke="var(--ink)" stroke-width="1.1" width="30" x="400" y="100"></rect><text class="dim" text-anchor="middle" x="415.0" y="116.5">11</text><rect fill="var(--tint)" height="24" stroke="var(--ink)" stroke-width="1.1" width="30" x="434" y="100"></rect><text class="dim" text-anchor="middle" x="449.0" y="116.5">12</text><line stroke="var(--ink)" stroke-width="1.1" x1="258" x2="258" y1="56" y2="96"></line><polygon fill="var(--ink)" points="258,96 255.1,89.6 260.9,89.6"></polygon><text class="dim" text-anchor="middle" x="258.0" y="70.0">divide em 12 grupos de 11 bits</text><line stroke="var(--ink)" stroke-width="1.1" x1="258" x2="258" y1="124" y2="158"></line><polygon fill="var(--ink)" points="258,158 255.1,151.6 260.9,151.6"></polygon><text class="dim" text-anchor="middle" x="258.0" y="135.0">cada grupo é um índice</text><rect fill="var(--paper)" height="32" stroke="var(--ink)" stroke-width="1.1" width="260" x="128" y="162"></rect><text text-anchor="middle" x="258.0" y="182.5">12 palavras da lista de 2048</text><text class="mono" x="398" y="182">2048 = 2¹¹</text></svg><figcaption>BIP39: entropia mais checksum viram grupos de 11 bits; cada grupo indexa uma palavra da lista padronizada.</figcaption></figure>
 
 
-<p>Depois da frase, BIP39 ainda define uma etapa de derivação para produzir uma semente criptográfica. No uso comum, a frase, junto com uma passphrase opcional quando configurada, passa por uma função de derivação de chave. A carteira usa o resultado para derivar material de chave. Você não precisa decorar a função agora. O ponto pedagógico é a direção: entropia vira palavras para backup humano; palavras e parâmetros corretos permitem recuperar material de chave.</p>
+<p>Depois da frase, BIP39 ainda define uma etapa de derivação para produzir uma semente criptográfica. No uso comum, a frase e a passphrase opcional são normalizadas em Unicode NFKD e processadas por PBKDF2-HMAC-SHA512, conforme a especificação. A carteira usa a semente resultante em seu esquema de derivação. O ponto pedagógico é a direção: entropia vira palavras para backup humano; palavras, normalização, passphrase e parâmetros corretos permitem recuperar o mesmo material.</p>
+<p>Recuperar a mesma seed BIP39 não garante, sozinho, que duas wallets mostrem as mesmas contas. Compatibilidade também depende do esquema e do caminho de derivação, da rede, da descoberta de contas e endereços e de particularidades da implementação. Antes de depender de interoperabilidade, faça uma restauração de teste em ambiente controlado, sem expor uma frase de produção.</p>
 
 
 <h3 id="aula-0-6-s4">4. O que vaza quando a frase vaza</h3>
@@ -3679,6 +3700,7 @@ print(assinatura)
 </ol>
 <p>Classificar apenas pelo material ou pelo nome do recurso omite o procedimento de proteção e recuperação. Papel e metal só recebem a classificação <code>segura</code> nestes casos porque os enunciados também especificam proteção física e um procedimento de recuperação. Uma passphrase não é automaticamente uma melhoria. A decisão precisa combinar redução de cópias, controle de acesso, resistência física e recuperação possível.</p>
 </div></details>
+<div class="activity"><div class="box-label">Atividade 2: reconstrua a estrutura, sem gerar uma frase real</div><p>Para uma entropia fictícia de 128 bits, calcule o tamanho do checksum <code>CS = ENT / 32</code>, o total <code>ENT + CS</code> e a quantidade de palavras obtida ao dividir o fluxo em grupos de 11 bits. Registre também três condições de compatibilidade que precisam coincidir além das palavras.</p><details class="answer"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Resposta da atividade 2</summary><div class="answer-body"><p><code>CS = 128 / 32 = 4</code> bits; o fluxo tem <code>132</code> bits; <code>132 / 11 = 12</code> palavras. Além das palavras e da ordem, precisam coincidir, entre outros elementos, a passphrase e normalização usadas na seed, o esquema e caminho de derivação, a rede e a estratégia de descoberta de contas e endereços.</p></div></details></div>
 
 <div class="closing"><h3>Fechamento</h3><p>Nesta aula, você transformou a ideia de chave privada em um problema operacional concreto: material secreto precisa ser recuperável sem deixar de ser secreto. Bytes são bons para máquinas, mas ruins para pessoas. A frase de recuperação aparece para fazer essa ponte.</p>
 
@@ -3686,9 +3708,9 @@ print(assinatura)
 </div>
 <div class="selfcheck"><div class="box-label">Autoavaliação</div><p>Em caso de dúvida, retome a seção, refaça a Atividade 1 e consulte as referências do módulo.</p>
 <ul>
-<li><strong>Objetivo 1.</strong> explicar por que uma frase de recuperação não deve ser inventada por uma pessoa;</li>
-<li><strong>Objetivo 2.</strong> descrever a sequência entropia, checksum, índices e palavras em BIP39;</li>
-<li><strong>Objetivo 3.</strong> dizer por que o checksum ajuda, mas não transforma uma frase exposta em frase segura;</li>
+<li><strong>Objetivo 1.</strong> explicar por que bytes secretos precisam de uma forma humana de backup;</li>
+<li><strong>Objetivo 2.</strong> diferenciar uma frase de recuperação gerada por padrão de uma frase inventada por uma pessoa;</li>
+<li><strong>Objetivo 3.</strong> descrever, em alto nível, como BIP39 combina entropia, lista de palavras e checksum;</li>
 
 
 </ul></div>
@@ -3744,7 +3766,7 @@ print(assinatura)
 
 
 
-<p>Use esta regra curta:</p><div class="sp-grid3"><div class="sp-col sp-box"><div class="sp-col-title">mainnet</div><p>ambiente vivo, valor real, máximo cuidado.</p></div><div class="sp-col sp-box"><div class="sp-col-title">testnet</div><p>categoria de ambiente de teste, valor sem equivalência econômica real.</p></div><div class="sp-col sp-box"><div class="sp-col-title">preprod</div><p>rede de teste específica, útil para simular operação próxima de produção.</p></div></div>
+<p>Use esta regra curta:</p><div class="sp-grid3"><div class="sp-col sp-box"><div class="sp-col-title">mainnet</div><p>ambiente vivo, com ativos que podem ter valor econômico, máximo cuidado.</p></div><div class="sp-col sp-box"><div class="sp-col-title">testnet</div><p>categoria de ambiente de teste; seus tokens de teste não são ADA de mainnet, embora acesso e recursos ao redor do ambiente ainda possam ter custo ou valor operacional.</p></div><div class="sp-col sp-box"><div class="sp-col-title">preprod</div><p>rede de teste específica, útil para simular operação próxima de produção.</p></div></div>
 <h3 id="aula-0-7-s5">5. Erros comuns de rede e cópia</h3>
 <p>Os erros mais comuns nesta etapa não exigem falha criptográfica. Eles acontecem na fronteira entre pessoa, interface e contexto.</p>
 <p>Um erro é copiar o endereço certo da rede errada. Você estava estudando em preprod, troca de aba, volta para a carteira e não percebe que a rede selecionada mudou ou continuou diferente do esperado.</p>
@@ -3801,10 +3823,9 @@ print(assinatura)
 </div>
 <div class="selfcheck"><div class="box-label">Autoavaliação</div><p>Em caso de dúvida, retome a seção, refaça a Atividade 1 e consulte as referências do módulo.</p>
 <ul>
-<li><strong>Objetivo 1.</strong> explicar por que a carteira não é apenas saldo na tela;</li>
-<li><strong>Objetivo 2.</strong> separar frase de recuperação, chave privada, chave pública, endereço e rede;</li>
-<li><strong>Objetivo 3.</strong> dizer por que um endereço é público, mas ainda pode ter impacto de privacidade;</li>
-
+<li><strong>Objetivo 1.</strong> diferenciar carteira, segredo, endereço e rede no fluxo de uso;</li>
+<li><strong>Objetivo 2.</strong> classificar quais informações podem circular e quais devem permanecer protegidas;</li>
+<li><strong>Objetivo 3.</strong> explicar por que um endereço só faz sentido dentro de uma rede específica;</li>
 
 
 </ul></div>
@@ -3905,6 +3926,7 @@ print("busca pequena sem nonce encontrou?", encontrou_sem_nonce)
 
 
 <p>Portanto, use esta regra: hash prova igualdade de bytes, não segredo por si só.</p>
+<p>No exemplo, o nonce precisa ser gerado com entropia suficiente, mantido fora da rede e preservado junto do dado para a abertura futura. A abertura apresenta os bytes originais e o nonce; o verificador recompõe exatamente a mensagem e recalcula o hash. Perder o nonce impede demonstrar a abertura; reutilizá-lo ou escolher um valor previsível pode facilitar correlação ou busca. Mesmo com nonce, o compromisso e a abertura não tornam dados pessoais automaticamente anônimos.</p>
 
 
 <h3 id="aula-0-8-s4">4. Referências off-chain</h3>
@@ -3915,7 +3937,7 @@ print("busca pequena sem nonce encontrou?", encontrou_sem_nonce)
 <ol>
 <li>A referência responde: onde buscar ou solicitar o dado?</li>
 <li>O hash responde: os bytes recebidos são os mesmos do compromisso registrado?</li>
-<li>A assinatura ou identidade do emissor responde: quem assumiu responsabilidade por aqueles bytes?</li>
+<li>A verificação da assinatura responde: a chave privada correspondente autorizou estes bytes? A associação da chave a uma identidade, sua custódia, o papel e a política respondem separadamente quem pode ser responsabilizado pelo ato.</li>
 </ol>
 
 <p>Esse limite é central. Redes públicas são boas para verificar registros, compromissos e autorizações digitais. Elas não substituem coleta de evidência, governança, processo de auditoria, controle de acesso e responsabilidade institucional.</p>
@@ -4053,21 +4075,24 @@ print("busca pequena sem nonce encontrou?", encontrou_sem_nonce)
 </div>
 <div class="selfcheck"><div class="box-label">Autoavaliação</div><p>Em caso de dúvida, retome a seção, refaça a Atividade 1 e consulte as referências do módulo.</p>
 <ul>
-<li><strong>Objetivo 1.</strong> explicar por que uma rede pública não deve ser tratada como banco de dados geral;</li>
-<li><strong>Objetivo 2.</strong> classificar um campo como dado público, dado sensível, hash, referência ou nada;</li>
-<li><strong>Objetivo 3.</strong> justificar por que hash de dado previsível pode vazar informação;</li>
+<li><strong>Objetivo 1.</strong> diferenciar dado público, dado sensível, hash, referência e ausência de registro;</li>
+<li><strong>Objetivo 2.</strong> explicar por que permanência, custo e privacidade mudam a decisão sobre o que vai on-chain;</li>
+<li><strong>Objetivo 3.</strong> avaliar quando um hash funciona como compromisso verificável e quando pode vazar informação por previsibilidade;</li>
 
 
 </ul></div>
 <div class="bridge"><div class="box-label">Ponte para a próxima aula</div><p>Se você decidiu registrar apenas um compromisso mínimo, como deve preparar os bytes e o formato para que a verificação futura não dependa de interpretação ambígua?</p></div>
-</article><section class="module-references" id="referencias-modulo-0"><h2>Referências do Módulo 0</h2><p>Use estas fontes para aprofundar definições e conferir detalhes que a apostila resume.</p><ul class="sources-list">
+</article><section class="module-references" id="referencias-modulo-0"><h2>Referências do Módulo 0</h2><p>Use estas fontes para aprofundar definições e conferir detalhes que o guia resume.</p><ul class="sources-list">
 <li><a href="https://www.unicode.org/versions/latest/" rel="noopener" target="_blank">Unicode Standard</a>: caracteres, pontos de código e codificações.</li>
 <li><a href="https://www.rfc-editor.org/rfc/rfc4648" rel="noopener" target="_blank">RFC 4648</a>: Base16, Base32 e Base64.</li>
 <li><a href="https://csrc.nist.gov/pubs/fips/180-4/upd1/final" rel="noopener" target="_blank">NIST FIPS 180-4</a>: funções hash seguras, incluindo SHA-256.</li>
 <li><a href="https://csrc.nist.gov/pubs/fips/186-5/final" rel="noopener" target="_blank">NIST FIPS 186-5</a>: padrões de assinatura digital.</li>
+<li><a href="https://pages.nist.gov/800-63-4/sp800-63b.html" rel="noopener" target="_blank">NIST SP 800-63B</a>: autenticação e armazenamento de verificadores de senha.</li>
+<li><a href="https://www.rfc-editor.org/rfc/rfc9106" rel="noopener" target="_blank">RFC 9106</a>: Argon2 e perfis Argon2id.</li>
 <li><a href="https://www.rfc-editor.org/rfc/rfc8032" rel="noopener" target="_blank">RFC 8032</a>: EdDSA, Ed25519 e Ed448.</li>
 <li><a href="https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki" rel="noopener" target="_blank">BIP-39</a>: mnemônicos para geração de sementes determinísticas.</li>
 <li><a href="https://cips.cardano.org/cip/CIP-1852" rel="noopener" target="_blank">CIP-1852</a>: derivação hierárquica de carteiras Cardano.</li>
+<li><a href="https://cips.cardano.org/cip/CIP-0019" rel="noopener" target="_blank">CIP-19</a>: estrutura e codificação dos endereços Cardano.</li>
 </ul></section>
 <section class="module-divider mod-1" id="modulo-1">
   <div class="module-divider-num">Módulo 1</div>
@@ -4148,7 +4173,7 @@ a264726564656770726570726f646a7175616e74696461646505
 <p>Transações reais contêm estruturas maiores e campos específicos da era. Endereços, hashes e identificadores aparecem como bytes, não como os textos amigáveis exibidos pela interface. Não tente montar esse CBOR manualmente: use uma biblioteca compatível com a era e confira a estrutura antes de assinar.</p>
 
 <h4>Corpo, identificador e witnesses</h4>
-<p>O corpo da transação é serializado antes da autorização. O identificador da transação deriva do corpo serializado, e os witnesses autorizam o hash desse corpo. A assinatura não pode fazer parte dos bytes que ela própria autoriza; ela entra no witness set anexado ao corpo.</p>
+<p>O corpo da transação é serializado antes da autorização. Em Cardano, o identificador da transação é o digest Blake2b-256 dos bytes CBOR do transaction body conforme a era do ledger. As vkey witnesses assinam esse mesmo body hash. A assinatura não pode fazer parte dos bytes que ela própria autoriza; ela entra no transaction witness set anexado ao corpo. O witness set também pode carregar scripts, datums e redeemers exigidos pela transação, conforme a era e o tipo de script.</p>
 
 <p>Em interfaces como CIP-30, os bytes CBOR costumam atravessar a API escritos como hexadecimal. Um argumento chamado <code>cbor</code> ou uma string como <code>84a4...</code> não é JSON, não é texto do contrato e não é material secreto. É uma representação textual dos bytes serializados.</p>
 
@@ -4261,11 +4286,9 @@ print("hash canonico B:", resumir(canonico_b))
 </div>
 <div class="selfcheck"><div class="box-label">Autoavaliação</div><p>Em caso de dúvida, retome a seção, refaça a Atividade 1 e consulte as referências do módulo.</p>
 <ul>
-<li><strong>Objetivo 1.</strong> explicar a diferença entre intenção humana e pacote de transação;</li>
-<li><strong>Objetivo 2.</strong> apontar campos mínimos em uma transação didática;</li>
-<li><strong>Objetivo 3.</strong> dizer por que validação é aplicação de regras, não interpretação de vontade;</li>
-
-
+<li><strong>Objetivo 1.</strong> diferenciar intenção humana e pacote técnico de transação;</li>
+<li><strong>Objetivo 2.</strong> identificar corpo, witnesses, representação CBOR e bytes usados no identificador de uma transação;</li>
+<li><strong>Objetivo 3.</strong> explicar como regras de validação aceitam ou recusam um pacote;</li>
 
 
 </ul></div>
@@ -4591,7 +4614,7 @@ print("hash canonico B:", resumir(canonico_b))
 </tr>
 </tbody>
 </table></div>
-<p>Nesta atividade, <code>regra_de_versao</code> define quatro condições explícitas: a transação deve criar uma única saída sucessora presa à mesma regra; essa saída deve preservar o valor 2; a nova versão deve ser exatamente a versão anterior mais 1; e, se qualquer condição falhar, a transação inteira é rejeitada, sem consumir <code>r#0</code>.</p>
+<p>Nesta atividade, <code>regra_de_versao</code> define três condições explícitas: a transação deve criar uma única saída sucessora presa à mesma regra; essa saída deve preservar o valor 2; e a nova versão deve ser exatamente a versão anterior mais 1. A rejeição integral, sem consumir <code>r#0</code>, é a consequência de falhar qualquer uma dessas condições.</p>
 
 <form class="activity-quiz" data-answer="answer-aula-1-2-a4" id="quiz-aula-1-2-a4">
 <fieldset class="quiz-question">
@@ -4653,10 +4676,9 @@ print("hash canonico B:", resumir(canonico_b))
 </div>
 <div class="selfcheck"><div class="box-label">Autoavaliação</div><p>Em caso de dúvida, retome a seção, refaça a Atividade 1 e consulte as referências do módulo.</p>
 <ul>
-<li><strong>Objetivo 1.</strong> explicar por que saldo de carteira pode ser soma de várias saídas não gastas;</li>
-<li><strong>Objetivo 2.</strong> identificar entradas consumidas e saídas criadas em um exemplo pequeno;</li>
-<li><strong>Objetivo 3.</strong> calcular troco usando entrada, pagamento e taxa;</li>
-
+<li><strong>Objetivo 1.</strong> representar um saldo como soma de saídas não gastas, em vez de uma variável única de conta;</li>
+<li><strong>Objetivo 2.</strong> descrever uma transação como consumo de entradas e criação de novas saídas;</li>
+<li><strong>Objetivo 3.</strong> calcular entrada, saída, taxa e troco em um cenário pequeno;</li>
 
 
 </ul></div>
@@ -4673,7 +4695,7 @@ print("hash canonico B:", resumir(canonico_b))
 <ol class="objective-list">
 <li>explicar taxa como uma regra de uso de recursos da rede;</li>
 <li>calcular uma taxa didática a partir de tamanho e custo de recursos;</li>
-<li>relacionar tamanho, metadados, assinaturas e regras de validação ao custo de uma transação;</li>
+<li>relacionar tamanho, metadados, assinaturas e intervalo de validade ao custo e à aceitação de uma transação;</li>
 
 
 </ol></div>
@@ -4736,12 +4758,13 @@ for tx in transacoes:
 <figure class="fig"><svg role="img" viewBox="0 0 660 210"><text class="dim" text-anchor="start" x="96" y="30">base fixa</text><text class="dim" text-anchor="start" x="272.0" y="30">por byte</text><text class="dim" text-anchor="start" x="323.0" y="30">por operação</text><text text-anchor="end" x="82" y="70">A</text><rect fill="var(--paper)" height="26" stroke="var(--ink)" stroke-width="1.1" width="170.0" x="96" y="52"></rect><rect fill="var(--tint)" height="26" stroke="var(--ink)" stroke-width="1.1" width="29.9" x="266.0" y="52"></rect><rect fill="var(--ink)" height="26" stroke="var(--ink)" stroke-width="1.1" width="1.7" x="295.9" y="52"></rect><text class="mono" x="307.6" y="70">237 200</text><text text-anchor="end" x="82" y="128">B</text><rect fill="var(--paper)" height="26" stroke="var(--ink)" stroke-width="1.1" width="170.0" x="96" y="110"></rect><rect fill="var(--tint)" height="26" stroke="var(--ink)" stroke-width="1.1" width="48.6" x="266.0" y="110"></rect><rect fill="var(--ink)" height="26" stroke="var(--ink)" stroke-width="1.1" width="1.7" x="314.6" y="110"></rect><text class="mono" x="326.3" y="128">259 200</text><text text-anchor="end" x="82" y="186">C</text><rect fill="var(--paper)" height="26" stroke="var(--ink)" stroke-width="1.1" width="170.0" x="96" y="168"></rect><rect fill="var(--tint)" height="26" stroke="var(--ink)" stroke-width="1.1" width="48.6" x="266.0" y="168"></rect><rect fill="var(--ink)" height="26" stroke="var(--ink)" stroke-width="1.1" width="86.7" x="314.6" y="168"></rect><text class="mono" x="411.3" y="186">359 200</text><text class="dim" text-anchor="start" x="96" y="100">+500 bytes de metadados</text><text class="dim" text-anchor="start" x="96" y="158">+2 operações com regra</text></svg><figcaption>A mesma fórmula didática nas três transações: a base é fixa; metadados aumentam a fatia por byte de A para B; as operações com regra dominam o custo de C sem mudar o tamanho.</figcaption></figure>
 
 <h3 id="aula-1-3-s3">3. Validade temporal</h3>
-<p>Uma transação também precisa de validade no tempo. Isso evita que uma intenção antiga circule indefinidamente e seja aceita em um contexto que já não faz sentido para quem a assinou.</p>
+<p>Uma aplicação costuma declarar uma janela de validade para limitar quando a intenção pode ser aceita. No ledger Cardano, os limites inferior e superior são campos opcionais conforme a era; sua ausência ou presença precisa seguir as regras vigentes e a política da aplicação. Um limite superior finito evita que aquela proposta específica permaneça aceitável indefinidamente.</p>
 <p>Pense em uma carteira que monta uma transação agora. Ela seleciona entradas, calcula taxa, cria troco e pede assinatura. Se esse pacote ficar parado por muito tempo, várias coisas podem mudar: uma entrada pode ser consumida por outra transação, os parâmetros da rede podem mudar, o usuário pode desistir, ou a aplicação pode não querer mais registrar aquela operação.</p>
 
 
 
 <p>Uma assinatura válida não torna a transação eterna: se o conteúdo assinado inclui um limite de tempo, a própria autorização fica presa a esse limite.</p>
+<p>Em Cardano, o corpo pode declarar um intervalo com limite inferior (<code>invalid_before</code>) e limite superior (<code>invalid_hereafter</code>). O ledger compara esse intervalo com o slot em que a transação é processada. O “slot atual” mostrado por wallet, API ou explorer não é um campo mágico da transação: é uma observação externa usada pelo builder para escolher margens e pelo operador para decidir se ainda há tempo de submeter.</p>
 <figure class="fig"><svg role="img" viewBox="0 0 660 180"><rect fill="var(--tint)" height="66" stroke="var(--rule-soft)" stroke-dasharray="6 4" stroke-width="1" width="330" x="120" y="52"></rect><text class="cap" x="130" y="70">janela de validade</text><rect fill="none" height="66" stroke="var(--rule-soft)" stroke-dasharray="6 4" stroke-width="1" width="180" x="450" y="52"></rect><text class="dim" text-anchor="start" x="460" y="70">expirada: recusada</text><text class="dim" text-anchor="start" x="460" y="88">mesmo bem assinada</text><line stroke="var(--ink)" stroke-width="1.1" x1="30" x2="646" y1="140" y2="140"></line><polygon fill="var(--ink)" points="646,140 639.6,142.9 639.6,137.1"></polygon><text class="dim" text-anchor="end" x="640" y="158">slots</text><line stroke="var(--ink)" stroke-width="1.1" x1="120" x2="120" y1="134" y2="146"></line><text class="mono" text-anchor="middle" x="120" y="162">182440</text><text class="dim" text-anchor="middle" x="120" y="42">monta e assina</text><line stroke="var(--ink)" stroke-width="1.1" x1="300" x2="300" y1="134" y2="146"></line><text class="mono" text-anchor="middle" x="300" y="162">182470</text><text class="dim" text-anchor="middle" x="300" y="42">submete e propaga</text><line stroke="var(--ink)" stroke-width="1.1" x1="450" x2="450" y1="134" y2="146"></line><text class="mono" text-anchor="middle" x="450" y="162">182500</text><text class="dim" text-anchor="middle" x="450" y="42">valido_ate</text></svg><figcaption>A autorização vale dentro do intervalo declarado no corpo: depois do slot 182500 o pacote expira, ainda que a assinatura continue matematicamente correta.</figcaption></figure>
 
 
@@ -4750,7 +4773,7 @@ for tx in transacoes:
 <p>Antes da submissão, revise três grupos de dependências. Um erro em qualquer grupo pode invalidar o pacote ou produzir uma operação diferente da intenção revisada.</p>
 <ul>
 <li><strong>Contabilidade e disponibilidade.</strong> As entradas ainda precisam estar não gastas e cobrir destinatários, troco e taxa. Se o pacote cresce e a taxa é recalculada, o troco também precisa ser revisto.</li>
-<li><strong>Consistência do pacote.</strong> Tamanho, metadata, intervalo de validade e witnesses devem corresponder à versão final do corpo. Alterar qualquer campo depois da assinatura exige reconstruir as autorizações afetadas.</li>
+<li><strong>Consistência do pacote.</strong> Tamanho, metadata, intervalo de validade e witnesses devem corresponder à versão final. Alterar o transaction body invalida witnesses do corpo anterior e muda o transaction ID. Alterar auxiliary data exige atualizar seu hash no body e assinar de novo. Já componentes fora do body, como o próprio witness set, não entram no cálculo do transaction ID.</li>
 <li><strong>Rede e ambiente.</strong> Carteira, endereço, API, explorer e nó precisam apontar para a mesma rede. Dados de teste não devem ser confundidos com operações de Mainnet.</li>
 </ul>
 <h3 id="aula-1-3-s5">5. Checklist operacional</h3>
@@ -4832,10 +4855,9 @@ for tx in transacoes:
 </div>
 <div class="selfcheck"><div class="box-label">Autoavaliação</div><p>Em caso de dúvida, retome a seção, refaça a Atividade 1 e consulte as referências do módulo.</p>
 <ul>
-<li><strong>Objetivo 1.</strong> explicar por que taxa é uma regra de uso de recursos;</li>
-<li><strong>Objetivo 2.</strong> calcular uma taxa didática usando tamanho e complexidade;</li>
-<li><strong>Objetivo 3.</strong> dizer por que metadados e assinaturas podem mudar custo;</li>
-
+<li><strong>Objetivo 1.</strong> explicar taxa como uma regra de uso de recursos da rede;</li>
+<li><strong>Objetivo 2.</strong> calcular uma taxa didática a partir de tamanho e custo de recursos;</li>
+<li><strong>Objetivo 3.</strong> relacionar tamanho, metadados, assinaturas e intervalo de validade ao custo e à aceitação de uma transação;</li>
 
 
 </ul></div>
@@ -4881,6 +4903,7 @@ for tx in transacoes:
   "referencia": "https://example.org/evidencias/evt-001.json"
 }
 </code></pre>
+<p>Esse objeto mostra apenas o conteúdo lógico da aplicação. Metadata de transação válida precisa ser codificada como mapa de labels inteiros para metadatum aceito pelo ledger, respeitando tipos e limites da era e da biblioteca. Um label usado por uma aplicação precisa ser documentado; não presuma que o objeto JSON isolado seja a estrutura completa on-chain.</p>
 
 <p>Isso já mostra a ideia central: metadata é boa para apontar, contextualizar e comprometer bytes. Ela é ruim como substituta de modelagem off-chain, armazenamento documental, controle de acesso e governança de dados.</p>
 <div class="emwords"><span class="emwords-label">Em palavras</span><p>metadata é uma etiqueta técnica dentro do pacote, não um banco de dados completo.</p></div>
@@ -4888,7 +4911,7 @@ for tx in transacoes:
 
 <h3 id="aula-1-4-s2">2. O que a rede valida e o que ela apenas carrega</h3>
 <p>A rede valida a transação como pacote. Ela confere se a estrutura é aceita, se os bytes seguem o formato esperado, se os limites de tamanho foram respeitados, se as entradas e saídas fazem sentido, se a taxa cobre o pacote, se a validade temporal ainda está aberta e se as autorizações exigidas estão corretas.</p>
-<p>Quando metadata está presente, a rede também pode validar aspectos formais desse anexo: se ele está no lugar correto, se a representação é válida e se não ultrapassa limites aplicáveis. Em Cardano, por exemplo, metadata faz parte dos dados auxiliares da transação e é serializada em formato binário. Ferramentas podem exibir uma versão amigável em JSON, mas a validação ocorre sobre dados representados conforme as regras do protocolo.</p>
+<p>Quando metadata está presente, a rede também pode validar aspectos formais desse anexo: se ele está no lugar correto, se a representação é válida e se não ultrapassa limites aplicáveis. Em Cardano, metadata integra os auxiliary data serializados separadamente do transaction body. O corpo carrega o <code>auxiliary_data_hash</code> que compromete esses bytes. Por isso, mudar metadata altera esse hash, altera o body hash e exige recalcular taxa e witnesses. Ferramentas podem exibir uma versão amigável em JSON, mas a validação ocorre sobre dados representados conforme as regras do protocolo.</p>
 
 <p>Também existe uma diferença entre URL e conteúdo. Uma URL pode falhar amanhã, exigir autenticação ou passar a apontar para outro conteúdo; sozinha, ela é fraca como prova. Hash e URL juntos são melhores: a URL localiza, o hash verifica.</p>
 
@@ -4910,7 +4933,21 @@ for tx in transacoes:
 
 <p>Nem todo dado conveniente para a aplicação é adequado como metadata de transação. Texto longo, objetos muito profundos, campos sem versão e valores ambíguos dificultam a verificação. Quando o dado precisa ser grande ou rico, mantenha um documento off-chain bem modelado e anexe apenas o hash, a versão do esquema e uma referência.</p>
 <div class="activity"><div class="box-label">Atividade 1: localize e normalize a metadata</div>
-<p>Dois registros contêm os mesmos campos, mas diferem na ordem das chaves, nos espaços ao redor de <code>lab-17</code> e na escrita de <code>SHA256</code> e <code>sha256</code>. Analise as etapas:</p>
+<p>Dois registros contêm os mesmos campos, mas diferem na ordem das chaves, nos espaços ao redor de <code>lab-17</code> e na escrita de <code>SHA256</code> e <code>sha256</code>. Estes são os dois estímulos completos da atividade:</p>
+<div class="sp-compare"><div class="sp-col"><div class="sp-col-title">Registro A</div><pre><code class="language-json">{
+  "versao_schema": "1.0",
+  "emissor": " lab-17 ",
+  "algoritmo": "SHA256",
+  "digest_hex": "0f0f0f0f"
+}
+</code></pre></div><div class="sp-col"><div class="sp-col-title">Registro B</div><pre><code class="language-json">{
+  "digest_hex": "0f0f0f0f",
+  "algoritmo": "sha256",
+  "emissor": "lab-17",
+  "versao_schema": "1.0"
+}
+</code></pre></div></div>
+<p>O digest foi abreviado para tornar a comparação legível. Analise as etapas:</p>
 <div class="table-scroll"><table>
 <thead><tr><th>Etapa</th><th>Regra aplicada</th></tr></thead>
 <tbody>
@@ -5074,10 +5111,9 @@ assert all(len(sha256_hex(caso)) == 64 for caso in casos.values())
 </div>
 <div class="selfcheck"><div class="box-label">Autoavaliação</div><p>Para revisar: Objetivo 1, atividade 1; Objetivo 2, atividade 1 ou 2; Objetivo 3, atividade 1 ou 2. Retome antes a seção correspondente e, se necessário, as referências do módulo.</p>
 <ul>
-<li><strong>Objetivo 1.</strong> explicar metadata como anexo estruturado, não como banco de dados;</li>
-<li><strong>Objetivo 2.</strong> dizer o que a rede valida e o que fica para aplicação e governança;</li>
-<li><strong>Objetivo 3.</strong> comparar custo e risco de payloads pequenos e grandes;</li>
-
+<li><strong>Objetivo 1.</strong> explicar metadata como anexo estruturado de uma transação;</li>
+<li><strong>Objetivo 2.</strong> diferenciar o que a rede valida do que ela apenas carrega;</li>
+<li><strong>Objetivo 3.</strong> avaliar representação, tamanho, custo e permanência antes de anexar dados;</li>
 
 
 </ul></div>
@@ -5125,6 +5161,7 @@ assert all(len(sha256_hex(caso)) == 64 for caso in casos.values())
 
 
 <div class="emwords"><span class="emwords-label">Em palavras</span><p>metadata ajuda a explicar, indexar ou contextualizar; o ativo nativo é contabilizado pela própria estrutura de valor da transação.</p></div>
+<p>Contabilidade nativa no ledger não significa privilégios idênticos aos de ADA. Um ativo arbitrário não herda automaticamente o papel de ADA em taxas, staking, rewards, depósitos ou governança do protocolo.</p>
 <p>Essa separação evita um erro comum. Se você escreve em metadata <code>nome: TOKEN</code>, isso não cria, por si só, um ativo chamado <code>TOKEN</code>. Para existir como ativo nativo, ele precisa aparecer no valor da transação com uma identidade técnica própria.</p>
 <h3 id="aula-1-5-s2">2. Policy ID como parte da identidade</h3>
 <p>O policy ID é uma parte da identidade do ativo. Ele identifica a política associada à criação e destruição de unidades daquele ativo. Para esta aula, basta pensar na política como o conjunto de condições que autoriza cunhar ou queimar unidades. Não precisamos abrir a mecânica interna dessa política agora.</p>
@@ -5269,10 +5306,9 @@ assert all(len(sha256_hex(caso)) == 64 for caso in casos.values())
 </div>
 <div class="selfcheck"><div class="box-label">Autoavaliação</div><p>Em caso de dúvida, retome a seção, refaça a Atividade 1 e consulte as referências do módulo.</p>
 <ul>
-<li><strong>Objetivo 1.</strong> explicar por que metadata descritiva não cria, sozinha, um ativo nativo;</li>
-<li><strong>Objetivo 2.</strong> dizer por que dois ativos chamados <code>TOKEN</code> podem ser ativos técnicos diferentes;</li>
-<li><strong>Objetivo 3.</strong> converter um texto simples para UTF-8 e hex;</li>
-
+<li><strong>Objetivo 1.</strong> diferenciar metadata anexada a uma transação de um ativo nativo representado pelo ledger;</li>
+<li><strong>Objetivo 2.</strong> explicar por que policy ID faz parte da identidade de um ativo;</li>
+<li><strong>Objetivo 3.</strong> converter nomes textuais simples para bytes e representação hexadecimal;</li>
 
 
 </ul></div>
@@ -5314,7 +5350,7 @@ assert all(len(sha256_hex(caso)) == 64 for caso in casos.values())
 <p>A avaliação do explorer precisa identificar qual dado foi observado, em qual rede, por qual caminho e representação, e qual conclusão essa evidência permite tirar.</p>
 
 
-<figure class="fig"><svg role="img" viewBox="0 0 880 444"><rect fill="var(--paper)" height="412" stroke="var(--ink)" stroke-width="1.2" width="424" x="24" y="16"></rect><line stroke="var(--rule)" stroke-width="1" x1="24" x2="448" y1="44" y2="44"></line><text class="cap" x="38" y="35">explorer · transação</text><rect fill="var(--tint)" height="58" stroke="none" width="396" x="38" y="58"></rect><text class="mono" x="48" y="82">rede: preprod · status: incluída em bloco</text><text class="mono" x="48" y="104">tempo exibido: 2026-07-10 14:32 UTC</text><rect fill="var(--tint)" height="80" stroke="none" width="396" x="38" y="152"></rect><text class="mono" x="48" y="176">tx 9d2e9ab0…7d9b81a0</text><text class="mono" x="48" y="198">bloco 4289173 · slot 81234567</text><text class="mono" x="48" y="220">taxa 0.174321 ada</text><rect fill="var(--tint)" height="58" stroke="none" width="396" x="38" y="268"></rect><text class="mono" x="48" y="292">metadata 1001: sha256</text><text class="mono" x="48" y="314">digest c49fd5cd…252d316d · url</text><rect fill="var(--tint)" height="58" stroke="none" width="396" x="38" y="352"></rect><text class="mono" x="48" y="376">mint +1 · policy 7f1a8c0b…d4c201</text><text class="mono" x="48" y="398">asset 434552542d303031 → CERT-001</text><line stroke="var(--ink-dim)" stroke-dasharray="3 3" stroke-width="1" x1="434" x2="468" y1="86" y2="86"></line><text class="dim" text-anchor="start" x="474" y="90">leitura da interface: status e tempo são apresentação</text><line stroke="var(--ink-dim)" stroke-dasharray="3 3" stroke-width="1" x1="434" x2="468" y1="188" y2="188"></line><text class="dim" text-anchor="start" x="474" y="192">estrutura do ledger: identificadores completos, sem truncar</text><line stroke="var(--ink-dim)" stroke-dasharray="3 3" stroke-width="1" x1="434" x2="468" y1="296" y2="296"></line><text class="dim" text-anchor="start" x="474" y="300">declaração carregada: o digest se confere fora da rede</text><line stroke="var(--ink-dim)" stroke-dasharray="3 3" stroke-width="1" x1="434" x2="468" y1="382" y2="382"></line><text class="dim" text-anchor="start" x="474" y="386">identidade em bytes; CERT-001 é tradução da interface</text></svg><figcaption>A mesma tela mistura camadas: dados do ledger, leitura indexada, declarações carregadas e traduções amigáveis. A conferência técnica preserva os valores completos, não os rótulos.</figcaption></figure>
+<figure class="fig"><p><strong>Captura didática:</strong> os identificadores, blocos, horários e valores abaixo são fictícios e servem somente para leitura de interface.</p><svg role="img" viewBox="0 0 880 444"><rect fill="var(--paper)" height="412" stroke="var(--ink)" stroke-width="1.2" width="424" x="24" y="16"></rect><line stroke="var(--rule)" stroke-width="1" x1="24" x2="448" y1="44" y2="44"></line><text class="cap" x="38" y="35">explorer · transação</text><rect fill="var(--tint)" height="58" stroke="none" width="396" x="38" y="58"></rect><text class="mono" x="48" y="82">rede: preprod · status: incluída em bloco</text><text class="mono" x="48" y="104">tempo exibido: 2026-07-10 14:32 UTC</text><rect fill="var(--tint)" height="80" stroke="none" width="396" x="38" y="152"></rect><text class="mono" x="48" y="176">tx 9d2e9ab0…7d9b81a0</text><text class="mono" x="48" y="198">bloco 4289173 · slot 81234567</text><text class="mono" x="48" y="220">taxa 0.174321 ada</text><rect fill="var(--tint)" height="58" stroke="none" width="396" x="38" y="268"></rect><text class="mono" x="48" y="292">metadata 1001: sha256</text><text class="mono" x="48" y="314">digest c49fd5cd…252d316d · url</text><rect fill="var(--tint)" height="58" stroke="none" width="396" x="38" y="352"></rect><text class="mono" x="48" y="376">mint +1 · policy 7f1a8c0b…d4c201</text><text class="mono" x="48" y="398">asset 434552542d303031 → CERT-001</text><line stroke="var(--ink-dim)" stroke-dasharray="3 3" stroke-width="1" x1="434" x2="468" y1="86" y2="86"></line><text class="dim" text-anchor="start" x="474" y="90">leitura da interface: status e tempo são apresentação</text><line stroke="var(--ink-dim)" stroke-dasharray="3 3" stroke-width="1" x1="434" x2="468" y1="188" y2="188"></line><text class="dim" text-anchor="start" x="474" y="192">estrutura do ledger: identificadores completos, sem truncar</text><line stroke="var(--ink-dim)" stroke-dasharray="3 3" stroke-width="1" x1="434" x2="468" y1="296" y2="296"></line><text class="dim" text-anchor="start" x="474" y="300">declaração carregada: o digest se confere fora da rede</text><line stroke="var(--ink-dim)" stroke-dasharray="3 3" stroke-width="1" x1="434" x2="468" y1="382" y2="382"></line><text class="dim" text-anchor="start" x="474" y="386">identidade em bytes; CERT-001 é tradução da interface</text></svg><figcaption>A mesma tela mistura camadas: dados do ledger, leitura indexada, declarações carregadas e traduções amigáveis. A conferência técnica preserva os valores completos, não os rótulos.</figcaption></figure>
 
 <h3 id="aula-1-6-s2">2. Hash, bloco e confirmação em linguagem prática</h3>
 <p>O hash da transação é o identificador que permite reencontrar o registro. Em Cardano, o identificador da transação é calculado a partir do corpo da transação, conforme as regras do protocolo. Para esta aula, o mais importante é o efeito operacional: se você altera campos relevantes do pacote antes de finalizar a transação, o identificador esperado muda.</p>
@@ -5393,6 +5429,27 @@ print("digest confere?", digest_calculado == metadata_digest)
 
 <div class="activity">
 <div class="box-label">Atividade 1: separe registro, pista e conclusão</div>
+<p><strong>Captura didática completa:</strong> use este recorte autocontido como evidência da interface. Os identificadores foram abreviados e o status é um rótulo exibido pela captura, não uma consulta ao vivo.</p>
+<pre><code class="language-json">{
+  "network": "preprod",
+  "status_displayed": "confirmada",
+  "transaction_id": "9d2e9ab0...7d9b81a0",
+  "block": 4289173,
+  "slot": 81234567,
+  "metadata": {
+    "schema": "dpp.anchor.v1",
+    "event_type": "certificacao_emitida",
+    "hashes": {
+      "document_sha256": "bbbbbbbb...bbbbbbbb",
+      "signed_envelope_sha256": "aaaaaaaa...aaaaaaaa"
+    },
+    "issuer_aid": "EJxExampleIssuerAid",
+    "issuer_state_ref": "keri-state:example:v3",
+    "issued_at": "2026-07-10T15:20:00Z",
+    "access_policy_ref": "access:verificadores-autorizados:v1"
+  }
+}
+</code></pre>
 <p><strong>Classifique as afirmações da captura em três níveis.</strong> Sua entrega será a seleção das afirmações que passam em cada triagem e o registro de uma palavra ou expressão que denuncia uma conclusão não sustentada.</p>
 <ol>
 <li>Aplique este critério: <strong>registro direto</strong> repete um campo ou valor da captura; <strong>pista para verificação</strong> indica uma referência ou comparação que ainda precisa ser consultada; <strong>conclusão não sustentada</strong> atribui validade, autoridade, acesso, propriedade ou um fato do mundo sem evidência adicional.</li>
@@ -5438,22 +5495,24 @@ print("digest confere?", digest_calculado == metadata_digest)
 <p><strong>2. Pistas para verificação posterior:</strong> marque <strong>a</strong>, <strong>b</strong> e <strong>c</strong>. Os hashes fornecem valores para uma comparação futura, mas seria necessário obter os artefatos, calcular os digests dos bytes corretos e comparar os resultados. De modo semelhante, <code>issuer_aid</code>, <code>issuer_state_ref</code> e <code>access_policy_ref</code> indicam referências declaradas que ainda precisam ser consultadas e avaliadas. Não marque <strong>d</strong>: o horário de confirmação pertence à transação e não estabelece quando o ensaio ocorreu.</p>
 <p><strong>3. Conclusões não sustentadas:</strong> marque <strong>a</strong>, <strong>b</strong> e <strong>c</strong>. A captura não contém evidência suficiente para confirmar a veracidade da certificação, o acesso público ao documento ou a propriedade legal do objeto físico. Não marque <strong>d</strong>, pois essa alternativa apenas reproduz um valor visível da metadata.</p>
 <p>A <strong>presença de um campo</strong> não <strong>comprova o que ele declara</strong>. Termos como <code>verdadeira</code>, <code>qualquer pessoa</code>, <code>propriedade legal</code>, <code>autoridade reconhecida</code> e <code>hora real</code> exigem evidência adicional. Já afirmar que esses campos e referências aparecem na captura é uma observação técnica limitada e verificável.</p>
-</div></details><div class="closing"><h3>Fechamento</h3><p>Nesta aula, você aprendeu a olhar para explorers como janelas indexadas sobre a rede. Eles ajudam a encontrar transações, blocos, metadata, ativos e hashes, mas não substituem a validação do protocolo nem a investigação externa.</p>
+</div></details>
+<div class="activity"><div class="box-label">Atividade 2: corrobore uma transação real de Preprod</div><p>Esta atividade exige acesso à internet. Abra a mesma transação de Preprod no <a href="https://preprod.adastat.net/transactions/d9b7a0b3c9bdb62e5a76d9ab675342be002c335a05e1be5d7bc04872bf99865f" rel="noopener" target="_blank">AdaStat</a> e no <a href="https://preprod.cexplorer.io/tx/d9b7a0b3c9bdb62e5a76d9ab675342be002c335a05e1be5d7bc04872bf99865f" rel="noopener" target="_blank">Cexplorer</a>. Registre o transaction ID completo, a rede, um marcador de inclusão, a taxa e a quantidade de outputs. Indique quais valores coincidem e quais diferenças são apenas de rótulo ou apresentação. Se um link estiver indisponível, escolha outra transação recente de Preprod, preserve os dois URLs e o identificador completo e repita o procedimento.</p><details class="answer"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Critério de conferência da atividade 2</summary><div class="answer-body"><p>Uma entrega válida preserva o mesmo transaction ID de 64 caracteres nas duas fontes, confirma Preprod, registra ao menos bloco ou slot, compara taxa e outputs e separa divergência de dado de divergência de interface. A atividade não autoriza concluir identidade, autoridade ou verdade externa. Como páginas de explorer são dinâmicas, os valores observados devem ser anotados com data e URLs, não copiados desta resposta.</p></div></details></div>
+<div class="closing"><h3>Fechamento</h3><p>Nesta aula, você aprendeu a olhar para explorers como janelas indexadas sobre a rede. Eles ajudam a encontrar transações, blocos, metadata, ativos e hashes, mas não substituem a validação do protocolo nem a investigação externa.</p>
 
 
 </div>
 <div class="selfcheck"><div class="box-label">Autoavaliação</div><p>Em caso de dúvida, retome a seção, refaça a Atividade 1 e consulte as referências do módulo.</p>
 <ul>
-<li><strong>Objetivo 1.</strong> explicar por que um explorer é uma interface indexada, não a própria verdade da rede;</li>
-<li><strong>Objetivo 2.</strong> localizar hash de transação, bloco, metadata e ativo em uma captura pública;</li>
-<li><strong>Objetivo 3.</strong> dizer o que um hash confere e o que ele não confere;</li>
-
+<li><strong>Objetivo 1.</strong> explicar o que um explorer mostra e o que ele apenas reorganiza para leitura humana;</li>
+<li><strong>Objetivo 2.</strong> localizar em uma página pública hash de transação, bloco, metadata e ativos;</li>
+<li><strong>Objetivo 3.</strong> diferenciar confirmação operacional de verdade sobre um fato externo;</li>
 
 
 </ul></div>
 <div class="bridge"><div class="box-label">Ponte para a próxima aula</div><p>O explorer mostra o resultado. Como wallet, builder, scripts e validators constroem, autorizam e controlam o estado que aparece ali? O próximo módulo acompanha essas peças.</p></div>
 </article><section class="module-references" id="referencias-modulo-1"><h2>Referências do Módulo 1</h2><p>Consulte as especificações e a documentação operacional quando precisar de regras exatas da rede.</p><ul class="sources-list">
 <li><a href="https://www.rfc-editor.org/rfc/rfc8949" rel="noopener" target="_blank">RFC 8949</a>: formato CBOR.</li>
+<li><a href="https://github.com/IntersectMBO/cardano-ledger" rel="noopener" target="_blank">Cardano Ledger</a>: implementação, especificações e regras por era.</li>
 <li><a href="https://docs.cardano.org/about-cardano/learn/eutxo-explainer/" rel="noopener" target="_blank">Cardano Docs: EUTxO</a>: modelo de saídas consumidas e criadas.</li>
 <li><a href="https://docs.cardano.org/about-cardano/explore-more/fee-structure/" rel="noopener" target="_blank">Cardano Docs: taxas</a>: estrutura e parâmetros de custo.</li>
 <li><a href="https://developers.cardano.org/docs/transaction-metadata/" rel="noopener" target="_blank">Cardano Developer Portal: metadata</a>: formato e limites.</li>
@@ -5618,8 +5677,9 @@ print("digest confere?", digest_calculado == metadata_digest)
 
 
 <h3 id="aula-2-1-s3">3. CIP-30 como fronteira no navegador</h3>
-<p>CIP-30 padroniza uma interface entre aplicações web e wallets Cardano. O dApp pede acesso; a wallet expõe dados públicos e uma visão das eUTxOs permitidas; o dApp prepara o corpo; e a wallet apresenta o pacote e coordena a assinatura. O método <code>signTx</code> devolve um witness set em CBOR. O dApp combina esse conjunto com o corpo antes da submissão.</p>
-<p>A chave privada não precisa atravessar essa fronteira. O backend pode mesclar witnesses devolvidos com o corpo já construído e então submeter a transação. Essa arquitetura reduz a custódia de segredo pelo backend, mas depende de disponibilidade e aprovação humana em cada evento.</p>
+<p>CIP-30 padroniza uma interface entre aplicações web e wallets Cardano. O dApp pede acesso; a wallet expõe dados públicos e uma visão das eUTxOs permitidas; o dApp prepara a transação; e a wallet apresenta o pacote e coordena a assinatura. O método <code>signTx</code> recebe a transação em CBOR e devolve um transaction witness set em CBOR. O dApp combina esse conjunto com o mesmo corpo antes da submissão.</p>
+<p>O parâmetro <code>partialSign</code> faz parte do contrato. Com <code>partialSign=false</code>, a wallet deve falhar se não puder produzir todas as witnesses que considera necessárias. Com <code>partialSign=true</code>, pode devolver apenas as witnesses que controla para combinação posterior com outras. Combinar witness sets não autoriza alterar o corpo: qualquer mudança no corpo muda o body hash e invalida as assinaturas já produzidas.</p>
+<p>A chave privada não precisa atravessar essa fronteira. O backend pode mesclar witnesses devolvidas com o corpo já construído e então submeter a transação. Essa arquitetura reduz a custódia de segredo pelo backend, mas depende de disponibilidade e aprovação humana em cada evento.</p>
 
 <h3 id="aula-2-1-s4">4. Fronteiras de custódia</h3>
 <p>A signing key pode permanecer no servidor, em um aplicativo local ou em uma wallet externa conectada por CIP-30. Cada posição muda quem protege a chave, quem revisa a transação e como a operação continua quando uma pessoa ou sistema fica indisponível.</p>
@@ -5698,7 +5758,13 @@ print("digest confere?", digest_calculado == metadata_digest)
 </form>
 </div><details class="answer" id="answer-aula-2-1-a2"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Resposta da atividade 1</summary><div class="answer-body"><ol><li><strong>Estação contínua:</strong> a rota inicial é o signer no servidor com custódia organizacional. A claim a cada quinze segundos exige continuidade sem aprovação manual. A chave deve ser não exportável ou ter proteção equivalente, com política de uso, logs, rotação e resposta a incidentes.</li><li><strong>Ferramenta local:</strong> o signer no aplicativo local pode ser adequado quando a equipe controla um dispositivo dedicado e aceita que esse aplicativo entre na fronteira de custódia. O dispositivo precisa de proteção, atualização, restrição de acesso e procedimento de recuperação. Transferir a seed para qualquer estação comum ampliaria o risco.</li><li><strong>Certificado mensal:</strong> a wallet externa via CIP-30 preserva a revisão humana já exigida pelo processo. A chave permanece no signer, mas a emissão depende da pessoa e da disponibilidade da wallet. São necessários um procedimento de revisão do corpo e um caminho autorizado para indisponibilidade ou substituição.</li><li><strong>Teste pela troca:</strong> exigir wallet e aprovação humana para a estação criaria 5.760 aprovações por dia. Levar a chave da estação para um aplicativo local ampliaria a quantidade de dispositivos sob custódia. Automatizar o certificado no servidor retiraria a aprovação humana da fronteira, salvo se outro controle formal preservasse essa etapa.</li></ol><p>A localização da chave muda riscos e dependências. Autoridade institucional, conteúdo da claim e verdade externa continuam fora das três rotas.</p></div></details>
 <div class="closing"><h3>Fechamento</h3><p>Nesta aula, você separou a visão calculada pela wallet dos outputs mantidos pelo ledger. Também distinguiu construção, autorização, submissão e inclusão, e comparou custódia no servidor, no aplicativo local e na wallet externa.</p></div>
-<div class="selfcheck"><div class="box-label">Autoavaliação</div><p>Em caso de dúvida, retome a seção, refaça a Atividade 1 e consulte as referências do módulo.</p><ul><li><strong>Objetivo 1.</strong> explicar por que saldo é uma soma calculada;</li><li><strong>Objetivo 2.</strong> dizer o que atravessa a fronteira CIP-30;</li><li><strong>Objetivo 3.</strong> distinguir transação submetida de transação incluída;</li></ul></div>
+<div class="selfcheck"><div class="box-label">Autoavaliação</div><p>Em caso de dúvida, retome a seção, refaça a Atividade 1 e consulte as referências do módulo.</p><ul>
+<li><strong>Objetivo 1.</strong> explicar por que uma wallet calcula uma visão do ledger em vez de guardar fundos;</li>
+<li><strong>Objetivo 2.</strong> separar construção, autorização, submissão e inclusão de uma transação;</li>
+<li><strong>Objetivo 3.</strong> descrever a conversa básica entre dApp e wallet via CIP-30;</li>
+
+
+</ul></div>
 <div class="bridge"><div class="box-label">Ponte para a próxima aula</div><p>Depois de decidir quem autoriza, qual regra técnica deve aceitar mint, burn ou gasto, e o que essa regra ainda não sabe sobre a decisão institucional?</p></div>
 </article>
 
@@ -5756,10 +5822,16 @@ print("digest confere?", digest_calculado == metadata_digest)
 <details class="answer" id="answer-aula-2-2-a2"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Resposta da atividade 1</summary><div class="answer-body"><p><strong>1. Objeto.</strong> Metadata descreve a emissão no ponto em que a transação é registrada. Um native asset representa unidades identificadas que podem ser cunhadas, transferidas ou queimadas. Nenhum dos dois contém automaticamente o arquivo CAD nem substitui a licença jurídica.</p><p><strong>2. Pontos de controle.</strong> Como minting policy, o native script controla operações de mint e burn. Como credencial de gasto, controla se a eUTxO protegida pode ser consumida. São controles distintos.</p><p><strong>3. Delimitação técnica.</strong> A policy pede duas chaves e há witnesses válidas de A e B sobre o mesmo corpo. Portanto, a primeira alternativa é a única conclusão sustentada: o limiar técnico de duas autorizações criptográficas foi satisfeito. As witnesses não informam, por si sós, cargos, independência, rito ou motivo.</p><p><strong>4. Perguntas institucionais e registros necessários.</strong></p><ol><li>A e B correspondiam a pessoas com o papel ou a competência exigidos? Para responder, seria necessária uma política ou um registro institucional que associasse as chaves às identidades e aos papéis aplicáveis.</li><li>A decisão seguiu o processo de aprovação exigido? Seriam necessários os registros do procedimento institucional adotado.</li><li>A ata e os artefatos de aprovação estão disponíveis e vinculados a essa operação? Seriam necessários a ata e os demais registros de aprovação pertinentes.</li></ol><p><strong>5. Síntese.</strong> A rede verifica que as chaves exigidas autorizaram aqueles bytes; a validade da deliberação depende de evidências institucionais externas às witnesses.</p><p>Trocar “duas chaves autorizaram o mesmo corpo” por “duas pessoas competentes aprovaram corretamente a operação” apaga a fronteira institucional. A primeira afirmação decorre das witnesses e do limiar. A segunda exige comprovação de identidade, competência e processo.</p></div></details>
 
 <h3 id="aula-2-2-s4">4. CIP-25 descreve a emissão</h3>
-<p>CIP-25 usa metadata na transação de mint para descrever <code>LIC-PRINT-PART-042</code>. O label 721 fica naquele ponto do histórico. Distribuir as unidades entre centros não cria outro 721 nem edita a metadata da emissão.</p>
+<p>CIP-25 usa auxiliary data sob o label 721 na transação que cunha o asset para publicar metadata descritiva. Esse conteúdo fica naquele ponto do histórico: transferir o asset depois não transporta nem atualiza automaticamente a metadata, e publicar outro 721 não edita a transação original. Uma policy que permita mint ou burn posterior pode criar outras transações que a aplicação trate como parte de uma história de atualização, mas cada transação e sua metadata permanecem imutáveis. Aplicações e indexadores precisam definir como localizam, ordenam e interpretam essa história.</p>
 <p>Wallets e indexadores podem voltar à transação de mint para exibir nome, descrição, quantidade licenciada e referência da receita. O CAD criptografado, a autoridade sobre a licença e a execução industrial continuam externos.</p>
 <div class="closing"><h3>Fechamento</h3><p>Você separou declaração de objeto transferível, identificou os dois usos de native scripts e delimitou multisig e CIP-25. A rede verifica regras técnicas sobre transações; o processo institucional continua responsável pelo significado da autorização.</p></div>
-<div class="selfcheck"><div class="box-label">Autoavaliação</div><p>Em caso de dúvida, retome a seção, refaça a Atividade 1 e consulte as referências do módulo.</p><ul><li><strong>Objetivo 1.</strong> escolher metadata ou native asset pela necessidade;</li><li><strong>Objetivo 2.</strong> dizer onde um native script pode atuar;</li><li><strong>Objetivo 3.</strong> limitar uma conclusão sobre duas witnesses;</li></ul></div>
+<div class="selfcheck"><div class="box-label">Autoavaliação</div><p>Em caso de dúvida, retome a seção, refaça a Atividade 1 e consulte as referências do módulo.</p><ul>
+<li><strong>Objetivo 1.</strong> distinguir metadata de um native asset transferível;</li>
+<li><strong>Objetivo 2.</strong> explicar os dois papéis de um native script;</li>
+<li><strong>Objetivo 3.</strong> separar limiar criptográfico de deliberação institucional;</li>
+
+
+</ul></div>
 <div class="bridge"><div class="box-label">Ponte para a próxima aula</div><p>Se a identidade digital precisa circular enquanto o estado muda, quais objetos devem permanecer distintos?</p></div>
 </article>
 
@@ -5778,7 +5850,7 @@ print("digest confere?", digest_calculado == metadata_digest)
 <p>O desenho precisa indicar qual output contém o registro ativo e quais transações substituíram versões anteriores. O arquivo CAD continua off-chain.</p>
 
 <h3 id="aula-2-3-s2">2. O par CIP-68</h3>
-<p>CIP-68 separa dois papéis sob a mesma policy e o mesmo base name. O User Token, label 222, fica em uma eUTxO controlada pela chave da wallet e pode transferir o controle da identidade. O Reference NFT, label 100, permanece na eUTxO de um script address; o datum registra <code>recipe_version</code> e <code>file_hash</code>, e o validator controla sua substituição.</p>
+<p>CIP-68 separa dois papéis sob a mesma policy e o mesmo base name. Os números 222 e 100 são codificados no prefixo do asset name conforme CIP-67, não são campos soltos de metadata. O User Token com label 222 pode ficar em uma eUTxO controlada pela wallet e ser transferido. O Reference NFT com label 100 fica no output de referência que carrega o datum; quando esse output usa um script address, o validator pode controlar sua substituição. O datum registra, neste caso, <code>recipe_version</code> e <code>file_hash</code>.</p>
 <figure class="fig deck-figure"><div class="deck-scene-shell infra-scene"><svg aria-label="Topologia CIP-68 com arquivo criptografado fora do protocolo, User Token em endereço controlado pela chave da wallet e Reference NFT em script address controlado por validator" class="deck-svg" data-deck-source-svg="64" role="img" viewbox="0 0 1700 730">
 <defs>
 <lineargradient id="book-deck-22-robotWalletMetal104" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#f5f7f8"></stop><stop offset=".45" stop-color="#d6dce0"></stop><stop offset="1" stop-color="#aeb7bd"></stop></lineargradient>
@@ -5845,11 +5917,11 @@ print("digest confere?", digest_calculado == metadata_digest)
 <path class="rel-query" d="M1090 380 H1120"></path><text fill="var(--deck-blue)" font-family="var(--font-mono)" font-size="12" font-weight="750" style="fill:var(--deck-blue)" text-anchor="middle" x="1105" y="355">PAR</text>
 <rect fill="var(--ink)" height="58" rx="4" width="1590" x="55" y="638"></rect><text fill="var(--paper)" font-size="17" font-weight="750" style="fill:var(--paper)" text-anchor="middle" x="850" y="674">Label 222: a chave autoriza o gasto. Label 100: o validator decide se o registro canônico pode ser substituído.</text>
 </svg></div><figcaption>CIP-68 separa o controle da identidade transferível do registro da versão ativa da receita.</figcaption></figure>
-<p>Os dois assets compartilham policy e base name segundo a convenção do padrão. Essa relação organiza descoberta. O User Token não contém o CAD, e o Reference NFT não concede a licença jurídica nem comprova a impressão.</p>
+<p>Os dois assets compartilham policy e base name segundo a convenção do padrão, mas têm asset name bytes diferentes por causa dos prefixes CIP-67. Essa relação organiza descoberta. O User Token não contém o CAD, e o Reference NFT não concede a licença jurídica nem comprova a impressão.</p>
 <div class="emwords"><span class="emwords-label">Em palavras</span><p>um objeto circula; outro aponta para o estado ativo; a regra de gasto controla a substituição desse estado.</p></div>
 
 <h3 id="aula-2-3-s3">3. Leitura observa; atualização substitui</h3>
-<p>Um reference input permite consultar uma eUTxO de referência sem consumi-la. Uma atualização, por outro lado, gasta o output de estado anterior e cria um novo output com o mesmo Reference NFT e datum atualizado.</p>
+<p>Um reference input, conforme CIP-31, permite que a transação leia um output existente sem consumi-lo. Ele não torna o dado global nem mutável, não transfere o valor daquele output e não executa por si só o spending validator do output referenciado. Uma atualização, por outro lado, usa o output de estado como input normal, satisfaz sua condição de gasto e cria um novo output com o mesmo Reference NFT e datum atualizado.</p>
 <p>O output anterior fica consumido normalmente. A transação passada permanece no histórico. Uma aplicação encontra o output ativo e pode reconstruir a sequência pelas transações anteriores.</p>
 
 
@@ -5936,7 +6008,13 @@ print("digest confere?", digest_calculado == metadata_digest)
   <p><strong>3. Contraste:</strong> as palavras são <code>declarado; externa</code>. O datum mantém o estado declarado que o validator consegue examinar. O CAD, os registros de acesso e as evidências de produção permanecem externos ao ledger.</p>
 </div></details>
 <div class="closing"><h3>Fechamento</h3><p>Você separou a licença quantitativa, a identidade transferível, a referência de estado, o datum e o arquivo externo. CIP-68 organiza o registro ativo da receita; CAD, licença jurídica, royalties e execução industrial continuam em outras camadas.</p></div>
-<div class="selfcheck"><div class="box-label">Autoavaliação</div><p>Em caso de dúvida, retome a seção, refaça a Atividade 1 e consulte as referências do módulo.</p><ul><li><strong>Objetivo 1.</strong> distinguir CIP-25 de estado atualizável;</li><li><strong>Objetivo 2.</strong> explicar o par de assets CIP-68;</li><li><strong>Objetivo 3.</strong> descrever leitura sem consumo e atualização com consumo;</li></ul></div>
+<div class="selfcheck"><div class="box-label">Autoavaliação</div><p>Em caso de dúvida, retome a seção, refaça a Atividade 1 e consulte as referências do módulo.</p><ul>
+<li><strong>Objetivo 1.</strong> explicar por que descrição estática e estado atualizável são problemas diferentes;</li>
+<li><strong>Objetivo 2.</strong> distinguir User Token, Reference NFT e datum;</li>
+<li><strong>Objetivo 3.</strong> descrever uma atualização como consumo e criação de eUTxO;</li>
+
+
+</ul></div>
 <div class="bridge"><div class="box-label">Ponte para a próxima aula</div><p>Quando a regra precisa inspecionar datum, pedido e efeitos completos da transação, o que muda em relação a um native script?</p></div>
 </article>
 
@@ -6020,8 +6098,10 @@ print("digest confere?", digest_calculado == metadata_digest)
 <p>Aiken, OpShin e plu-ts são alternativas de autoria que podem produzir código executável pelo ledger. Compilar não prova equivalência comportamental. Um exemplo que verifica apenas o limiar não equivale a uma política que também limita valor e destino.</p>
 
 <h3 id="aula-2-4-s4">4. Envelope de recursos e ciclo de vida</h3>
-<p>A transação precisa respeitar mínimo de ADA, budget de CPU e memória e requisitos de colateral. Colateral é uma eUTxO adequada reservada para falha de fase 2; ele não mora dentro da wallet.</p>
-<p>Uma regra semanticamente correta ainda pode falhar por montagem ou recursos. Nesse caso, a eUTxO de script não é consumida.</p>
+<p>Os outputs precisam respeitar o mínimo de ADA calculado para seu tamanho e para os parâmetros da era, como <code>coinsPerUTxOByte</code> nas regras atuais; não existe um valor universal e permanente de exatamente 1 ADA. Transações Plutus também precisam respeitar budgets de CPU e memória e os requisitos de colateral. Collateral inputs são eUTxOs adequadas declaradas para cobrir uma falha de validação de fase 2; não são saldo “dentro da wallet”. Quando a era e a transação usam <code>total_collateral</code> e collateral return, a parte excedente pode voltar ao endereço definido segundo as regras do ledger.</p>
+<p>Uma regra semanticamente correta ainda pode falhar por montagem ou recursos. Use a matriz para não confundir as consequências:</p>
+<div class="table-scroll"><table><thead><tr><th>Resultado</th><th>Inputs normais e outputs propostos</th><th>Collateral</th></tr></thead><tbody><tr><td>Falha de fase 1</td><td>A transação é rejeitada antes da execução Plutus; o estado normal não muda.</td><td>Não é coletado como consequência de fase 2.</td></tr><tr><td>Fase 2 válida</td><td>O gasto normal pode ser aplicado se as demais regras passarem.</td><td>Permanece sem ser coletado.</td></tr><tr><td>Fase 2 inválida</td><td>Inputs normais e a eUTxO de script não são consumidos; outputs normais não são criados.</td><td>O valor aplicável pode ser coletado, com <code>total_collateral</code> e collateral return tratados conforme a era.</td></tr></tbody></table></div>
+<p>Portanto, “script falhou” e “colateral foi coletado” não devem ser usados como sinônimos sem identificar a fase.</p>
 <p>Atualizar o código muda o script hash e o endereço. Um ciclo de vida seguro exige que V1 autorize uma transação de migração para V2, além de monitoramento, decisão, build, testes e auditoria. Sem rota de saída, o estado pode ficar imobilizado no script antigo.</p>
 <div class="activity">
   <div class="box-label">Atividade 1: classifique a regra e valide a migração</div>
@@ -6079,7 +6159,13 @@ print("digest confere?", digest_calculado == metadata_digest)
 <p>As duas assinaturas do segundo caso podem sugerir native script, mas não resolvem a classificação. A classificação deve considerar a regra completa: quando datum e outputs entram na decisão, as assinaturas deixam de ser o critério suficiente. No terceiro caso, publicar V2 ou aumentar colateral também não transfere o estado; sem uma saída autorizada por V1, ele pode permanecer imobilizado.</p>
 </div></details>
 <div class="closing"><h3>Fechamento</h3><p>Você localizou as entradas de um validador, escolheu entre native script e Plutus e incluiu recursos e migração na arquitetura. O contrato continua sendo uma peça limitada do sistema.</p></div>
-<div class="selfcheck"><div class="box-label">Autoavaliação</div><p>Em caso de dúvida, retome a seção, refaça a Atividade 1 e consulte as referências do módulo.</p><ul><li><strong>Objetivo 1.</strong> dizer quando o validator executa;</li><li><strong>Objetivo 2.</strong> localizar datum, redeemer e contexto;</li><li><strong>Objetivo 3.</strong> justificar native ou Plutus;</li></ul></div>
+<div class="selfcheck"><div class="box-label">Autoavaliação</div><p>Em caso de dúvida, retome a seção, refaça a Atividade 1 e consulte as referências do módulo.</p><ul>
+<li><strong>Objetivo 1.</strong> explicar quando um spending validator é executado;</li>
+<li><strong>Objetivo 2.</strong> localizar datum, redeemer e ScriptContext;</li>
+<li><strong>Objetivo 3.</strong> escolher native script ou Plutus pela informação necessária;</li>
+
+
+</ul></div>
 <div class="bridge"><div class="box-label">Ponte para a próxima aula</div><p>Como comprometer mil registros com uma publicação curta e ainda provar um item sem revelar o lote inteiro?</p></div>
 </article>
 
@@ -6154,8 +6240,20 @@ print("digest confere?", digest_calculado == metadata_digest)
 <text class="b" x="20" y="670">A root compromete o conjunto. A proof custa O(log n) hashes em uma árvore binária balanceada.</text>
 </svg></div><figcaption>Uma root compromete o lote; eventos e proofs permanecem fora da transação.</figcaption></figure>
 <p>Os eventos, a árvore e as proofs permanecem off-chain. A root curta entra na transação. O auditor recebe o evento alvo e os hashes irmãos necessários para recompor o caminho.</p>
-<p>Para tornar o exemplo reproduzível, esta apostila adota uma receita didática local. Numere as folhas a partir de zero. Seja <code>E</code> o JSON canônico do evento codificado em UTF-8, <code>u64be(n)</code> um inteiro sem sinal de 64 bits em big-endian e <code>H</code> o SHA-256. Calcule <code>folha_i = H(0x00 || ASCII("DPP:v1") || u64be(i) || u64be(len(E)) || E)</code>. Para cada nó interno, preserve a ordem esquerda-direita e calcule <code>no = H(0x01 || hash_esquerdo || hash_direito)</code>. Se um nível tiver quantidade ímpar, duplique o último hash antes de formar os pares. Repita até obter uma única root de 32 bytes.</p>
+<p>Para tornar o exemplo reproduzível, este guia adota o perfil didático <code>dpp.merkle.v1</code>. Numere as folhas a partir de zero. Seja <code>E</code> o evento canonicalizado por JCS, RFC 8785, e codificado em UTF-8; <code>u64be(n)</code>, um inteiro sem sinal de 64 bits em big-endian; e <code>H</code>, SHA-256. Calcule <code>folha_i = H(0x00 || ASCII("DPP:v1") || u64be(i) || u64be(len(E)) || E)</code>. Para cada nó interno, preserve a ordem esquerda-direita e calcule <code>no = H(0x01 || hash_esquerdo || hash_direito)</code>. Se um nível tiver quantidade ímpar, duplique o último hash antes de formar os pares. Repita até obter uma única root de 32 bytes.</p>
 <p>Os prefixos <code>0x00</code> e <code>0x01</code> separam folhas de nós internos; o índice e o comprimento têm tamanho fixo; e a ordem dos filhos deixa de ser implícita. Esta é uma convenção do exercício, não um padrão interoperável de DPP. Em produção, todos os participantes precisariam versionar e documentar a mesma receita. A economia de espaço também depende de árvore e proofs continuarem disponíveis.</p>
+<p>Uma proof transportável precisa levar o perfil, o evento alvo, <code>leaf_index</code>, <code>leaf_count</code> e a lista ordenada de irmãos com lado e hash completo. Para quatro folhas, a proof do índice 1 pode ser representada assim:</p>
+<pre><code class="language-json">{
+  "profile": "dpp.merkle.v1",
+  "leaf_index": 1,
+  "leaf_count": 4,
+  "event": {"event_id": "evt-042", "status": "aprovado"},
+  "siblings": [
+    {"side": "left", "hash_hex": "a6ae68e38dce0a6f26fe26d8a5e0d3d60f8590600e48347b0585ccae2e0d5eaa"},
+    {"side": "right", "hash_hex": "89d557a5aec738a564ad069f93fce8a48d307f0275527c8c4db8600983d39eda"}
+  ]
+}</code></pre>
+<div class="activity"><div class="box-label">Atividade 1: verifique uma proof completa</div><p>Calcule a folha do evento no índice 1. No primeiro nível, combine <code>hash_irmão || hash_atual</code>, pois o irmão está à esquerda. No segundo, combine <code>hash_atual || hash_irmão</code>, pois o irmão está à direita. Em ambos os níveis, anteponha <code>0x01</code>. Compare a root final com <code>6e86ce2771d7ab9600c11782e4accd47884927501365b2a6d32d55bdcb148527</code> e registre os dados que ainda seriam necessários para avaliar completude e verdade externa.</p><details class="answer"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Resposta da atividade 1</summary><div class="answer-body"><p>A folha do índice 1 é <code>f1768e63acda80268653d96b07bf8226cf149a1110168eb863c3b3f865ae8243</code>. O primeiro nó é <code>377aa775df2d8588f1e1c54ef4ddb9cc17cbd3261e1bbc9c79618b35a416ee40</code>. Com o irmão da direita, a root resulta em <code>6e86ce2771d7ab9600c11782e4accd47884927501365b2a6d32d55bdcb148527</code>. A igualdade sustenta inclusão sob o perfil e a root, não completude do processo, autoridade do emissor ou verdade da claim.</p></div></details></div>
 
 <h3 id="aula-2-5-s2">2. O que a proof demonstra</h3>
 <p>O verificador calcula a folha do evento, combina os hashes na posição definida e sobe até a root. Se a root recomposta coincide com a observada no ledger, o evento apresentado pertence ao conjunto comprometido segundo aqueles bytes, ordem e algoritmo.</p>
@@ -6225,7 +6323,7 @@ print("digest confere?", digest_calculado == metadata_digest)
 <p>Meça a carga que resta depois do batching. Se publicações assíncronas atendem ao SLA, L1 pode bastar. Interação frequente entre participantes definidos pode justificar Hydra ou outra L2 compatível com o modelo. A camada não corrige identidade, validade dos dados nem storage.</p>
 <p>Blockchain pública é publicação. Roots, identificadores, tempo e transações podem ser copiados e correlacionados. Hash determinístico de CPF ou de outro domínio pequeno permite testar candidatos. HMAC reduz testes externos, mas o controlador da chave ainda pode reidentificar; o resultado continua pseudônimo.</p>
 <p>Antes da submissão, aplique três perguntas: outra parte precisa verificar por uma rota independente? O compromisso precisa sobreviver ao registrador? A exposição pública é aceitável? Se uma resposta for negativa, considere log assinado, arquivo controlado ou outra arquitetura.</p>
-<div class="activity activity-interactive"><div class="box-label">Atividade 1: classifique o destino e a camada</div>
+<div class="activity activity-interactive"><div class="box-label">Atividade 2: classifique o destino e a camada</div>
 <p><strong>Cenário.</strong> Terceiros precisam auditar os lotes por uma rota independente, e o compromisso deve sobreviver ao registrador por sete anos. Os documentos são confidenciais, e a equipe consegue preservar a árvore e as proofs sob acesso controlado. Uma root seria publicada por dia, de forma assíncrona, se isso atender ao SLA. Ainda é preciso confirmar se a exposição pública da root é aceitável. Um campo adicional contém CPF em hash simples e foi proposto para publicação.</p>
 <form class="activity-quiz" data-answer="answer-aula-2-5-a2" id="quiz-aula-2-5-a2">
 <fieldset class="quiz-question" data-kind="classify">
@@ -6250,7 +6348,13 @@ print("digest confere?", digest_calculado == metadata_digest)
 <p>A confidencialidade dos documentos não é motivo para publicar tudo em uma L2, e hash de CPF não é anônimo. A separação correta é outra: publicar, se os três critérios passarem, apenas o compromisso necessário à verificação; manter o material de auditoria controlado; e impedir a publicação do identificador vulnerável a teste de candidatos.</p>
 </div></details>
 <div class="closing"><h3>Fechamento</h3><p>Você acompanhou evento, folha, proof e root, e localizou o trabalho operacional que batching não elimina. Também separou escala de privacidade e tratou L2 como decisão posterior à medição.</p></div>
-<div class="selfcheck"><div class="box-label">Autoavaliação</div><p>Em caso de dúvida, retome a seção, refaça a Atividade 1 e consulte as referências do módulo.</p><ul><li><strong>Objetivo 1.</strong> explicar uma proof sem prometer verdade ou completude;</li><li><strong>Objetivo 2.</strong> listar os artefatos que ficam off-chain;</li><li><strong>Objetivo 3.</strong> medir a necessidade de L2 depois do batching;</li></ul></div>
+<div class="selfcheck"><div class="box-label">Autoavaliação</div><p>Em caso de dúvida, retome a seção, refaça a Atividade 1 e consulte as referências do módulo.</p><ul>
+<li><strong>Objetivo 1.</strong> explicar como uma root compromete um conjunto ordenado;</li>
+<li><strong>Objetivo 2.</strong> descrever uma proof de inclusão;</li>
+<li><strong>Objetivo 3.</strong> separar redução de transações de disponibilidade operacional;</li>
+
+
+</ul></div>
 <div class="bridge"><div class="box-label">Ponte para a próxima aula</div><p>Como os mecanismos estudados aparecem nos cinco checkpoints do workshop e qual conclusão o relatório final pode sustentar?</p></div>
 </article>
 
@@ -6274,6 +6378,53 @@ print("digest confere?", digest_calculado == metadata_digest)
 <tr><td>Emitir reciclagem e sintetizar</td><td>Relatório final com a cadeia reconstruída</td><td>Não implementa Battery Passport regulatório completo</td></tr>
 </tbody></table></div>
 <p>A ordem didática deixa um artefato para o checkpoint seguinte. Ela não é uma sequência universal do protocolo.</p>
+<div class="sp-box note"><span class="sp-col-title">Implementação companheira congelada</span><p>Os artefatos completos do workshop estão no repositório <a href="https://github.com/darlisagc/cardano-battery-passport/tree/0cefb046c5ed6790493d7dd47bc1f08c2bef0a68" rel="noopener" target="_blank"><code>cardano-battery-passport</code>, commit <code>0cefb046</code></a>. Use o <a href="https://github.com/darlisagc/cardano-battery-passport/blob/0cefb046c5ed6790493d7dd47bc1f08c2bef0a68/mao-na-massa.md" rel="noopener" target="_blank">roteiro prático</a>, os <a href="https://github.com/darlisagc/cardano-battery-passport/tree/0cefb046c5ed6790493d7dd47bc1f08c2bef0a68/src/verificador_dpp" rel="noopener" target="_blank">emissores e verificador</a> e os <a href="https://github.com/darlisagc/cardano-battery-passport/tree/0cefb046c5ed6790493d7dd47bc1f08c2bef0a68/tests" rel="noopener" target="_blank">testes</a>. Para validar localmente: <code>uv sync</code> e <code>uv run pytest</code>. Credenciais, seeds e chaves de API não fazem parte do material.</p></div>
+<details class="answer"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Pacote autocontido de continuidade</summary><div class="answer-body">
+<p>Se os arquivos e serviços do protótipo não estiverem disponíveis, use este dataset didático para reconstruir as referências. Ele não contém transações reais e não serve para verificar Preprod. Seu único objetivo é preservar a atividade de encadeamento.</p>
+<pre><code class="language-json">{
+  "profile": "dpp.prototype.fallback.v1",
+  "id_profile": "dpp.prototype.id.v1",
+  "network": "offline-didactic",
+  "schema": {
+    "required": ["stage", "gtin", "serial", "data_hash", "record_ref", "prior_refs"],
+    "stage_enum": ["origin", "cell", "pack", "recycling"],
+    "record_ref": "didactic transaction surrogate, never a real tx id"
+  },
+  "credentials": [
+    {"stage":"origin","gtin":"09506000134352","serial":"ORIGIN-0001","data_hash":"ab54d072f1e92102e482b0f3949681329cc2085b2c6dfa246c754677b7a52ab4","record_ref":"demo-origin","prior_refs":[]},
+    {"stage":"cell","gtin":"09506000134369","serial":"CELL-0001","data_hash":"160530709ea6999d7a09a256073fe402588320c528e227efb6b986fde66ef91b","record_ref":"demo-cell","prior_refs":["demo-origin"]},
+    {"stage":"pack","gtin":"09506000134376","serial":"PACK-0001","data_hash":"01454628517ddfc0cfcf720a0777015a015bd268ab5cc38377b1f7f6cb4d43e4","record_ref":"demo-pack","prior_refs":["demo-cell"]},
+    {"stage":"recycling","gtin":"09506000134383","serial":"RECYCLE-0001","data_hash":"9de8ed9a52356eec8603a9589ff721e2dd504e46602d3e3264556a16c5a26281","record_ref":"demo-recycling","prior_refs":["demo-pack"]}
+  ],
+  "example_resolution": {
+    "request": "/verify/01454628517ddfc0cfcf720a0777015a015bd268ab5cc38377b1f7f6cb4d43e4",
+    "response": {"transactionHash":"demo-pack","metadata":{"stage":"pack","prior_refs":["demo-cell"]}}
+  },
+  "expected_reverse_path": ["demo-recycling","demo-pack","demo-cell","demo-origin"],
+  "limits": ["no live transaction", "no physical truth", "no legal authority", "no regulatory completeness"]
+}
+</code></pre>
+<p>Os quatro <code>data_hash</code> acima são calculados pelo perfil <code>dpp.prototype.id.v1</code> descrito nesta aula. <code>example_resolution</code> é uma resposta simulada de API, não uma captura do serviço UVerify.</p>
+<pre><code class="language-python">records = {
+    "demo-origin": None,
+    "demo-cell": "demo-origin",
+    "demo-pack": "demo-cell",
+    "demo-recycling": "demo-pack",
+}
+
+path = []
+current = "demo-recycling"
+while current is not None:
+    if current in path:
+        raise ValueError("cycle detected")
+    path.append(current)
+    current = records[current]
+
+assert path == ["demo-recycling", "demo-pack", "demo-cell", "demo-origin"]
+print(path)
+</code></pre>
+<p>Para uma execução real, substitua cada <code>record_ref</code> pela referência integral retornada pelo ambiente, registre a rede e a fonte de leitura e preserve o relatório de verificação. Nunca apresente os valores <code>demo-*</code> como hashes de transação.</p>
+</div></details>
 
 <h3 id="aula-2-6-s2">2. Quatro credenciais dentro do caso</h3>
 <p>Origem, célula, pack e reciclagem usam GTIN, serial, transação e <code>data_hash</code> próprios. A credencial final referencia os elos anteriores; o verificador percorre a cadeia no sentido inverso.</p>
@@ -6333,7 +6484,7 @@ print("digest confere?", digest_calculado == metadata_digest)
 <path class="rel-external" d="M240 474 H360"></path>
 <rect class="obj-anchor" height="118" rx="9" width="300" x="360" y="415"></rect>
 <text style="font-family:var(--font-mono);font-size:13px;font-weight:750;fill:var(--deck-orange-dark)" text-anchor="middle" x="510" y="448">data_hash</text>
-<text style="font-family:var(--font-mono);font-size:14px;font-weight:750;fill:var(--ink)" text-anchor="middle" x="510" y="479">sha256(gtin + serial)</text>
+<text style="font-family:var(--font-mono);font-size:14px;font-weight:750;fill:var(--ink)" text-anchor="middle" x="510" y="479">sha256(bytes_v1)</text>
 <text style="font-size:15px;fill:var(--ink-dim)" text-anchor="middle" x="510" y="510">identificador e índice da credencial</text>
 <path class="rel-external" d="M510 415 V330"></path>
 <rect class="obj-system" height="225" rx="9" width="290" x="365" y="105"></rect>
@@ -6366,8 +6517,10 @@ print("digest confere?", digest_calculado == metadata_digest)
 <text style="font-size:16px;font-weight:700;fill:var(--ink)" text-anchor="middle" x="1355" y="469">completude · acesso · retenção</text>
 <text style="font-size:14px;fill:var(--ink-dim)" text-anchor="middle" x="1355" y="498">exigem evidência e governança</text>
 </svg></div><figcaption>No modo UVerify, a cadeia ancora identificação e a API resolve o payload.</figcaption></figure>
-<p>No exercício, <code>data_hash = sha256(gtin + serial)</code>. Ele identifica e ajuda a localizar a credencial. O cálculo é uma convenção do protótipo, não um hash de payload nem um campo universal de DPP. Não compromete os bytes de um documento completo.</p>
-<p>Integridade documental exigiria <code>document_hash</code> separado sobre bytes canônicos, preservação do documento e um procedimento de comparação. O verificador precisa declarar de onde obteve transação, payload, schema e referências.</p>
+<p>A implementação congelada usa o perfil legado implícito <code>legacy-uverify-gtin-serial-v0</code>: <code>SHA-256(UTF-8(gtin + serial))</code>. Esse cálculo deve ser reproduzido somente para consultar registros já criados pelo protótipo. Como não há fronteiras de campo nem versão nos bytes, pares diferentes podem gerar a mesma concatenação; portanto, ele não deve ser adotado como novo contrato interoperável.</p>
+<p>Para novas execuções corrigidas, <code>data_hash</code> segue o perfil versionado <code>dpp.prototype.id.v1</code>. O GTIN deve conter exatamente 14 dígitos ASCII; o serial deve corresponder a <code>[A-Z0-9-]{1,32}</code>. Defina <code>bytes_v1 = ASCII("DPP-ID:v1") || 0x00 || ASCII(gtin) || 0x00 || ASCII(serial)</code> e <code>data_hash = SHA-256(bytes_v1)</code>, exibido como 64 caracteres hexadecimais minúsculos. Rejeite entradas fora desse contrato em vez de normalizá-las silenciosamente.</p>
+<p>O prefixo de domínio e os separadores impedem colisões por concatenação ambígua. Mesmo assim, esse valor apenas identifica e ajuda a localizar a credencial. É uma convenção do protótipo, não um hash de payload nem um campo universal de DPP. Resolver, emissor e verificador precisam declarar o mesmo perfil; não troque o cálculo de registros existentes silenciosamente.</p>
+<p>Integridade documental exige <code>document_hash</code> separado sobre bytes canônicos, preservação do documento e um procedimento de comparação. O verificador precisa declarar de onde obteve transação, payload, schema e referências.</p>
 
 <h3 id="aula-2-6-s4">4. Conclusão adequada e decisões abertas</h3>
 <p>Uma conclusão proporcional seria: o protótipo em Preprod recuperou as transações e referências esperadas e percorreu a cadeia técnica DPP-style. Essa frase não declara passaporte válido, verdade física, autoridade legal ou conformidade regulatória.</p>
@@ -6423,12 +6576,23 @@ print("digest confere?", digest_calculado == metadata_digest)
 </div><details class="answer" id="answer-aula-2-6-a2"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Resposta da atividade 1</summary><div class="answer-body"><p>Primeiro, a frase original excede o alcance do exercício em quatro pontos. “Provou” anuncia uma conclusão mais ampla que a evidência disponível. “Passaporte válido” pressupõe uma avaliação regulatória completa. “Todas as claims são verdadeiras” confunde registro com verdade física. A confirmação das transações também não demonstra autoridade legal dos emissores nem conformidade do produto.</p><p>Em seguida, a parte sustentada pela observação deve registrar somente o ambiente e o percurso técnico. Uma reescrita adequada é: “O protótipo em Preprod recuperou as transações e referências esperadas do caso e percorreu a cadeia técnica no estilo DPP. O exercício não avaliou a completude regulatória de um Battery Passport, a verdade física das claims, a autoridade legal dos emissores nem a conformidade do produto.”</p></div></details>
 
 <div class="closing"><h3>Fechamento</h3><p>Você relacionou os componentes técnicos ao fluxo do workshop, separou identificação de integridade documental e limitou a conclusão do relatório. O próximo módulo aplica essas peças ao DPP e ao Battery Passport.</p></div>
-<div class="selfcheck"><div class="box-label">Autoavaliação</div><p>Em caso de dúvida, retome a seção, refaça a Atividade 1 e consulte as referências do módulo.</p><ul><li><strong>Objetivo 1.</strong> nomear a saída de cada checkpoint;</li><li><strong>Objetivo 2.</strong> reconstruir a cadeia de quatro credenciais;</li><li><strong>Objetivo 3.</strong> distinguir metadata direta de resolução por UVerify;</li></ul></div>
+<div class="selfcheck"><div class="box-label">Autoavaliação</div><p>Em caso de dúvida, retome a seção, refaça a Atividade 1 e consulte as referências do módulo.</p><ul>
+<li><strong>Objetivo 1.</strong> relacionar os cinco checkpoints do workshop aos artefatos esperados;</li>
+<li><strong>Objetivo 2.</strong> reconstruir referências de reciclagem até origem;</li>
+<li><strong>Objetivo 3.</strong> distinguir <code>data_hash</code> de <code>document_hash</code>;</li>
+
+
+</ul></div>
 <div class="bridge"><div class="box-label">Ponte para o próximo módulo</div><p>Como os mecanismos estudados sustentam claims, evidências, acesso e responsabilidade ao longo do ciclo de uma bateria?</p></div>
 </article><section class="module-references" id="referencias-modulo-2"><h2>Referências do Módulo 2</h2><p>Estas fontes descrevem as interfaces e padrões citados nas decisões de arquitetura.</p><ul class="sources-list">
 <li><a href="https://cips.cardano.org/cip/CIP-0030" rel="noopener" target="_blank">CIP-30</a>: integração entre aplicações web e wallets.</li>
 <li><a href="https://cips.cardano.org/cip/CIP-0025" rel="noopener" target="_blank">CIP-25</a>: metadata associada a ativos.</li>
+<li><a href="https://cips.cardano.org/cip/CIP-0031" rel="noopener" target="_blank">CIP-31</a>: reference inputs.</li>
+<li><a href="https://cips.cardano.org/cip/CIP-0032" rel="noopener" target="_blank">CIP-32</a>: inline datums.</li>
+<li><a href="https://cips.cardano.org/cip/CIP-0040" rel="noopener" target="_blank">CIP-40</a>: collateral outputs.</li>
+<li><a href="https://cips.cardano.org/cip/CIP-0067" rel="noopener" target="_blank">CIP-67</a>: labels em asset name bytes.</li>
 <li><a href="https://cips.cardano.org/cip/CIP-0068" rel="noopener" target="_blank">CIP-68</a>: ativos de referência e estado atualizável.</li>
+<li><a href="https://docs.uverify.io/" rel="noopener" target="_blank">UVerify Docs</a> e <a href="https://github.com/UVerify-io/uverify-examples" rel="noopener" target="_blank">exemplos oficiais</a>: comportamento e integração do produto, que devem ser confirmados para a versão implantada.</li>
 <li><a href="https://projectcatalyst.io/funds/13/cardano-partners-enterprise-randd/iagon-and-wurth-platform-for-secure-3d-printing-and-intellectual-property-management" rel="noopener" target="_blank">Iagon + Würth no Project Catalyst</a>: proposta em desenvolvimento que motiva o caso de licenciamento de impressão 3D.</li>
 <li><a href="https://www.tuhh.de/fks/en/research/sampl" rel="noopener" target="_blank">SAMPL</a>: precedente técnico para licenças digitais, CAD criptografado, impressoras confiáveis e RFID.</li>
 <li><a href="https://docs.cardano.org/about-cardano/learn/eutxo-explainer/" rel="noopener" target="_blank">Cardano Docs: EUTxO</a>: base do contexto de validação.</li>
@@ -6632,7 +6796,7 @@ print("digest confere?", digest_calculado == metadata_digest)
 
 <ul>
 <li>Quem gerou o dado?</li>
-<li>Quem assinou ou publicou o dado?</li>
+<li>Qual chave assinou o dado, quem a controlava e quem publicou?</li>
 <li>Quem tem autoridade reconhecida para aquela declaração?</li>
 </ul>
 <p>Essas respostas podem coincidir, mas não precisam coincidir. Um laboratório pode gerar um relatório. O fabricante pode publicar o hash no passaporte. Uma certificadora pode reconhecer a conformidade. Um auditor pode revisar uma amostra. O passaporte deve deixar claro qual papel cada ator exerce.</p>
@@ -6724,11 +6888,9 @@ print("digest confere?", digest_calculado == metadata_digest)
 </div>
 <div class="selfcheck"><div class="box-label">Autoavaliação</div><p>Em caso de dúvida, retome a seção, refaça a Atividade 1 e consulte as referências do módulo.</p>
 <ul>
-<li><strong>Objetivo 1.</strong> explicar por que um passaporte de produto não é verdade automática;</li>
-<li><strong>Objetivo 2.</strong> diferenciar claim, evidência, ponte para evidência e contexto;</li>
-<li><strong>Objetivo 3.</strong> apontar o emissor provável de uma claim técnica;</li>
-
-
+<li><strong>Objetivo 1.</strong> diferenciar claim, evidência, ponte para evidência e contexto de interpretação;</li>
+<li><strong>Objetivo 2.</strong> classificar campos de um passaporte fictício conforme o papel que exercem;</li>
+<li><strong>Objetivo 3.</strong> identificar emissores prováveis e responsabilidades associadas a diferentes claims;</li>
 
 
 </ul></div>
@@ -6875,8 +7037,9 @@ print("digest confere?", digest_calculado == metadata_digest)
 <text class="dc-title" x="1400" y="285">registro entregue</text><text class="dc-body" x="1400" y="310">com acesso e escrita</text><text class="dc-body" x="1400" y="330">conforme os direitos</text>
 <rect class="badge-authorization" height="44" rx="22" width="128" x="1398" y="354"></rect><text style="font-family:var(--font-mono);font-size:11px;font-weight:800;fill:var(--deck-orange-dark)" text-anchor="middle" x="1462" y="381">RESPONSÁVEL</text>
 </g>
-<rect class="dc-thesis" height="34" rx="5" width="1530" x="30" y="548"></rect><text style="font-size:17px;font-weight:750;fill:var(--paper)" text-anchor="middle" x="795" y="571">Delegar API, assinatura ou publicação técnica não transfere a responsabilidade regulatória.</text>
-</svg><figcaption>Claims de fontes diferentes chegam ao operador responsável pelo Battery Passport. Delegar API, assinatura ou publicação técnica não transfere essa responsabilidade.</figcaption></figure>
+<rect class="dc-thesis" height="34" rx="5" width="1530" x="30" y="548"></rect><text style="font-size:17px;font-weight:750;fill:var(--paper)" text-anchor="middle" x="795" y="571">Delegar a operação não transfere, por si só, a responsabilidade de Article 77(4).</text>
+</svg><figcaption>Claims de fontes diferentes chegam ao operador responsável pelo Battery Passport. Delegar API, assinatura ou publicação técnica não transfere, por si só, a responsabilidade atribuída por Article 77(4).</figcaption></figure>
+<p>Essa conclusão está limitada ao regime descrito nesta aula. Em outros fluxos, contrato, lei aplicável e papel efetivamente exercido podem distribuir responsabilidades de outra forma. Sempre nomeie a norma e o papel antes de afirmar quem continua responsável.</p>
 
 
 <h3 id="aula-3-2-s2">2. Emissor técnico vs autoridade institucional</h3>
@@ -7047,7 +7210,7 @@ print("digest confere?", digest_calculado == metadata_digest)
 <li>Qual claim está sendo avaliada?</li>
 <li>Quem é a fonte natural dessa claim?</li>
 <li>Quem montou o payload?</li>
-<li>Quem assinou os bytes?</li>
+<li>Qual chave assinou os bytes, quem a controlava e qual associação sustenta essa atribuição?</li>
 <li>Quem publicou o registro?</li>
 <li>Quem tinha autoridade para a claim no período?</li>
 <li>A delegação está documentada e limitada?</li>
@@ -7062,11 +7225,9 @@ print("digest confere?", digest_calculado == metadata_digest)
 </div>
 <div class="selfcheck"><div class="box-label">Autoavaliação</div><p>Em caso de dúvida, retome a seção, refaça a Atividade 1 e consulte as referências do módulo.</p>
 <ul>
-<li><strong>Objetivo 1.</strong> listar atores típicos de um fluxo de passaporte de produto;</li>
-<li><strong>Objetivo 2.</strong> separar fonte do dado, emissor técnico, operador e autoridade institucional;</li>
-<li><strong>Objetivo 3.</strong> explicar por que assinatura válida não prova autoridade ilimitada;</li>
-
-
+<li><strong>Objetivo 1.</strong> identificar atores típicos em um fluxo de passaporte de produto;</li>
+<li><strong>Objetivo 2.</strong> diferenciar emissor técnico, fonte do dado, operador e autoridade institucional;</li>
+<li><strong>Objetivo 3.</strong> explicar como delegação operacional muda a responsabilidade de uma publicação;</li>
 
 
 </ul></div>
@@ -7214,6 +7375,20 @@ Contexto do produtor B
 <li>perfil de canonicalização quando houver hash ou assinatura.</li>
 </ul>
 <p>JSON-LD não exige que todo dado seja público nem que todo grafo seja colocado na rede. O documento completo pode permanecer off-chain e sob controle de acesso. Um payload mínimo pode carregar identificadores e digests. A escolha de publicação continua sujeita a privacidade, custo, retenção e finalidade.</p>
+<div class="activity"><div class="box-label">Atividade 2: escreva um fragmento JSON-LD</div><p>Converta o registro local <code>{"battery_code":"BAT-2026-00073","mass":"418.2","maker":"ORG-17"}</code> em JSON-LD. Use <code>https://example.org/vocab/dpp/1.0#productId</code> para <code>battery_code</code>, <code>...#massKilogram</code> com tipo <code>xsd:decimal</code> para <code>mass</code> e <code>...#manufacturer</code> com tipo <code>@id</code> para <code>maker</code>. Identifique o pack por <code>urn:example:battery:BAT-2026-00073</code>, o fabricante por <code>https://example.org/org/ORG-17</code> e a classe por <code>dpp:BatteryPack</code>.</p><details class="answer"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Resposta da atividade 2</summary><div class="answer-body"><pre><code class="language-json">{
+  "@context": {
+    "dpp": "https://example.org/vocab/dpp/1.0#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "battery_code": "dpp:productId",
+    "mass": {"@id": "dpp:massKilogram", "@type": "xsd:decimal"},
+    "maker": {"@id": "dpp:manufacturer", "@type": "@id"}
+  },
+  "@id": "urn:example:battery:BAT-2026-00073",
+  "@type": "dpp:BatteryPack",
+  "battery_code": "BAT-2026-00073",
+  "mass": "418.2",
+  "maker": "https://example.org/org/ORG-17"
+}</code></pre><p>Os aliases locais permanecem legíveis, enquanto o contexto fixa propriedade e tipo. As IRIs <code>example.org</code> são didáticas e não constituem um vocabulário publicado para produção.</p></div></details></div>
 <p>O posicionamento desta aula na sequência é intencional. Primeiro você identifica claims e responsáveis. Depois define o significado compartilhado dos termos. Só então congela uma representação, calcula hash, assina e ancora. Assinar bytes ambíguos preserva a ambiguidade com boa criptografia.</p>
 
 <div class="closing"><h3>Fechamento</h3><p>Nesta aula, você tratou a interoperabilidade como um problema de significado compartilhado. JSON válido permite intercâmbio sintático, mas nomes locais, unidades implícitas e identificadores sem namespace impedem comparação segura entre organizações.</p>
@@ -7222,11 +7397,9 @@ Contexto do produtor B
 </div>
 <div class="selfcheck"><div class="box-label">Autoavaliação</div><p>Em caso de dúvida, retome a seção, refaça a Atividade 1 e consulte as referências do módulo.</p>
 <ul>
-<li><strong>Objetivo 1.</strong> dar um exemplo de JSON sintaticamente válido e semanticamente ambíguo;</li>
-<li><strong>Objetivo 2.</strong> explicar o papel de <code>@context</code>, <code>@id</code> e <code>@type</code>;</li>
-<li><strong>Objetivo 3.</strong> mostrar como dois aliases locais podem apontar para a mesma IRI;</li>
-
-
+<li><strong>Objetivo 1.</strong> explicar por que JSON válido pode continuar semanticamente ambíguo entre organizações;</li>
+<li><strong>Objetivo 2.</strong> usar <code>@context</code>, <code>@id</code> e <code>@type</code> para ligar termos locais a identificadores globais;</li>
+<li><strong>Objetivo 3.</strong> descrever como vocabulários e IRIs permitem que sistemas comparem o significado de campos;</li>
 
 
 </ul></div>
@@ -7338,10 +7511,12 @@ Contexto do produtor B
 
 
 
+<div class="sp-box note"><span class="sp-col-title">Contrato de bytes de <code>payload_hash_hex</code></span><p>O perfil <code>dpp.anchor.v1</code> elimina a alternativa ambígua. Construa primeiro um objeto <code>payload</code> sem assinatura. Canonicalize-o com JCS, RFC 8785, e assine esses bytes UTF-8. Depois construa o <code>signed_envelope</code> com exatamente dois campos: <code>payload</code> e <code>signature</code>. Por fim, calcule <code>payload_hash_hex = SHA-256(JCS(signed_envelope))</code>, em hexadecimal minúsculo. Assim, a assinatura não participa dos bytes que ela própria assina, mas participa do envelope ancorado.</p></div>
 <pre><code class="language-json">{
   "schema": "dpp.anchor.v1",
+  "payload_hash_profile": "jcs-signed-envelope-sha256-v1",
   "payload_hash_alg": "sha256",
-  "payload_hash_hex": "&lt;hash_do_payload_assinado_ou_do_payload_sem_o_campo_assinatura&gt;",
+  "payload_hash_hex": "&lt;sha256_do_signed_envelope_canonicalizado_com_jcs&gt;",
   "documento_hash_alg": "sha256",
   "documento_hash_hex": "&lt;hash_original_da_atividade_1&gt;",
   "documento_ref": "https://example.org/evidencias/pass-bat-2026-00073-v1.json",
@@ -7351,6 +7526,7 @@ Contexto do produtor B
   "emitido_em": "2026-07-10T14:32:18Z"
 }
 </code></pre>
+<p>O verificador obtém o envelope, aplica JCS sem transformar números, textos ou Unicode por convenções locais, recalcula o digest e compara com <code>payload_hash_hex</code>. Em seguida, aplica JCS somente ao objeto <code>payload</code> e verifica a assinatura conforme <code>signature.alg</code>. Qualquer implementação que use outro objeto, outra canonicalização ou outra codificação pertence a outro perfil e deve usar outro identificador de versão.</p>
 
 <p>Aqui aparece um ponto de privacidade. Hash não é criptografia de confidencialidade. Se o documento tem poucos valores possíveis ou segue um modelo previsível, alguém pode tentar reconstruir candidatos e comparar hashes. Para documentos sensíveis, não assuma que publicar o digest é sempre seguro. Avalie conteúdo, entropia, acesso, sal, compromisso criptográfico adequado e necessidade real de exposição.</p>
 
@@ -7438,7 +7614,7 @@ Contexto do produtor B
 </tbody>
 </table></div>
 <p>Nos dois diagnósticos curtos, uma resposta adequada seria: na mudança de URL, o hash do documento ainda pode ser verificado, mas falta uma regra confiável para aceitar a nova localização; na calibração, a integridade do registro ainda pode ser verificada, mas falta evidência sobre o instrumento de medição.</p>
-<p>Nem todo problema é falha de hash ou de assinatura. Hashes e assinaturas permitem detectar mudanças e autenticar bytes, mas não garantem disponibilidade, validade institucional da chave nem qualidade da medição.</p>
+<p>Nem todo problema é falha de hash ou de assinatura. O hash permite detectar mudanças nos bytes apresentados; a verificação da assinatura testa a relação entre bytes, assinatura e chave pública. Nenhum dos dois garante disponibilidade, identidade, validade institucional da chave ou qualidade da medição.</p>
 </div></details>
 <div class="activity"><div class="box-label">Atividade 2: verifique uma assinatura didática</div>
 <p>Produza três registros: uma previsão, os valores obtidos na execução e uma conclusão compatível com o alcance do teste.</p>
@@ -7541,7 +7717,7 @@ assert isinstance(verifica, bool)
 <p aria-live="polite" class="cq-feedback"></p>
 </form></div><details class="answer"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Resposta da atividade 2</summary><div class="answer-body"><p>Primeiro, os bytes canônicos do payload são resumidos com SHA-256 e reduzidos módulo <code>n</code>. Esse cálculo produz <code>esperado: 74</code>. A assinatura criada anteriormente tem <code>assinatura_int: 352</code>.</p>
 <p>Depois, o verificador calcula <code>pow(352, 17, 3233)</code>, usando <code>e</code> e <code>n</code> da chave pública. O resultado é <code>observado: 74</code>. Como <code>observado</code> e <code>esperado</code> são iguais, a saída é <code>verifica: True</code>. A chave privada e seu expoente <code>d</code> participam da criação da assinatura, mas não dessa conferência.</p>
-
+<p><strong>Limite demonstrável do brinquedo:</strong> o SHA-256 tem <code>2^256</code> resultados possíveis, mas a função <code>hash_para_inteiro_mod_n</code> reduz todos eles a apenas <code>3233</code> resíduos. Pelo princípio da casa dos pombos, muitos digests diferentes produzem o mesmo representante numérico. Portanto, <code>True</code> nesta execução não sustenta segurança criptográfica para documentos reais. Produção exige um esquema padronizado, parâmetros seguros, formatos definidos e biblioteca revisada.</p>
 </div></details><div class="activity"><div class="box-label">Atividade 3: teste reordenação e alteração do payload</div>
 <p>Preveja o efeito de reordenar as chaves e de trocar um valor do payload. Sua entrega será uma tabela com as colunas <code>mesmos_bytes</code> e <code>assinatura_valida</code> para os casos <code>original</code>, <code>reordenado</code> e <code>alterado</code>.</p>
 <ol>
@@ -7653,11 +7829,9 @@ for nome, caso in casos.items():
 </div>
 <div class="selfcheck"><div class="box-label">Autoavaliação</div><p>Para revisar: Objetivo 1, atividade 1; Objetivo 2, atividade 1 ou 2 ou 3; Objetivo 3, atividade 1 ou 2 ou 3. Retome antes a seção correspondente e, se necessário, as referências do módulo.</p>
 <ul>
-<li><strong>Objetivo 1.</strong> explicar por que um documento off-chain precisa de bytes definidos para ser verificável;</li>
-<li><strong>Objetivo 2.</strong> calcular e interpretar o SHA-256 de um JSON canônico didático;</li>
-<li><strong>Objetivo 3.</strong> diferenciar hash do documento e hash do payload;</li>
-
-
+<li><strong>Objetivo 1.</strong> explicar por que um documento pode ficar off-chain sem perder o vínculo com uma prova técnica;</li>
+<li><strong>Objetivo 2.</strong> calcular o SHA-256 de um JSON canônico didático e interpretar o digest como compromisso com bytes específicos;</li>
+<li><strong>Objetivo 3.</strong> montar um payload mínimo que relacione documento, hash, emissor e assinatura;</li>
 
 
 </ul></div>
@@ -7761,6 +7935,7 @@ for nome, caso in casos.items():
 <h3 id="aula-3-5-s2">2. Vínculo com estado anterior</h3>
 <p>Uma trilha auditável precisa lidar com uma pergunta incômoda: como perceber se alguém removeu um evento do meio, trocou a ordem ou reescreveu um campo antigo?</p>
 <p>Um caminho simples é fazer cada evento apontar para o hash do evento anterior. Assim, o hash do evento 2 depende dos próprios campos do evento 2, e também do hash do evento 1. O evento 3 aponta para o hash do evento 2. Se o evento 2 muda, o hash dele muda. Como o evento 3 aponta para o hash antigo, a cadeia deixa de fechar.</p>
+<p>Esse teste vale para a sequência apresentada. Uma hash chain isolada não prova que o primeiro evento é o início legítimo, que o último é a cabeça mais recente ou que não existe um fork alternativo. Para detectar truncamento, omissão de cauda ou apresentação de uma ramificação antiga, o verificador precisa de uma cabeça confiável, checkpoints assinados ou ancorados, política de ordenação e regra para resolver forks.</p>
 <figure class="fig"><svg role="img" viewBox="0 0 690 140"><rect fill="var(--tint)" height="78" stroke="var(--ink)" stroke-width="1.1" width="178" x="30" y="36"></rect><text class="mono" text-anchor="middle" x="119.0" y="63.5">evt-001</text><text class="mono" text-anchor="middle" x="119.0" y="79.5">hash: H1</text><text class="mono" text-anchor="middle" x="119.0" y="95.5">prev: null</text><rect fill="var(--paper)" height="78" stroke="var(--ink)" stroke-width="1.1" width="178" x="256" y="36"></rect><text class="mono" text-anchor="middle" x="345.0" y="63.5">evt-002</text><text class="mono" text-anchor="middle" x="345.0" y="79.5">hash: H2</text><text class="mono" text-anchor="middle" x="345.0" y="95.5">prev: H1</text><line stroke="var(--ink)" stroke-width="1.1" x1="253" x2="211" y1="75" y2="75"></line><polygon fill="var(--ink)" points="211,75 217.4,72.1 217.4,77.9"></polygon><text class="dim" text-anchor="middle" x="232" y="60">aponta</text><rect fill="var(--paper)" height="78" stroke="var(--ink)" stroke-width="1.1" width="178" x="482" y="36"></rect><text class="mono" text-anchor="middle" x="571.0" y="63.5">evt-003</text><text class="mono" text-anchor="middle" x="571.0" y="79.5">hash: H3</text><text class="mono" text-anchor="middle" x="571.0" y="95.5">prev: H2</text><line stroke="var(--ink)" stroke-width="1.1" x1="479" x2="437" y1="75" y2="75"></line><polygon fill="var(--ink)" points="437,75 443.4,72.1 443.4,77.9"></polygon><text class="dim" text-anchor="middle" x="458" y="60">aponta</text></svg><figcaption>Cada evento guarda o hash do anterior. Se evt-002 for alterado, seu hash deixa de ser H2 e o vínculo declarado por evt-003 não fecha mais.</figcaption></figure>
 
 
@@ -7774,6 +7949,7 @@ for nome, caso in casos.items():
 <li>regras de correção, revogação e acesso.</li>
 </ul>
 <p>O ponto pedagógico é simples: uma trilha auditável não depende apenas do último estado. Ela depende da consistência entre eventos.</p>
+<div class="activity"><div class="box-label">Atividade 1: construa três elos</div><p>Use o perfil <code>dpp.event-chain.v1</code>: para cada evento, aplique JCS, RFC 8785, ao objeto inteiro e calcule <code>SHA-256(ASCII("DPP-EVENT:v1") || 0x00 || bytes_JCS)</code>. Comece com <code>{"event_id":"evt-001","event_type":"montagem","prev_event_hash":null}</code>. Monte <code>evt-002</code> com tipo <code>ensaio</code> e o hash do primeiro; depois monte <code>evt-003</code> com tipo <code>expedicao</code> e o hash do segundo. Registre os três hashes e explique o que acontece se o tipo do segundo evento mudar depois.</p><details class="answer"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Resposta da atividade 1</summary><div class="answer-body"><p>Os hashes são, na ordem, <code>4a574d80e2ab3b0cf31db71ba820dd1de4071c5ff0682adf2ca9bdd8428d36da</code>, <code>8fc025aa744dc9be32c99661c3d9c2a6601b08044a0572ebd0f9e4ae5e6a4006</code> e <code>fe58753805d5bc37b893bedeaccd07054578a0085dca16f8a0fe260d3c8b72bd</code>. Alterar <code>event_type</code> no segundo evento muda seu hash; o <code>prev_event_hash</code> do terceiro continua apontando para o valor antigo e a sequência apresentada deixa de fechar. Uma cabeça antiga ou uma cadeia reescrita de modo consistente ainda exige checkpoint externo para ser detectada.</p></div></details></div>
 
 
 <h3 id="aula-3-5-s3">3. Tempo técnico e tempo de negócio</h3>
@@ -7902,7 +8078,7 @@ for nome, caso in casos.items():
 <li>emissor fora de escopo, quando quem publicou não é quem poderia declarar aquele tipo de mudança.</li>
 </ul>
 
-<div class="activity"><div class="box-label">Atividade 1: produza um diagnóstico de auditoria</div><p>Audite a trilha em três etapas. Sua entrega será um diagnóstico verificável: selecione dois achados de encadeamento ou tempo, cinco pares de lacuna e providência e, por fim, uma conclusão compatível com as evidências.</p>
+<div class="activity"><div class="box-label">Atividade 2: produza um diagnóstico de auditoria</div><p>Audite a trilha em três etapas. Sua entrega será um diagnóstico verificável: selecione dois achados de encadeamento ou tempo, cinco pares de lacuna e providência e, por fim, uma conclusão compatível com as evidências.</p>
 <p>Considere que <code>H001</code>, <code>H002</code>, <code>H003</code>, <code>H004</code> e <code>H005</code> são, respectivamente, os hashes dos eventos 1 a 5 calculados previamente.</p>
 <div class="table-scroll"><table>
 <thead>
@@ -8024,11 +8200,9 @@ for nome, caso in casos.items():
 </div>
 <div class="selfcheck"><div class="box-label">Autoavaliação</div><p>Em caso de dúvida, retome a seção, refaça a Atividade 1 e consulte as referências do módulo.</p>
 <ul>
-<li><strong>Objetivo 1.</strong> explicar por que uma trilha auditável não deve depender apenas do documento final;</li>
-<li><strong>Objetivo 2.</strong> modelar um evento de ciclo de vida com emissor, evidência, timestamps e vínculo anterior;</li>
-<li><strong>Objetivo 3.</strong> dizer o que <code>prev_event_hash</code> ajuda a detectar;</li>
-
-
+<li><strong>Objetivo 1.</strong> representar um evento de ciclo de vida com mudança declarada, emissor, timestamps, evidência e vínculo com o estado anterior;</li>
+<li><strong>Objetivo 2.</strong> diferenciar estado atual, documento final e histórico de eventos;</li>
+<li><strong>Objetivo 3.</strong> construir um encadeamento didático de hashes para perceber remoção, alteração ou reordenação de eventos;</li>
 
 
 </ul></div>
@@ -8138,6 +8312,7 @@ for nome, caso in casos.items():
 </ul>
 
 <p>Por isso, não trate <code>hash</code> como sinônimo de <code>privado</code>. Trate hash como compromisso com bytes. Para privacidade, você precisa de minimização, controle de acesso, desenho de identificadores, criptografia adequada fora da rede quando necessário e regras de retenção.</p>
+<p>Pseudonimização reduz a ligação direta, mas dados pseudonimizados continuam sendo dados pessoais quando podem ser atribuídos novamente com informação adicional. Anonimização exige que a identificação deixe de ser razoavelmente provável considerando meios disponíveis, contexto e evolução técnica. Em um ledger público, permanência, correlação entre transações e cópia por terceiros tornam essa avaliação especialmente rigorosa.</p>
 
 
 
@@ -8267,11 +8442,9 @@ Ainda depende de controles externos a disponibilidade dos documentos, a autorida
 </div>
 <div class="selfcheck"><div class="box-label">Autoavaliação</div><p>Em caso de dúvida, retome a seção, refaça a Atividade 1 e consulte as referências do módulo.</p>
 <ul>
-<li><strong>Objetivo 1.</strong> dizer o que uma transação com digest pode provar;</li>
-<li><strong>Objetivo 2.</strong> apontar pelo menos três coisas que continuam fora da rede;</li>
-<li><strong>Objetivo 3.</strong> explicar por que hash não é anonimização automática;</li>
-
-
+<li><strong>Objetivo 1.</strong> classificar afirmações sobre um registro como prova técnica, dependência externa ou conclusão forte demais;</li>
+<li><strong>Objetivo 2.</strong> explicar por que hash, assinatura e transação não transformam dado ruim em fato confiável;</li>
+<li><strong>Objetivo 3.</strong> reduzir um payload para preservar verificabilidade com menor exposição de dados;</li>
 
 
 </ul></div>
@@ -8355,9 +8528,10 @@ Ainda depende de controles externos a disponibilidade dos documentos, a autorida
 </div>
 <div class="selfcheck"><div class="box-label">Autoavaliação</div><p>Em caso de dúvida, retome a seção, refaça a Atividade 1 e consulte as referências do módulo.</p>
 <ul>
-<li><strong>Objetivo 1.</strong> nomear a pergunta probatória criada em cada transição do ciclo de vida do pack;</li>
-<li><strong>Objetivo 2.</strong> separar integridade, atribuição e verdade externa e indicar o teste de cada uma;</li>
-<li><strong>Objetivo 3.</strong> listar o que um registro público resolve, desloca e não resolve;</li>
+<li><strong>Objetivo 1.</strong> diagnosticar falhas de integridade, atribuição e verdade externa em uma cadeia de evidência;</li>
+<li><strong>Objetivo 2.</strong> separar o que um registro público resolve, o que ele desloca para outras camadas e o que ele não resolve;</li>
+<li><strong>Objetivo 3.</strong> formular a conclusão técnica mais forte que uma evidência sustenta, sem convertê-la em verdade física.</li>
+
 
 </ul></div>
 <div class="bridge"><div class="box-label">Ponte para a próxima aula</div><p>Quais baterias precisam do passport, a partir de quando e sob responsabilidade de qual operador?</p></div>
@@ -8432,7 +8606,7 @@ Ainda depende de controles externos a disponibilidade dos documentos, a autorida
 
 <h3 id="aula-3-8-s1">1. O que é o Battery Passport</h3>
 <p>Use a definição jurídica antes de classificar dados, acesso e tecnologia.</p>
-<blockquote><p>A partir de 18 de fevereiro de 2027, cada bateria LMT, industrial acima de 2 kWh e EV colocada no mercado ou posta em serviço na UE deve ter Battery Passport.</p></blockquote>
+<div class="sp-box note"><span class="sp-col-title">Paráfrase didática de Article 77(1)</span><p>A partir de 18 de fevereiro de 2027, cada bateria LMT, industrial acima de 2 kWh e EV colocada no mercado ou posta em serviço na UE deve ter Battery Passport. Consulte o texto oficial para redação normativa, definições e exceções.</p></div>
 <p>O registro eletrônico reúne dados do modelo e da unidade, usa QR ligado a unique identifier e separa direitos de acesso e escrita. A lei não exige blockchain.</p>
 <p>O conteúdo do passport se organiza em três eixos:</p>
 <ol>
@@ -8662,14 +8836,15 @@ Ainda depende de controles externos a disponibilidade dos documentos, a autorida
 </ol>
 <p><strong>Erro mais provável:</strong> tratar QR e Battery Passport como a mesma obrigação. Para corrigir, faça duas perguntas separadas: a data exige QR? A categoria pertence a Article 77(1)? No cenário 2, as respostas são sim e não, respectivamente.</p>
 </div></details>
+<div class="activity"><div class="box-label">Atividade 2: construa a matriz de acesso</div><p>Para cada linha, registre grupo de Annex XIII, leitores previstos e a regra de escrita. Use: carbon footprint do modelo; composição de cátodo e instruções detalhadas de desmontagem; resultados de testes de conformidade; state of health e ciclos da bateria individual. Não trate acesso pelo QR como permissão de escrita.</p><details class="answer"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Resposta da atividade 2</summary><div class="answer-body"><div class="table-scroll"><table><thead><tr><th>Dado</th><th>Grupo</th><th>Leitura</th><th>Escrita</th></tr></thead><tbody><tr><td>Carbon footprint do modelo</td><td>1</td><td>Público.</td><td>Restrita aos papéis autorizados conforme Annex XIII, Article 78(f) e regras aplicáveis.</td></tr><tr><td>Cátodo e desmontagem detalhada</td><td>2</td><td>Interesse legítimo nas condições de 77(2)(c) e 77(9); também organismos e autoridades indicados em 77(2)(b).</td><td>Restrita; direito de leitura não concede introdução, modificação ou atualização.</td></tr><tr><td>Resultados de testes de conformidade</td><td>3</td><td>Notified bodies, market surveillance authorities e Comissão.</td><td>Restrita aos papéis autorizados.</td></tr><tr><td>State of health e ciclos da unidade</td><td>4</td><td>Interesse legítimo nas finalidades e condições de 77(9).</td><td>Restrita aos papéis autorizados; o ato aplicável precisa ser consultado.</td></tr></tbody></table></div><p>A matriz é didática. Para implementação e decisão jurídica, consulte o texto consolidado e os atos de 77(9) vigentes no momento.</p></div></details></div>
 
 <div class="closing"><h3>Fechamento</h3><p>Nesta aula, você partiu da definição jurídica do Battery Passport e classificou o escopo: três categorias, datas escalonadas e três instrumentos jurídicos com papéis distintos. Percorreu Article 77 como um ciclo de obrigação, responsabilidade, transferência e encerramento; os quatro grupos de acesso de Annex XIII; e os oito requisitos operacionais de Article 78.</p>
 </div>
 <div class="selfcheck"><div class="box-label">Autoavaliação</div><p>Em caso de dúvida, retome a seção, refaça a Atividade 1 e consulte as referências do módulo.</p>
 <ul>
-<li><strong>Objetivo 1.</strong> classificar uma bateria nas categorias de Article 77(1) e dizer o que o QR dela abre;</li>
-<li><strong>Objetivo 2.</strong> situar na cronologia as obrigações de Articles 8, 13, 14 e 77 sem tratá-las como uma única data;</li>
-<li><strong>Objetivo 3.</strong> distinguir os quatro grupos de informação de Annex XIII e o regime de acesso de cada um;</li>
+<li><strong>Objetivo 1.</strong> classificar uma bateria nas categorias de Article 77(1) e aplicar as datas corretas de QR, Battery Passport, BMS e conteúdo reciclado;</li>
+<li><strong>Objetivo 2.</strong> localizar direitos de leitura e escrita nos quatro grupos de Annex XIII e nos requisitos de Article 78;</li>
+<li><strong>Objetivo 3.</strong> identificar o operador responsável pelos dados antes e depois das transferências de Article 77(7).</li>
 
 
 </ul></div>
@@ -8764,7 +8939,7 @@ Ainda depende de controles externos a disponibilidade dos documentos, a autorida
 <h3 id="aula-3-9-s3">3. Confiança, privacidade e publicação</h3>
 <p>Ancorar um compromisso público muda o lugar da confiança. Antes, o auditor depende do login, arquivo, API e custodiante do sistema interno. Com digest, assinatura, transação e checkpoint publicados, a comparação pode ser repetida. Depois, terceiros conferem por outro caminho, sem aceitar a tela do registrador.</p>
 <div class="sp-box alert"><span class="sp-col-title">O que ainda permanece necessário</span><p>Identidade e chaves, escopo, retenção off-chain, vínculo físico, acesso, correção, revogação e operador responsável.</p></div>
-<div class="sp-box alert"><span class="sp-col-title">Dados pessoais seguem regras próprias</span><p>Em DPPs sujeitos ao ESPR, dados pessoais de clientes exigem consentimento explícito para armazenamento no passaporte, conforme Article 10(1)(e) do ESPR e Article 6 do GDPR. Article 78(h) exige segurança e privacidade no Battery Passport; as demais obrigações do GDPR continuam aplicáveis.</p></div>
+<div class="sp-box alert"><span class="sp-col-title">Dados pessoais seguem regras próprias</span><p>Em DPPs sujeitos ao ESPR, Article 10(1)(e) proíbe armazenar no passaporte dados pessoais relativos a clientes sem consentimento explícito. Separadamente, qualquer tratamento precisa de uma base jurídica válida sob Article 6 do GDPR e deve cumprir finalidade, minimização, transparência, retenção e direitos aplicáveis. Consentimento não é a base universal de todo tratamento. Article 78(h) exige segurança e privacidade no Battery Passport; as demais obrigações do GDPR continuam aplicáveis. Um registro público permanente pode ser incompatível com esses deveres mesmo quando contém apenas identificadores ou hashes correlacionáveis.</p></div>
 <p>Com isso, cada dado do sistema cabe em uma de quatro decisões de publicação:</p>
 <div aria-label="Quatro decisões de publicação" class="sp-matrix">
   <div class="sp-matrix-title">Decisões de publicação</div>
@@ -8900,9 +9075,9 @@ Ainda depende de controles externos a disponibilidade dos documentos, a autorida
 </div>
 <div class="selfcheck"><div class="box-label">Autoavaliação</div><p>Em caso de dúvida, retome a seção, refaça a Atividade 1 e consulte as referências do módulo.</p>
 <ul>
-<li><strong>Objetivo 1.</strong> decompor uma declaração em claim, evidência, ponte e contexto;</li>
-<li><strong>Objetivo 2.</strong> listar as sete etapas do documento à decisão e o que cada verificação confere;</li>
-<li><strong>Objetivo 3.</strong> justificar, para um dado concreto, a escolha entre claro, hash, referência ou nada on-chain;</li>
+<li><strong>Objetivo 1.</strong> modelar uma declaração como claim, evidência, ponte e contexto e reconstruir quem produziu, assinou, publicou e responde por ela;</li>
+<li><strong>Objetivo 2.</strong> refazer o caminho do documento à decisão, verificando hash, assinatura e inclusão, e decidir entre dado em claro, hash, referência off-chain ou nada on-chain;</li>
+<li><strong>Objetivo 3.</strong> registrar eventos de ciclo de vida, linhagem e correção sem apagar o passado, aplicando as regras de transferência e encerramento de Article 77(7) e 77(8).</li>
 
 
 </ul></div>
@@ -8984,24 +9159,25 @@ Ainda depende de controles externos a disponibilidade dos documentos, a autorida
 <li><strong>Frequentemente:</strong> várias organizações escrevem?
   <ul>
   <li><strong>Não: Anchored Proof.</strong> Compromissos versionados por uma fonte.</li>
-  <li><strong>Sim:</strong> qual o volume anual?
+  <li><strong>Sim:</strong> meça eventos por segundo, tamanho do lote, janela de publicação, latência de leitura, retenção de proofs e disponibilidade.
     <ul>
-    <li><strong>Abaixo de 100 mil: Event Log.</strong> Referência ilustrativa.</li>
-    <li><strong>Acima de 100 mil: High Throughput.</strong> Referência ilustrativa.</li>
+    <li><strong>Event Log.</strong> Ponto de partida quando checkpoints periódicos e recuperação do histórico atendem ao SLA medido.</li>
+    <li><strong>High Throughput.</strong> Considere quando partição, batching, cache e serviço de proofs são necessários para cumprir o SLA medido.</li>
     </ul></li>
   </ul></li>
 </ul>
-<p><em>100 mil produtos por ano é hipótese do blueprint, não regra; volume, frequência, batching, cache, infraestrutura e latência decidem.</em></p>
+<p><em>Não existe threshold universal de produtos por ano. Documente carga de pico, frequência de atualização, tamanho real das transações, política de batching, custo de infraestrutura e latência alvo antes de escolher.</em></p>
 <div class="table-scroll"><table>
 <caption>Visão geral dos quatro padrões</caption>
-<thead><tr><th scope="col">Padrão</th><th scope="col">Adequação</th><th scope="col">Estimativa</th><th scope="col">Privacidade</th><th scope="col">Limitação</th></tr></thead>
+<thead><tr><th scope="col">Padrão</th><th scope="col">Adequação</th><th scope="col">Unidade a medir</th><th scope="col">Privacidade</th><th scope="col">Limitação</th></tr></thead>
 <tbody>
-<tr><td>P1 · Static Passport Anchor</td><td>Fabricante médio, dados estáveis</td><td>≈ 0,2 a 1 ADA por produto ou lote</td><td>Moderada, conforme armazenamento</td><td>Simples, com pouco histórico</td></tr>
-<tr><td>P2 · Anchored Proof</td><td>ERP ou PIM privado</td><td>≈ 0,2 ADA por atualização</td><td>Alta se o desenho minimizar</td><td>Exige provas e acesso</td></tr>
-<tr><td>P3 · Event Log</td><td>Ciclo multipartes</td><td>≈ 0,25 ADA por lote</td><td>Alta só com minimização off-chain</td><td>Preserva histórico, amplia integração, ordem e correção</td></tr>
-<tr><td>P4 · High Throughput</td><td>Alto volume e SLA</td><td>≈ 0,3 ADA; exemplos de 1.000 a 10.000 itens por lote</td><td>Depende de proofs, cache e divulgação seletiva</td><td>Escala com infraestrutura crítica</td></tr>
+<tr><td>P1 · Static Passport Anchor</td><td>Fabricante médio, dados estáveis</td><td>Transação por produto ou lote, com CBOR real</td><td>Moderada, conforme armazenamento</td><td>Simples, com pouco histórico</td></tr>
+<tr><td>P2 · Anchored Proof</td><td>ERP ou PIM privado</td><td>Transação por atualização ou root</td><td>Alta somente se o desenho minimizar</td><td>Exige provas e acesso</td></tr>
+<tr><td>P3 · Event Log</td><td>Ciclo multipartes</td><td>Transação por checkpoint, mais custo off-chain por evento</td><td>Alta somente com minimização off-chain</td><td>Preserva histórico, amplia integração, ordem e correção</td></tr>
+<tr><td>P4 · High Throughput</td><td>Alto volume e SLA</td><td>Transação por root e custo de partição, proofs, cache e serviço</td><td>Depende de proofs, cache e divulgação seletiva</td><td>Escala com infraestrutura crítica</td></tr>
 </tbody>
 </table></div>
+<div class="sp-box note"><span class="sp-col-title">Método reproduzível de custo</span><p>Fixe a rede e registre o snapshot dos parâmetros de protocolo. Construa a transação completa com inputs, outputs, witnesses esperadas, metadata, datums, scripts e collateral aplicável. Serialize em CBOR, calcule a taxa com a biblioteca ou nó compatível com a era, registre tamanho, execution units e mínimo de ADA dos outputs, e repita para os tamanhos de lote candidatos. Separe taxa da rede, ADA imobilizado em outputs, custo do provedor, armazenamento, indexação, proofs, cache e operação. Valores sem esse pacote de evidência não devem orientar orçamento.</p></div>
 
 <h4>P1 · Static Passport Anchor</h4>
 <p><em>Dados estáveis, atualizações raras, uma organização.</em></p>
@@ -9262,13 +9438,13 @@ Ainda depende de controles externos a disponibilidade dos documentos, a autorida
 <p>A Proposta C mantém o documento e o envelope fora da metadata, mas publica elementos para reabrir o processo: tipo de evento, digests, referências do emissor e do estado KERI, data e política de acesso. Por isso, ela é o melhor ponto de partida entre as três.</p>
 <p><strong>Passo 2: delimitar o que C permite concluir.</strong> A metadata não valida sozinha a certificação. O verificador ainda precisa obter o pacote off-chain conforme a política de acesso, recalcular os hashes, verificar a assinatura e relacionar o <code>issuer_aid</code> ao estado KERI aplicável. Os digests detectam troca dos artefatos apresentados; eles não substituem identidade, autorização nem julgamento institucional.</p>
 <p><strong>Passo 3: tratar a correlação.</strong> Se <code>product_ref</code> reaparece publicamente, ele pode ligar eventos do mesmo produto. Uma referência opaca por evento, um valor com entropia suficiente ou uma resolução restrita a verificadores autorizados reduz essa exposição, conforme a necessidade de consulta.</p>
-<p>Aplicar um hash direto a um identificador previsível e estável preserva a possibilidade de teste por candidatos. Um observador pode testar identificadores prováveis e, se o mesmo hash for reutilizado, continuar correlacionando todos os eventos. Hash isolado não transforma um domínio pequeno ou previsível em dado privado.</p></div></details><div class="closing"><h3>Fechamento</h3><p>Nesta aula, você aplicou os três critérios de entrada, relacionou as propriedades de Cardano a capacidades mensuráveis e separou o token do ativo físico em quatro camadas. Percorreu cinco cenários operacionais, escolheu entre os quatro padrões do Blueprint pela árvore de decisão e viu por que os valores em ADA e o threshold de 100 mil são referências ilustrativas.</p>
+<p>Aplicar um hash direto a um identificador previsível e estável preserva a possibilidade de teste por candidatos. Um observador pode testar identificadores prováveis e, se o mesmo hash for reutilizado, continuar correlacionando todos os eventos. Hash isolado não transforma um domínio pequeno ou previsível em dado privado.</p></div></details><div class="closing"><h3>Fechamento</h3><p>Nesta aula, você aplicou os três critérios de entrada, relacionou as propriedades de Cardano a capacidades mensuráveis e separou o token do ativo físico em quatro camadas. Percorreu cinco cenários operacionais, escolheu entre os quatro padrões do Blueprint e substituiu cotações e thresholds genéricos por medição reproduzível do caso real.</p>
 </div>
 <div class="selfcheck"><div class="box-label">Autoavaliação</div><p>Em caso de dúvida, retome a seção, refaça a Atividade 1 e consulte as referências do módulo.</p>
 <ul>
-<li><strong>Objetivo 1.</strong> aplicar os três critérios que decidem se Cardano entra na arquitetura;</li>
-<li><strong>Objetivo 2.</strong> escolher e combinar padrões para um cenário dado, explicitando frequência, volume, emissores e privacidade;</li>
-<li><strong>Objetivo 3.</strong> explicar o que uma prova de Merkle demonstra e o que ela não demonstra;</li>
+<li><strong>Objetivo 1.</strong> decidir, com três critérios, se Cardano deve entrar na arquitetura;</li>
+<li><strong>Objetivo 2.</strong> selecionar e combinar os quatro padrões do Cardano DPP Blueprint conforme frequência, emissores, volume e privacidade;</li>
+<li><strong>Objetivo 3.</strong> separar padrão arquitetural de caminho de emissão e nomear as dependências de cada caminho.</li>
 
 
 </ul></div>
@@ -9276,9 +9452,13 @@ Ainda depende de controles externos a disponibilidade dos documentos, a autorida
 </article><section class="module-references" id="referencias-modulo-3"><h2>Referências do Módulo 3</h2><p>A regulação e os padrões continuam evoluindo. Use as fontes primárias antes de tomar decisões jurídicas, semânticas ou de interoperabilidade.</p><ul class="sources-list">
 <li><a href="https://eur-lex.europa.eu/eli/reg/2023/1542/oj" rel="noopener" target="_blank">Regulation (EU) 2023/1542</a>: Battery Passport, acesso, responsabilidades e Annex XIII.</li>
 <li><a href="https://eur-lex.europa.eu/eli/reg/2024/1781/oj" rel="noopener" target="_blank">Regulation (EU) 2024/1781</a>: Ecodesign for Sustainable Products Regulation.</li>
+<li><a href="https://eur-lex.europa.eu/eli/reg/2016/679/oj" rel="noopener" target="_blank">Regulation (EU) 2016/679</a>: GDPR, bases jurídicas, princípios e pseudonimização.</li>
+<li><a href="https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm" rel="noopener" target="_blank">Lei nº 13.709/2018</a>: texto oficial da LGPD.</li>
+<li><a href="https://www.rfc-editor.org/rfc/rfc8785" rel="noopener" target="_blank">RFC 8785</a>: JSON Canonicalization Scheme usado no perfil <code>dpp.anchor.v1</code>.</li>
 <li><a href="https://www.w3.org/TR/json-ld11/" rel="noopener" target="_blank">W3C JSON-LD 1.1</a>: modelo semântico e expansão por IRIs.</li>
 <li><a href="https://www.w3.org/TR/rdf-canon/" rel="noopener" target="_blank">W3C RDF Dataset Canonicalization</a>: RDFC-1.0.</li>
 <li><a href="https://www.gs1.org/standards/gs1-digital-link" rel="noopener" target="_blank">GS1 Digital Link</a> e <a href="https://www.gs1.org/standards/epcis" rel="noopener" target="_blank">EPCIS 2.0</a>: identificação e eventos de cadeia.</li>
+<li><a href="https://trustoverip.github.io/kswg-keri-specification/" rel="noopener" target="_blank">KERI specification</a> e <a href="https://github.com/WebOfTrust/keri" rel="noopener" target="_blank">repositório WebOfTrust/KERI</a>: protocolo, eventos de estabelecimento e modelo de controle.</li>
 <li><a href="https://docs.veridian.id/protocols" rel="noopener" target="_blank">Veridian protocols</a> e <a href="https://docs.veridian.id/protocols/acdcs" rel="noopener" target="_blank">ACDCs</a>: identidade e credenciais baseadas em KERI.</li>
 <li><a href="https://cips.cardano.org/cip/CIP-0170" rel="noopener" target="_blank">CIP-0170</a>: metadata de transação apoiada por identidade KERI, com validação off-chain.</li>
 <li><a href="https://github.com/cardano-foundation/cardano-dpp-standards/blob/42099d0ca326368f1ac7e454ec7e13be218a7236/DPP-Blueprint-Cardano-v0.1.md" rel="noopener" target="_blank">Cardano DPP Blueprint v0.1</a>: padrões de publicação, provas e trade-offs.</li>
