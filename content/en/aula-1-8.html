@@ -1,0 +1,167 @@
+---
+title: 'Fees, validity and CIP-30: prepare, sign and submit'
+short_title: Fees, validity and CIP-30
+map_title: Fees and CIP-30
+summary: Calculate costs, finalize the body and merge witnesses received through CIP-30 before submitting.
+description: Finalize cost and validity before requesting a signature through CIP-30, preserve witnesses and track submission.
+---
+
+
+<div class="objectives"><div class="box-label">Objectives</div><p>By the end of this lesson, you will be able to:</p>
+<ol class="objective-list">
+<li>explain fees as a rule governing network resource use;</li>
+<li>measure the serialized transaction and calculate its minimum fee using queried parameters;</li>
+<li>use the CIP-30 interface to separate building, signing, witness merging and submission without transferring custody of the key to the dApp;</li>
+
+
+</ol></div>
+<div class="prereq"><div class="box-label">Before you begin</div><p>Remember that a transaction consumes outputs, creates new outputs, carries verifiable fields and depends on its final bytes. Remember too that the fee is part of the accounting: inputs must cover payments, change and the fee.</p>
+
+<div class="guide-q"><span class="guide-q-label">Guiding question</span><p>If a transaction already specifies inputs, outputs and technical spending conditions, what else must be correct for the network to accept the package's cost and validity window?</p></div></div>
+<h3 id="aula-1-8-s1">1. Fees as a resource rule</h3>
+<p>A fee is a verifiable part of the package's design, not just a price attached outside the transaction. The network needs to limit the use of space, processing and storage. If anyone could send large or expensive packages without a proportional cost, nodes would have to spend resources without compensation and the network would be easier to overwhelm.</p>
+<p>The fee serves two technical purposes at once. First, it assigns a minimum cost to the space and processing required, making large-scale abuse more expensive. Second, it provides an objective ledger condition: the declared fee must be at least the minimum fee calculated for the transaction under the current parameters.</p>
+
+<p>Under the current rules, the base component uses a linear formula over the serialized size, <code>a × size(tx) + b</code>. Plutus transactions add the cost of memory and CPU execution units; reference scripts used by the transaction may add their own cost. The parameters belong to the protocol and can change. You do not need to memorize them now: you need to build the final package and query the values for the network and era you are using.</p>
+<h3 id="aula-1-8-s2">2. Size and complexity</h3>
+<p>A transaction's size matters because nodes must receive, propagate, store and validate its bytes. More fields, more metadata and more witnesses make the package larger. Even when the content looks small on screen, the final representation may include structures that do not appear in the wallet's user-friendly summary.</p>
+<p>The package below already contains a signature and an attachment containing a 32-byte hash. PyCardano restores the transaction from CBOR and measures its complete serialization. We then remove the signature from a copy to show how much an estimate based on the incomplete package would miss.</p>
+<p>We use <code>a = 44</code> lovelace per byte and <code>b = 155381</code> lovelace, queried for Preprod through the <a href="https://preprod.koios.rest/api/v1/cli_protocol_params" target="_blank" rel="noopener noreferrer">Koios API</a> on 17 September 2026 (protocol version 11.0). These are reference values from that query, not parameters to hard-code in an application. The example uses neither Plutus execution nor reference scripts.</p>
+
+<pre data-python-runner="true" data-python-packages="pycardano-workshop-0.19.2-pyodide-314.0.7-v1" data-exercise-id="serialized-publication-fee" data-exercise-version="2"><code class="language-python">from copy import deepcopy
+from pycardano import Transaction, TransactionWitnessSet
+
+publication = Transaction.from_cbor(
+    "84a5008182582000000000000000000000000000000000000000000000000000"
+    "0000000000000000018182583900a8129b4a8cd0c92c493951812832b9b1db83"
+    "c30e47505235ccb28236afd30edc1f4f7586430510ee4026385e22a7b0fb1d14"
+    "6844841077bb1a05f5e100021a00030d40031903e8075820c2ddb7ed36466d97"
+    "3a1f247b271c5eea6ecb42f689c2590704b8667eac2f9f2ba100818258207ba0"
+    "6f84ca4c85d83b1ab9e73fb37dd5a005658c2515b026a0cf26f5130ad42a5840"
+    "907414df5ba4ef1d1a362e2eabd3dd40081a24d9b4b6bb8b5e78e76c98345eed"
+    "277f427ba99fc70d5980ae4604d1175f3b4ced3a16f7ccc27b2a69d77e212606"
+    "f5d90103a100a11903e9a164726f6f7458202da39bbe8eb68096f77d903e70fb"
+    "6b88b3d8d55ad8b4e8efa5f6f092c673163a"
+)
+a, b = 44, 155381
+size = len(publication.to_cbor())
+print("with signature:", size, "bytes; minimum:", a * size + b, "lovelace")
+
+unsigned = deepcopy(publication)
+unsigned.transaction_witness_set = TransactionWitnessSet()
+incomplete_size = len(unsigned.to_cbor())
+print("without signature:", incomplete_size, "bytes; incomplete calculation:",
+      a * incomplete_size + b, "lovelace")
+</code></pre>
+<p>The signed package measures 306 bytes: the calculated minimum is 168845 lovelace. Without the signature, the calculation would give 164313, a difference of 4532 lovelace. The fee declared in the body is 200000, above the minimum; the calculation does not change that field. If you need to change it, rebuild the body and collect new signatures.</p>
+<p>The keys are for study and the input is fictitious, as in Lesson 1.6. The measurement uses real CBOR and a real signature, but the package is not a transfer ready to submit.</p>
+
+
+
+<figure class="fig"><div class="table-scroll" tabindex="0" role="region" aria-label="Package size with and without a signature"><svg style="width:100%; min-width:620px" role="img" aria-label="The signature adds 103 bytes to the package, increasing it from 203 to 306 bytes" viewBox="0 0 660 160"><text x="24" y="27">Before signing: 203 bytes</text><rect x="24" y="40" width="360" height="38" fill="var(--tint)" stroke="var(--ink)"/><text x="42" y="64">body, attachment and package structure</text><text x="24" y="111">With signature: 306 bytes</text><rect x="24" y="124" width="360" height="26" fill="var(--tint)" stroke="var(--ink)"/><rect x="384" y="124" width="183" height="26" fill="var(--paper)" stroke="var(--ink)"/><text x="400" y="142">+103 bytes</text></svg></div><figcaption>The measured difference in serialization includes the witness and its CBOR structure. Counting only the signature's 64 bytes would also underestimate the package.</figcaption></figure>
+
+<h3 id="aula-1-8-s3">3. Time validity</h3>
+<p>An application usually declares a validity window to limit when its intent can be accepted. In the Cardano ledger, the lower and upper bounds are optional fields depending on the era; their absence or presence must follow the current rules and the application's policy. A finite upper bound prevents that specific proposal from remaining acceptable indefinitely.</p>
+<p>Imagine a wallet assembling a transaction now. It selects inputs, calculates the fee, creates change and requests a signature. If that package sits idle for too long, several things can change: an input may be consumed by another transaction, network parameters may change, the user may change their mind or the application may no longer want to record that operation.</p>
+
+
+
+<p>A mathematically valid signature does not make a transaction valid forever. If the signed body includes a validity interval, the ledger can only accept the package within that interval.</p>
+<p>On Cardano, the body can declare an interval with an inclusive lower bound (<code>invalid_before</code>) and an exclusive upper bound (<code>invalid_hereafter</code>). For a slot <code>s</code>, the condition is <code>invalid_before &lt;= s &lt; invalid_hereafter</code> when both bounds exist. The ledger compares this interval with the slot in which the transaction is processed. The “current slot” shown by a wallet, API or explorer is not a magic transaction field: it is an external observation used by the builder to choose margins and by the operator to decide whether there is still time to submit.</p>
+<figure class="fig"><svg aria-label="Timeline of a validity interval ending at slot 182500" role="img" viewBox="0 0 660 180"><rect fill="var(--tint)" height="66" stroke="var(--rule-soft)" stroke-dasharray="6 4" stroke-width="1" width="330" x="120" y="52"></rect><text class="cap" x="130" y="70">validity window</text><rect fill="none" height="66" stroke="var(--rule-soft)" stroke-dasharray="6 4" stroke-width="1" width="180" x="450" y="52"></rect><text class="dim" text-anchor="start" x="460" y="70">expired: rejected</text><text class="dim" text-anchor="start" x="460" y="88">even if correctly signed</text><line stroke="var(--ink)" stroke-width="1.1" x1="30" x2="646" y1="140" y2="140"></line><polygon fill="var(--ink)" points="646,140 639.6,142.9 639.6,137.1"></polygon><text class="dim" text-anchor="end" x="640" y="158">slots</text><line stroke="var(--ink)" stroke-width="1.1" x1="120" x2="120" y1="134" y2="146"></line><text class="mono" text-anchor="middle" x="120" y="162">182440</text><text class="dim" text-anchor="middle" x="120" y="42">build and sign</text><line stroke="var(--ink)" stroke-width="1.1" x1="300" x2="300" y1="134" y2="146"></line><text class="mono" text-anchor="middle" x="300" y="162">182470</text><text class="dim" text-anchor="middle" x="300" y="42">submit and propagate</text><line stroke="var(--ink)" stroke-width="1.1" x1="450" x2="450" y1="134" y2="146"></line><text class="mono" text-anchor="middle" x="450" y="162">182500</text><text class="dim" text-anchor="middle" x="450" y="42">invalid_hereafter</text></svg><figcaption>The package is only valid within the interval declared in the body: at slot 182500 and later it has expired, even though the signature remains mathematically correct.</figcaption></figure>
+
+
+
+<h3 id="aula-1-8-s4">4. From builder to wallet through CIP-30</h3>
+<p>An application that already knows the inputs, outputs and parameters can build the body without holding the private key. The <strong>builder</strong> selects inputs that are still available, calculates the fee for the expected final size, creates change and sets the validity interval. The <strong>signer</strong> reviews the transaction and produces witnesses over the body hash. CIP-30 standardizes this exchange between a dApp and an external wallet in the browser.</p>
+<p>The user authorizes the connection through <code>enable()</code>. The dApp calls <code>getNetworkId()</code>, <code>getUtxos()</code> and <code>getChangeAddress()</code>. Network ID 0 identifies a test environment but does not distinguish Preprod from Preview: the wallet and the builder's provider must still point to the same testnet. UTxOs are returned as hex-encoded CBOR; the change address also comes as a hex-encoded binary representation, not necessarily the Bech32 text displayed on screen.</p>
+<div class="table-scroll"><table><thead><tr><th>CIP-30 call</th><th>Object crossing the boundary</th><th>Work still required</th></tr></thead><tbody>
+<tr><td><code>signTx(txCborHex, true)</code></td><td>Takes the CBOR transaction; returns only the witness set produced by the wallet.</td><td>Validate and merge the result into the same transaction.</td></tr>
+<tr><td><code>submitTx(completeTxCborHex)</code></td><td>Takes the complete transaction; returns its transaction ID.</td><td>Watch for block inclusion on the correct network.</td></tr>
+</tbody></table></div>
+<p><code>partialSign=true</code> allows the wallet to sign only the part it can. With <code>false</code>, it must return an error if it cannot sign the entire transaction. A partial result does not demonstrate that all conditions have been satisfied. The application must gather the other signers and preserve existing scripts, datums and redeemers. Replacing the entire witness set with the last wallet's response loses components already collected.</p>
+<p>The fee must account for all expected witnesses. If the completed transaction requires a different fee, the change affects the body and the change output: it must be rebuilt, reviewed and signed again. Auxiliary data sits outside the body, committed to by the hash inside it; <code>is_valid</code> also sits outside and is not directly signed by the vkey witness. Checking the body hash therefore does not remove the need to preserve the complete reviewed package.</p>
+
+<h3 id="aula-1-8-s5">5. Merge without losing the first signature</h3>
+<p>First, see what signing produces. The digest below is the body hash of the publication measured in section 2. A disposable key signs those 32 bytes; <code>VerificationKeyWitness</code> holds the public key and the signature. Verification uses the public key, the same message and the received signature.</p>
+<pre data-python-runner="true" data-python-packages="pycardano-workshop-0.19.2-pyodide-314.0.7-v1" data-exercise-id="key-witness-sign-verify" data-exercise-version="2"><code class="language-python">from pycardano import PaymentSigningKey, VerificationKeyWitness, TransactionWitnessSet
+from nacl.signing import VerifyKey
+
+message = bytes.fromhex("1a2232772e3aeca8ec28f1f2bc82d36761ef1ca7084b9e010786245157a6e0f1")
+key = PaymentSigningKey.generate()
+witness = VerificationKeyWitness(key.to_verification_key(), key.sign(message))
+VerifyKey(witness.vkey.payload).verify(message, witness.signature)
+package = TransactionWitnessSet(vkey_witnesses=[witness])
+print("public key:", len(witness.vkey.payload), "bytes")
+print("signature:", len(witness.signature), "bytes")
+print("witness set CBOR:", package.to_cbor_hex())
+</code></pre>
+<p>Change only the message passed to <code>verify</code> to <code>bytes(32)</code>. Verification should fail: the signature is still 64 bytes long, but belongs to a different body. Restore the message. The keys generated here are disposable and do not control funds.</p>
+<p>A CIP-30 response contains the witness set in CBOR. <code>TransactionWitnessSet.from_cbor()</code> restores its components. In the next exercise, both sets already have signatures compatible with the same body. This example combines vkey witnesses and native scripts; other components need their own handling.</p>
+<div class="activity" data-progress-id="cip30-witness-merge-activity"><div class="box-label">Activity: preserve the package already assembled</div>
+<p>The first set contains a signature and a script. The second adds another signature. The function already copies the package and combines scripts without duplicates, but omits the first signature. Fix the <code>None</code> argument in the call to <code>combine</code> and use <strong>Validate solution</strong>. The result should have two signatures and one script.</p>
+<pre data-python-runner="true" data-python-packages="pycardano-workshop-0.19.2-pyodide-314.0.7-v1" data-exercise-id="cip30-witness-merge" data-exercise-version="3" data-validator="cip30-witness-merge-tests"><code class="language-python">from copy import deepcopy
+from pycardano import TransactionWitnessSet, NonEmptyOrderedSet
+
+def combine(a, b):
+    return NonEmptyOrderedSet([*(a or []), *(b or [])]) or None
+
+def merge(existing, received):
+    result = deepcopy(existing)
+    result.vkey_witnesses = combine(None, received.vkey_witnesses)
+    result.native_scripts = combine(existing.native_scripts, received.native_scripts)
+    return result
+
+existing = TransactionWitnessSet.from_cbor(
+    "a200818258207ba06f84ca4c85d83b1ab9e73fb37dd5a005658c2515b026a0cf"
+    "26f5130ad42a5840907414df5ba4ef1d1a362e2eabd3dd40081a24d9b4b6bb8b"
+    "5e78e76c98345eed277f427ba99fc70d5980ae4604d1175f3b4ced3a16f7ccc2"
+    "7b2a69d77e21260601818200581c70e402284201ec81d7aa495d17e52209c8bb"
+    "47489395b16bcd7a2a67"
+)
+received = TransactionWitnessSet.from_cbor(
+    "a100818258209be9aca30d6e4c708ec6c0642454e623edbeabf6975013520337"
+    "780b3d7fa0ea5840fb04a8dafb497689bc14f7d9432f538b30953667772d9596"
+    "8f99dff898213254175e9925b6e49159890a21ad3d1c49378c569c3eafcef571"
+    "a2f52dbdf18f9102"
+)
+result = merge(existing, received)
+print("signatures:", len(result.vkey_witnesses or []))
+print("scripts:", len(result.native_scripts or []))
+</code></pre>
+<details class="answer"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Check answer</summary><div class="answer-body"><p>Replace <code>None</code> with <code>existing.vkey_witnesses</code>. The function now combines both collections, and <code>NonEmptyOrderedSet</code> prevents duplicate components. The copy preserves the scripts and leaves the input packages unchanged. Merging does not modify the body or replace the signature verification shown before the activity.</p></div></details>
+</div>
+<script type="application/json" id="cip30-witness-merge-tests">
+{
+  "version": 1,
+  "tests": [
+    {
+      "name": "Two real, verifiable witnesses after merging",
+      "code": "from nacl.signing import VerifyKey\nr = TransactionWitnessSet.from_cbor(merge(existing, received).to_cbor())\nassert len(r.vkey_witnesses or []) == 2, 'Include the signature that was already in the package.'\nassert len(r.native_scripts or []) == 1, 'Preserve the existing script.'\nmessage = bytes.fromhex('1a2232772e3aeca8ec28f1f2bc82d36761ef1ca7084b9e010786245157a6e0f1')\nfor w in r.vkey_witnesses:\n    VerifyKey(w.vkey.payload).verify(message, w.signature)"
+    },
+    {
+      "name": "An empty response does not erase data",
+      "code": "empty = TransactionWitnessSet()\nr = merge(existing, empty)\nassert [w.to_cbor() for w in (r.vkey_witnesses or [])] == [w.to_cbor() for w in existing.vkey_witnesses], 'An empty response does not erase signatures.'\nassert [s.to_cbor() for s in (r.native_scripts or [])] == [s.to_cbor() for s in existing.native_scripts]\nassert merge(empty, empty).is_empty(), 'Do not create nonempty sets without components.'"
+    },
+    {
+      "name": "No duplicate components and unchanged inputs",
+      "code": "from pycardano import ScriptPubkey\na, b = deepcopy(existing), deepcopy(received)\nb.vkey_witnesses = [*a.vkey_witnesses, *b.vkey_witnesses]\nb.native_scripts = [*a.native_scripts, ScriptPubkey(b.vkey_witnesses[-1].vkey.hash())]\nbefore = (a.to_cbor(), b.to_cbor())\nr = merge(a, b)\nassert len(r.vkey_witnesses or []) == 2 and len(r.native_scripts or []) == 2, 'Keep every component exactly once.'\nassert (a.to_cbor(), b.to_cbor()) == before, 'Do not modify the input packages.'\nassert r is not a and r is not b, 'Return a new object.'"
+    }
+  ]
+}
+</script>
+
+<p>If signing is refused or the window expires, the application stops the submission. A response from <code>submitTx</code> indicates submission, not inclusion. If a timeout occurs, query the ID before creating another operation: no response does not mean the transaction is absent from the network.</p>
+<p>With CIP-30, the key stays in the external wallet, and the dApp depends on the signer's availability and approval. An application that embeds a wallet through an SDK takes on local custody; a server-side signer takes responsibility for protecting the secret and enforcing the service's authorization controls. Automation does not require handing the seed to the frontend. An ordinary dApp should never request a recovery phrase, and connecting a wallet does not silently authorize all future spending.</p>
+<div class="closing"><h3>What we learned</h3>
+<ul>
+<li>Fees, size and resource use are part of building a transaction.</li>
+<li>The measurement must include witnesses and auxiliary data. The queried parameters determine the minimum; scripts may add specific cost components.</li>
+<li>The validity interval limits when a transaction can be accepted. A correctly built transaction may become unusable as time passes.</li>
+<li>CIP-30 returns witnesses, which must be merged into the same transaction. Submission does not prove block inclusion.</li>
+</ul>
+
+
+</div>
+
+<div class="bridge"><h3>Next lesson</h3><p>If attaching metadata changes the package's bytes, size and fee, what is worth publishing as an attachment and what should remain in an external document?</p></div>

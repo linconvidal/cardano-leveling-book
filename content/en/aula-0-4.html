@@ -1,0 +1,139 @@
+---
+title: Digital signatures
+short_title: Digital signatures
+map_title: Signatures
+summary: Sign a message, verify the received combination and understand the limits of the result.
+---
+
+<div class="objectives"><div class="box-label">Objectives</div>
+<ol class="objective-list">
+<li>Identify the inputs and outputs of signing and verification.</li>
+<li>Sign a message and observe how a change affects verification.</li>
+<li>Distinguish successful verification from confirmation of identity, truth or permission.</li>
+</ol></div>
+<div class="prereq"><div class="box-label">Before you begin</div>
+<p>To follow this lesson, you need to know how to convert text to UTF-8 bytes and distinguish the private key from the public key.</p>
+<div class="guide-q"><span class="guide-q-label">Guiding question</span><p>What does a valid signature tell us about the received message?</p></div>
+</div>
+
+<h3 id="aula-0-4-s1">1. A relationship that can be verified</h3>
+<p>An application may need to check whether a message was signed with a key it recognizes. This verification should work for both newly received messages and stored records, without requiring access to the signer’s secret.</p>
+<p>A <strong>digital signature</strong> is a sequence of bytes calculated over a message using the private key. To verify it, the program brings together the message bytes, the signature and the chosen public key. The result tells us whether this combination is valid under the cryptographic scheme.</p>
+<p>A scanned handwritten signature is an image that can be copied to another document. A cryptographic signature depends on the signed bytes, not on visual appearance. In a secure scheme, changing the message and recalculating its hash is not enough to produce a valid signature with the sender’s key.</p>
+
+<style id="aula-0-4-signature-figures-styles">
+/* Calculation circles adapted from assets/svg/scenes/credential-hash.svg;
+   document silhouette from assets/svg/objects/document.svg; key symbol
+   from assets/svg/scenes/who-holds-the-key.svg in the workshop library.
+   The signature is a separate byte artifact, not a hash or approval seal. */
+#aula-0-4 .signature-fig { margin:28px 0 34px; width:100%; max-width:100%; break-inside:avoid; font-family:var(--font-sans); }
+#aula-0-4 .sf-flow { display:grid; grid-template-columns:minmax(0,1.25fr) 140px minmax(0,.9fr); gap:16px; align-items:center; padding:18px 0; }
+#aula-0-4 .sf-flow + .sf-flow { margin-top:10px; padding-top:28px; border-top:1px solid var(--rule-soft); }
+#aula-0-4 .sf-inputs { display:flex; flex-direction:column; align-items:center; gap:14px; min-width:0; }
+#aula-0-4 .sf-document { position:relative; box-sizing:border-box; width:100%; max-width:225px; padding:20px 18px 16px; border:1.5px solid var(--ink-dim); background:var(--paper); text-align:left; }
+#aula-0-4 .sf-document::after { content:""; position:absolute; top:0; right:0; width:14px; height:14px; background:linear-gradient(45deg,var(--tint) 47%,var(--ink-dim) 48%,var(--ink-dim) 53%,var(--paper) 54%); border-left:1px solid var(--ink-dim); border-bottom:1px solid var(--ink-dim); }
+#aula-0-4 .sf-document code { padding:0; background:none; color:var(--ink); font:14px/1.7 var(--font-mono); white-space:normal; }
+#aula-0-4 .sf-note { display:block; margin-top:6px; color:var(--ink-dim); font:13px/1.5 var(--font-sans); }
+#aula-0-4 .sf-key { display:flex; align-items:center; justify-content:center; gap:10px; padding:8px 12px; color:var(--ink); font:14px/1.5 var(--font-sans); }
+#aula-0-4 .sf-key svg { width:24px; height:34px; flex-shrink:0; fill:none; stroke:var(--sp-warning); stroke-width:2; stroke-linecap:round; }
+#aula-0-4 .sf-private { border:1.5px dashed var(--sp-warning); border-radius:4px; }
+#aula-0-4 .sf-public svg { stroke:var(--sp-info); }
+#aula-0-4 .sf-route { display:flex; align-items:center; justify-content:center; gap:4px; }
+#aula-0-4 .sf-operation { display:flex; align-items:center; justify-content:center; flex-shrink:0; width:76px; height:76px; border:2.5px solid var(--sp-info); border-radius:50%; color:var(--ink); font:600 14px var(--font-sans); }
+#aula-0-4 .sf-arrow { display:block; width:28px; height:20px; flex-shrink:0; color:var(--sp-info); }
+#aula-0-4 .sf-signature { box-sizing:border-box; width:max-content; max-width:100%; margin-inline:auto; padding:12px 18px; border:1.5px solid var(--ink-dim); border-bottom:4px double var(--ink-dim); color:var(--ink); background:var(--paper); text-align:center; font:14px var(--font-mono); }
+#aula-0-4 .sf-output { min-width:0; text-align:center; }
+#aula-0-4 .sf-result { color:var(--ink); font:600 16px/1.5 var(--font-sans); }
+@media (max-width:600px) {
+  #aula-0-4 .sf-flow { grid-template-columns:1fr; justify-items:center; gap:8px; }
+  #aula-0-4 .sf-inputs { width:100%; max-width:240px; }
+  #aula-0-4 .sf-route { flex-direction:column; gap:8px; padding:8px 0; }
+  #aula-0-4 .sf-route .sf-arrow { transform:rotate(90deg); }
+}
+@media print {
+  #aula-0-4 .sf-flow { grid-template-columns:minmax(0,1.25fr) 140px minmax(0,.9fr); gap:16px; }
+  #aula-0-4 .sf-route { flex-direction:row; gap:4px; padding:0; }
+  #aula-0-4 .sf-route .sf-arrow { transform:none; }
+}
+</style>
+<figure class="fig signature-fig" id="fig-aula-0-4-fluxo" aria-labelledby="caption-aula-0-4-fluxo">
+<div class="sf-flow">
+<div class="sf-inputs">
+<div class="sf-document"><code>falha de comunicação</code><span class="sf-note">UTF-8 message</span></div>
+<div class="sf-key sf-private"><svg viewBox="0 0 24 34" aria-hidden="true"><circle cx="12" cy="9" r="7"/><path d="M12 16V32H19 M12 26H17"/></svg><span>private key</span></div>
+</div>
+<div class="sf-route"><svg class="sf-arrow" viewBox="0 0 28 20" aria-hidden="true"><path d="M1 10H25 M19 4L25 10L19 16" fill="none" stroke="currentColor" stroke-width="2"/></svg><span class="sf-operation">sign</span><svg class="sf-arrow" viewBox="0 0 28 20" aria-hidden="true"><path d="M1 10H25 M19 4L25 10L19 16" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
+<div class="sf-output"><div class="sf-signature">signature</div><span class="sf-note">newly calculated data</span></div>
+</div>
+<div class="sf-flow">
+<div class="sf-inputs">
+<div class="sf-document"><code>falha de comunicação</code><span class="sf-note">received bytes</span></div>
+<div class="sf-signature">signature</div>
+<div class="sf-key sf-public"><svg viewBox="0 0 24 34" aria-hidden="true"><circle cx="12" cy="9" r="7"/><path d="M12 16V32H19 M12 26H17"/></svg><span>public key</span></div>
+</div>
+<div class="sf-route"><svg class="sf-arrow" viewBox="0 0 28 20" aria-hidden="true"><path d="M1 10H25 M19 4L25 10L19 16" fill="none" stroke="currentColor" stroke-width="2"/></svg><span class="sf-operation">verify</span><svg class="sf-arrow" viewBox="0 0 28 20" aria-hidden="true"><path d="M1 10H25 M19 4L25 10L19 16" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
+<div class="sf-output"><span class="sf-result">valid or invalid</span><span class="sf-note">for this combination</span></div>
+</div>
+<figcaption id="caption-aula-0-4-fluxo">Signing takes the message and the private part and produces the signature. Verification brings together three inputs and returns a result; the private part is not used at this stage.</figcaption>
+</figure>
+
+<h3 id="aula-0-4-s2">2. Signing and verifying a message</h3>
+<p>We will use Ed25519 through the <code>cryptography</code> library. The example generates a key pair, signs a message and verifies two versions of it. The message <code>falha de comunicação</code> means “communication failure”; it remains in Portuguese so that the signed bytes are unchanged.</p>
+<pre data-python-runner="true" data-python-package="cryptography" data-exercise-id="ed25519-message-verification" data-exercise-version="1"><code class="language-python">from cryptography.hazmat.primitives.asymmetric import ed25519
+from cryptography.exceptions import InvalidSignature
+
+private_key = ed25519.Ed25519PrivateKey.generate()
+public_key = private_key.public_key()
+
+original_message = "falha de comunicação"
+signature = private_key.sign(original_message.encode("utf-8"))
+
+for received_message in [original_message, "Falha de comunicação"]:
+    try:
+        public_key.verify(signature, received_message.encode("utf-8"))
+        print("Signature verifies:", received_message)
+    except InvalidSignature:
+        print("Signature does not verify:", received_message)
+</code></pre>
+<p><code>sign()</code> produces the signature as bytes. The <code>for</code> loop repeats verification for both messages, keeping the same signature and public key. When the combination does not verify, the library raises <code>InvalidSignature</code>, which is handled by the <code>except</code> block.</p>
+<p>The first message verifies; the second does not. Try another change to the second text and run it again.</p>
+
+<h3 id="aula-0-4-s3">3. Preserving the signed bytes</h3>
+<p>The modified text is still readable, but its bytes no longer match the signed message.</p>
+<p>Now consider a device that signs the bytes of a JSON file containing a test result. An application imports its data and re-exports the file. Even if it preserves the fields and values, this new representation can change the bytes. The signature was produced for the previous representation.</p>
+<p>The verifier needs to preserve the signed bytes or reconstruct them using an exact rule agreed upon before signing. Simply saying that the two files contain the same JSON does not define which bytes enter the calculation.</p>
+
+<h3 id="aula-0-4-s4">4. Choosing the expected public key</h3>
+<p>A verification failure alone does not identify its cause. The message may have changed, the signature may be damaged or the chosen public key may not be the matching one. The test evaluates the combination, not each input in isolation.</p>
+<p>Suppose someone presents a message, a signature and a public key, all prepared by that person. The combination may be valid. This does not demonstrate that the key belongs to the person you expected to receive the message from.</p>
+<p>The association with a person or device must come from a trusted reference, such as a registry or confirmation through another established channel. A name written in the message is also just a claim. And, as we saw in the previous lesson, verification does not reveal whether the private part has been copied.</p>
+
+<h3 id="aula-0-4-s5">5. What the calculation still does not cover</h3>
+<p>A signature can be valid for the message <code>falha de comunicação</code> even if the device did not experience that failure. The calculation does not observe the test. Checking what happened requires evidence from the process; knowing whether the person responsible was allowed to approve the record requires authorization rules.</p>
+<p>The message also remains readable. Signing does not encrypt its content or prevent copies. Restricting who can read it requires <strong>confidentiality</strong> mechanisms, such as encryption and access control for decryption keys.</p>
+
+<div class="activity"><div class="box-label">Activity: interpret two verifications</div>
+<p>A system stores a person’s confirmed public key. A message arrives with a signature and a new public key. The signature passes verification with the received key but fails with the key already registered.</p>
+<form class="activity-quiz" id="quiz-aula-0-4-a1" data-answer="answer-aula-0-4-a1">
+<fieldset class="quiz-question"><legend>What can the system conclude?</legend><div class="quiz-options">
+<label class="quiz-option"><input name="aula-0-4-a1" type="radio" value="a"/><span class="quiz-option-text">Successful verification with the received key is enough to automatically replace the registered key.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="aula-0-4-a1" type="radio" value="b"/><span class="quiz-option-text">Failure with the registered key proves that the message was changed after it was signed.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="aula-0-4-a1" type="radio" value="c" data-correct="true"/><span class="quiz-option-text">The received combination is valid, but the association between the new key and the person still needs to be confirmed.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="aula-0-4-a1" type="radio" value="d"/><span class="quiz-option-text">The different results demonstrate that the signature is corrupted, regardless of the key used.</span><span class="quiz-verdict"></span></label>
+</div><p class="quiz-question-feedback" aria-live="polite"></p></fieldset>
+<div class="quiz-actions"><button class="quiz-check" disabled="" type="submit">Check answers</button><p class="quiz-status" aria-live="polite" tabindex="-1">0 of 1 questions answered.</p></div>
+</form>
+<details class="answer" id="answer-aula-0-4-a1"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Check answer</summary><div class="answer-body">
+<p>Option C is correct. The tests used different keys, so they did not evaluate the same combination. There may have been a legitimate key change or an unauthorized substitution; verification does not decide this. The new association must be confirmed before updating the registry. Failure with the old key also does not, on its own, prove that the message was changed or the signature corrupted.</p>
+</div></details>
+</div>
+
+<div class="closing"><h3>What we learned</h3><ul>
+<li>Signing takes the message bytes and the private part. Verification takes the message, the signature and the public part.</li>
+<li>Verification depends on the bytes presented and the chosen key. A failure alone does not identify which input is wrong.</li>
+<li>A valid signature does not, by itself, confirm a person’s identity, the truth of the content or permission to approve it.</li>
+<li>Signing does not hide the message. Restricting who can read it requires additional mechanisms.</li>
+</ul>
+<p>To review the limits of hash comparison, revisit the <a href="#atividade-aula-0-2-a2">activity in Lesson 0.2</a>.</p>
+</div>
+<div class="bridge"><h3>Next lesson</h3><p>So far, the programs have been able to represent data, calculate hashes and check signatures without participating in a public network. In the next lesson, we will see how applications use Cardano’s infrastructure and which responsibilities belong to each side. The operations we have studied are still present, but the network also needs rules for accepting and ordering incoming operations.</p></div>

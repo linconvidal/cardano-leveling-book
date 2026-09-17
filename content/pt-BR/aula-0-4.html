@@ -1,0 +1,139 @@
+---
+title: Assinatura digital
+short_title: Assinatura digital
+map_title: Assinatura
+summary: Assinar uma mensagem, verificar a combinação recebida e interpretar os limites do resultado.
+---
+
+<div class="objectives"><div class="box-label">Objetivos</div>
+<ol class="objective-list">
+<li>Identificar as entradas e saídas da assinatura e da verificação.</li>
+<li>Assinar uma mensagem e observar o efeito de uma alteração na verificação.</li>
+<li>Distinguir uma verificação válida de uma confirmação de identidade, verdade ou permissão.</li>
+</ol></div>
+<div class="prereq"><div class="box-label">Antes de começar</div>
+<p>Para acompanhar esta aula, você precisa saber converter texto em bytes UTF-8 e distinguir a chave privada da chave pública.</p>
+<div class="guide-q"><span class="guide-q-label">Pergunta-guia</span><p>O que uma assinatura válida permite concluir sobre a mensagem recebida?</p></div>
+</div>
+
+<h3 id="aula-0-4-s1">1. Uma relação que pode ser verificada</h3>
+<p>Uma aplicação pode precisar conferir se uma mensagem foi assinada com uma chave que ela reconhece. Essa verificação deve funcionar tanto para mensagens que acabam de chegar quanto para registros guardados, sem exigir acesso ao segredo de quem assinou.</p>
+<p>Uma <strong>assinatura digital</strong> é uma sequência de bytes calculada com a chave privada sobre uma mensagem. Para verificá-la, o programa reúne a mensagem em bytes, a assinatura e a chave pública escolhida. O resultado informa se essa combinação é válida segundo o esquema criptográfico.</p>
+<p>Uma rubrica digitalizada é uma imagem que pode ser copiada para outro documento. A assinatura criptográfica depende dos bytes assinados, não de uma aparência visual. Em um esquema seguro, alterar a mensagem e recalcular seu hash não basta para produzir uma assinatura válida com a chave do emissor.</p>
+
+<style id="aula-0-4-signature-figures-styles">
+/* Calculation circles adapted from assets/svg/scenes/credential-hash.svg;
+   document silhouette from assets/svg/objects/document.svg; key symbol
+   from assets/svg/scenes/who-holds-the-key.svg in the workshop library.
+   The signature is a separate byte artifact, not a hash or approval seal. */
+#aula-0-4 .signature-fig { margin:28px 0 34px; width:100%; max-width:100%; break-inside:avoid; font-family:var(--font-sans); }
+#aula-0-4 .sf-flow { display:grid; grid-template-columns:minmax(0,1.25fr) 140px minmax(0,.9fr); gap:16px; align-items:center; padding:18px 0; }
+#aula-0-4 .sf-flow + .sf-flow { margin-top:10px; padding-top:28px; border-top:1px solid var(--rule-soft); }
+#aula-0-4 .sf-inputs { display:flex; flex-direction:column; align-items:center; gap:14px; min-width:0; }
+#aula-0-4 .sf-document { position:relative; box-sizing:border-box; width:100%; max-width:225px; padding:20px 18px 16px; border:1.5px solid var(--ink-dim); background:var(--paper); text-align:left; }
+#aula-0-4 .sf-document::after { content:""; position:absolute; top:0; right:0; width:14px; height:14px; background:linear-gradient(45deg,var(--tint) 47%,var(--ink-dim) 48%,var(--ink-dim) 53%,var(--paper) 54%); border-left:1px solid var(--ink-dim); border-bottom:1px solid var(--ink-dim); }
+#aula-0-4 .sf-document code { padding:0; background:none; color:var(--ink); font:14px/1.7 var(--font-mono); white-space:normal; }
+#aula-0-4 .sf-note { display:block; margin-top:6px; color:var(--ink-dim); font:13px/1.5 var(--font-sans); }
+#aula-0-4 .sf-key { display:flex; align-items:center; justify-content:center; gap:10px; padding:8px 12px; color:var(--ink); font:14px/1.5 var(--font-sans); }
+#aula-0-4 .sf-key svg { width:24px; height:34px; flex-shrink:0; fill:none; stroke:var(--sp-warning); stroke-width:2; stroke-linecap:round; }
+#aula-0-4 .sf-private { border:1.5px dashed var(--sp-warning); border-radius:4px; }
+#aula-0-4 .sf-public svg { stroke:var(--sp-info); }
+#aula-0-4 .sf-route { display:flex; align-items:center; justify-content:center; gap:4px; }
+#aula-0-4 .sf-operation { display:flex; align-items:center; justify-content:center; flex-shrink:0; width:76px; height:76px; border:2.5px solid var(--sp-info); border-radius:50%; color:var(--ink); font:600 14px var(--font-sans); }
+#aula-0-4 .sf-arrow { display:block; width:28px; height:20px; flex-shrink:0; color:var(--sp-info); }
+#aula-0-4 .sf-signature { box-sizing:border-box; width:max-content; max-width:100%; margin-inline:auto; padding:12px 18px; border:1.5px solid var(--ink-dim); border-bottom:4px double var(--ink-dim); color:var(--ink); background:var(--paper); text-align:center; font:14px var(--font-mono); }
+#aula-0-4 .sf-output { min-width:0; text-align:center; }
+#aula-0-4 .sf-result { color:var(--ink); font:600 16px/1.5 var(--font-sans); }
+@media (max-width:600px) {
+  #aula-0-4 .sf-flow { grid-template-columns:1fr; justify-items:center; gap:8px; }
+  #aula-0-4 .sf-inputs { width:100%; max-width:240px; }
+  #aula-0-4 .sf-route { flex-direction:column; gap:8px; padding:8px 0; }
+  #aula-0-4 .sf-route .sf-arrow { transform:rotate(90deg); }
+}
+@media print {
+  #aula-0-4 .sf-flow { grid-template-columns:minmax(0,1.25fr) 140px minmax(0,.9fr); gap:16px; }
+  #aula-0-4 .sf-route { flex-direction:row; gap:4px; padding:0; }
+  #aula-0-4 .sf-route .sf-arrow { transform:none; }
+}
+</style>
+<figure class="fig signature-fig" id="fig-aula-0-4-fluxo" aria-labelledby="caption-aula-0-4-fluxo">
+<div class="sf-flow">
+<div class="sf-inputs">
+<div class="sf-document"><code>falha de comunicação</code><span class="sf-note">mensagem em UTF-8</span></div>
+<div class="sf-key sf-private"><svg viewBox="0 0 24 34" aria-hidden="true"><circle cx="12" cy="9" r="7"/><path d="M12 16V32H19 M12 26H17"/></svg><span>chave privada</span></div>
+</div>
+<div class="sf-route"><svg class="sf-arrow" viewBox="0 0 28 20" aria-hidden="true"><path d="M1 10H25 M19 4L25 10L19 16" fill="none" stroke="currentColor" stroke-width="2"/></svg><span class="sf-operation">assinar</span><svg class="sf-arrow" viewBox="0 0 28 20" aria-hidden="true"><path d="M1 10H25 M19 4L25 10L19 16" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
+<div class="sf-output"><div class="sf-signature">assinatura</div><span class="sf-note">novo dado calculado</span></div>
+</div>
+<div class="sf-flow">
+<div class="sf-inputs">
+<div class="sf-document"><code>falha de comunicação</code><span class="sf-note">bytes recebidos</span></div>
+<div class="sf-signature">assinatura</div>
+<div class="sf-key sf-public"><svg viewBox="0 0 24 34" aria-hidden="true"><circle cx="12" cy="9" r="7"/><path d="M12 16V32H19 M12 26H17"/></svg><span>chave pública</span></div>
+</div>
+<div class="sf-route"><svg class="sf-arrow" viewBox="0 0 28 20" aria-hidden="true"><path d="M1 10H25 M19 4L25 10L19 16" fill="none" stroke="currentColor" stroke-width="2"/></svg><span class="sf-operation">verificar</span><svg class="sf-arrow" viewBox="0 0 28 20" aria-hidden="true"><path d="M1 10H25 M19 4L25 10L19 16" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
+<div class="sf-output"><span class="sf-result">válida ou inválida</span><span class="sf-note">para esta combinação</span></div>
+</div>
+<figcaption id="caption-aula-0-4-fluxo">Assinar recebe a mensagem e a parte privada e produz a assinatura. Verificar reúne três entradas e devolve um resultado; a parte privada não entra nessa etapa.</figcaption>
+</figure>
+
+<h3 id="aula-0-4-s2">2. Assinar e verificar uma mensagem</h3>
+<p>Usaremos Ed25519 por meio da biblioteca <code>cryptography</code>. O exemplo gera um par de chaves, assina uma mensagem e verifica duas versões dela.</p>
+<pre data-python-runner="true" data-python-package="cryptography" data-exercise-id="ed25519-message-verification" data-exercise-version="1"><code class="language-python">from cryptography.hazmat.primitives.asymmetric import ed25519
+from cryptography.exceptions import InvalidSignature
+
+chave_privada = ed25519.Ed25519PrivateKey.generate()
+chave_publica = chave_privada.public_key()
+
+mensagem_original = "falha de comunicação"
+assinatura = chave_privada.sign(mensagem_original.encode("utf-8"))
+
+for mensagem_recebida in [mensagem_original, "Falha de comunicação"]:
+    try:
+        chave_publica.verify(assinatura, mensagem_recebida.encode("utf-8"))
+        print("Assinatura confere:", mensagem_recebida)
+    except InvalidSignature:
+        print("Assinatura não confere:", mensagem_recebida)
+</code></pre>
+<p><code>sign()</code> produz a assinatura em bytes. O laço <code>for</code> repete a verificação para as duas mensagens, mantendo a mesma assinatura e a mesma chave pública. Quando a combinação não confere, a biblioteca sinaliza <code>InvalidSignature</code>, tratado pelo bloco <code>except</code>.</p>
+<p>A primeira mensagem confere; a segunda não. Experimente outra alteração no segundo texto e execute novamente.</p>
+
+<h3 id="aula-0-4-s3">3. Preservar os bytes assinados</h3>
+<p>O texto alterado continua legível, mas seus bytes já não correspondem à mensagem assinada.</p>
+<p>Considere agora um equipamento que assina os bytes de um arquivo JSON com o resultado de um teste. Uma aplicação importa seus dados e reexporta o arquivo. Mesmo preservando campos e valores, essa nova escrita pode mudar os bytes. A assinatura foi produzida para a representação anterior.</p>
+<p>Quem verifica precisa preservar os bytes assinados ou reconstruí-los por uma regra exata, combinada antes da assinatura. Dizer apenas que os dois arquivos contêm o mesmo JSON não define quais bytes entram no cálculo.</p>
+
+<h3 id="aula-0-4-s4">4. Escolher a chave pública esperada</h3>
+<p>Uma falha de verificação não aponta sozinha a causa. A mensagem pode ter mudado, a assinatura pode estar danificada ou a chave pública escolhida pode não ser a correspondente. O teste avalia a combinação, não cada entrada isoladamente.</p>
+<p>Suponha que alguém apresente uma mensagem, uma assinatura e uma chave pública, todas preparadas por essa pessoa. A combinação pode ser válida. Isso não demonstra que a chave seja de quem você esperava receber a mensagem.</p>
+<p>A associação com uma pessoa ou equipamento precisa vir de uma referência confiável, como um cadastro ou uma confirmação por outro canal conhecido. Um nome escrito na mensagem também é apenas uma declaração. E, como vimos na aula anterior, a verificação não revela se a parte privada foi copiada.</p>
+
+<h3 id="aula-0-4-s5">5. O que continua fora do cálculo</h3>
+<p>Uma assinatura pode ser válida para a mensagem <code>falha de comunicação</code> mesmo que o equipamento não tenha sofrido essa falha. O cálculo não observa o teste. Conferir o acontecimento exige evidências do processo; saber se o responsável podia aprovar o registro exige regras de autorização.</p>
+<p>A mensagem também continua legível. Assinar não cifra seu conteúdo nem impede cópias. Quando é necessário restringir a leitura, entram mecanismos de <strong>confidencialidade</strong>, como cifragem e controle de acesso às chaves de leitura.</p>
+
+<div class="activity"><div class="box-label">Atividade: interprete duas verificações</div>
+<p>Um sistema guarda a chave pública confirmada de uma pessoa. Chega uma mensagem com uma assinatura e uma nova chave pública. A assinatura passa na verificação com a chave recebida, mas falha com a chave já cadastrada.</p>
+<form class="activity-quiz" id="quiz-aula-0-4-a1" data-answer="answer-aula-0-4-a1">
+<fieldset class="quiz-question"><legend>Que conclusão o sistema pode tirar?</legend><div class="quiz-options">
+<label class="quiz-option"><input name="aula-0-4-a1" type="radio" value="a"/><span class="quiz-option-text">O sucesso com a chave recebida é suficiente para substituir automaticamente a chave do cadastro.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="aula-0-4-a1" type="radio" value="b"/><span class="quiz-option-text">A falha com a chave cadastrada comprova que a mensagem foi alterada depois de assinada.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="aula-0-4-a1" type="radio" value="c" data-correct="true"/><span class="quiz-option-text">A combinação recebida é válida, mas ainda falta confirmar a associação da nova chave com a pessoa.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="aula-0-4-a1" type="radio" value="d"/><span class="quiz-option-text">Os resultados diferentes demonstram que a assinatura está corrompida, independentemente da chave usada.</span><span class="quiz-verdict"></span></label>
+</div><p class="quiz-question-feedback" aria-live="polite"></p></fieldset>
+<div class="quiz-actions"><button class="quiz-check" disabled="" type="submit">Conferir respostas</button><p class="quiz-status" aria-live="polite" tabindex="-1">0 de 1 pergunta respondida.</p></div>
+</form>
+<details class="answer" id="answer-aula-0-4-a1"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Conferir resposta</summary><div class="answer-body">
+<p>A alternativa C é a correta. Os testes usaram chaves diferentes, portanto não avaliaram a mesma combinação. Pode haver uma troca legítima de chave ou uma substituição indevida; a verificação não decide isso. A nova associação precisa ser confirmada antes de alterar o cadastro. A falha com a chave antiga também não comprova, isoladamente, alteração da mensagem ou corrupção da assinatura.</p>
+</div></details>
+</div>
+
+<div class="closing"><h3>O que aprendemos</h3><ul>
+<li>Assinar recebe a mensagem em bytes e a parte privada. Verificar recebe a mensagem, a assinatura e a parte pública.</li>
+<li>A verificação depende dos bytes apresentados e da chave escolhida. Uma falha não identifica sozinha qual entrada está errada.</li>
+<li>Uma assinatura válida não confirma, por si só, a identidade de uma pessoa, a verdade do conteúdo ou a permissão para aprová-lo.</li>
+<li>Assinar não esconde a mensagem. Restringir a leitura exige mecanismos adicionais.</li>
+</ul>
+<p>Para revisar os limites da comparação por hashes, retome a <a href="#atividade-aula-0-2-a2">atividade da Aula 0.2</a>.</p>
+</div>
+<div class="bridge"><h3>Próxima aula</h3><p>Até aqui, os programas puderam representar dados, calcular hashes e conferir assinaturas sem participar de uma rede pública. Na próxima aula, veremos como aplicações usam a infraestrutura da Cardano e quais responsabilidades ficam em cada lado. As operações que estudamos continuam presentes, mas a rede também precisa de regras para aceitar e ordenar as operações recebidas.</p></div>

@@ -1,0 +1,253 @@
+---
+title: Scaling, batches, costs and Hydra
+map_title: Scaling and Hydra
+summary: Measure publications and waiting time per batch and follow the lifecycle of a Hydra Head.
+---
+
+<div class="objectives"><div class="box-label">Objectives</div><ol class="objective-list">
+<li>Distinguish the number of events, publications and bytes preserved off-chain.</li>
+<li>Estimate the effect of a batch window on cost and latency.</li>
+<li>Explain initialization, commit, snapshots, close, contestation and fanout in a Hydra Head.</li>
+</ol></div>
+<div class="prereq"><div class="box-label">Before you begin</div><p>Review the Merkle root and proof from Lesson 2.2, as well as inputs, outputs and fees from Module 1. The event stream is an assumption for the calculation. The publication's size and fee come from the PyCardano measurement in Lesson 1.8, not a guaranteed current price.</p><div class="guide-q"><span class="guide-q-label">Guiding question</span><p>Do two events per second require two transactions per second?</p></div></div>
+
+<h3 id="aula-2-3-s1">1. The window turns events into publications</h3>
+<p>A service receives two events per second for one hour: 7,200 events. Its requirement is to let each event be verified against a public commitment. That does not require one transaction per event. The service can close batches and publish one Merkle root per batch.</p>
+<p>With a fixed 60-second window, events received in the interval <code>[0, 60)</code> belong to the first batch; an event at time 60 belongs to the next. With a continuous stream, one hour produces 60 batches of 120 events. The application publishes 60 roots, but still needs to store and process the 7,200 events.</p>
+<!-- Workshop visual language f4536110de13ab69c1b42311b823f84afdc2b6f7.
+     scenes/operational-cost.svg: external documents, one root per batch, ticket/tag.
+     Reused paths: objects/document.svg and metadata-compact.svg. This crop contains
+     five events, not the six-event exercise. Grouping is not a proportional time axis.
+     Tickets are publications to submit, not blocks included at the closing instant. -->
+<figure class="fig deck-figure m2-workshop batch-window" aria-labelledby="caption-batch-window" data-visual-source="cardano-workshop-visual-language/assets/svg/scenes/operational-cost.svg" data-visual-revision="f4536110de13ab69c1b42311b823f84afdc2b6f7">
+<p class="m2-stage" id="batch-window-heading">Five events, two roots to publish</p>
+<p class="m2-scroll-hint">Scroll across the diagram to see what each batch produces.</p>
+<div class="m2-scroll" tabindex="0" role="region" aria-labelledby="batch-window-heading">
+<svg class="m2-scene" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 487" role="img" aria-labelledby="batch-window-title batch-window-desc">
+<title id="batch-window-title">The event at 60 seconds belongs to the next batch.</title>
+<desc id="batch-window-desc">In the application, batch 0 contains the events at 0, 1 and 59 seconds. It closes at 60 seconds and produces R0. Batch 1 contains the events at 60 and 61 seconds. It closes at 120 seconds and produces R1. Each root travels in transaction metadata for publication on L1. The events remain in the application. Closing does not mean inclusion: submission, inclusion and confirmations add waiting time.</desc>
+<defs><marker id="batch-root-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path fill="var(--deck-orange)" d="M0 0 L10 5 L0 10 Z"/></marker></defs>
+<g aria-hidden="true">
+<path class="boundary-protocol" d="M410 10 V444"/>
+<text class="m2-bold" x="18" y="34">Batch 0: [0 s, 60 s)</text>
+<text class="m2-bold" x="450" y="34">To publish on L1</text>
+<path class="m2-wire" d="M249 65 H264 V180 H249 M264 122 H290"/>
+<path class="rel-external" d="M390 122 H423 V219 H642 V202" marker-end="url(#batch-root-arrow)"/>
+<path class="obj-document" data-visual-asset="objects/document.svg" d="M72 32 H210 L250 72 V232 H72 Z M210 32 V72 H250" transform="translate(21 76) scale(.3) translate(-72 -32)"/>
+<path class="obj-document" d="M72 32 H210 L250 72 V232 H72 Z M210 32 V72 H250" transform="translate(105 76) scale(.3) translate(-72 -32)"/>
+<path class="obj-document" d="M72 32 H210 L250 72 V232 H72 Z M210 32 V72 H250" transform="translate(189 76) scale(.3) translate(-72 -32)"/>
+<text x="47" y="166" text-anchor="middle">0 s</text><text x="132" y="166" text-anchor="middle">1 s</text><text x="216" y="166" text-anchor="middle">59 s</text>
+<rect class="obj-anchor" x="290" y="99" width="100" height="46" rx="23"/>
+<text class="m2-mono" x="340" y="129" text-anchor="middle">R0</text>
+<text class="m2-small" x="340" y="177" text-anchor="middle">closes at</text><text class="m2-bold" x="340" y="201" text-anchor="middle">60 s</text>
+<g data-visual-asset="objects/metadata-compact.svg" transform="translate(439 60) scale(.75)">
+<path class="obj-transaction" d="M32 28 H206 L224 46 V126 C214 126 214 148 224 148 V176 L206 194 H32 L14 176 V148 C24 148 24 126 14 126 V46 Z"/>
+<path class="obj-metadata-string" d="M222 86 C246 90 262 103 272 118"/>
+<g transform="rotate(2 267 139)"><rect class="obj-metadata-tag" x="224" y="113" width="94" height="72" rx="6"/><circle class="obj-metadata-eyelet" cx="272" cy="120" r="6"/></g>
+</g>
+<text class="m2-ticket-text m2-bold" x="471" y="105">Transaction</text>
+<path class="m2-ticket-rule" d="M470 120 H585"/>
+<text class="m2-ticket-text" x="471" y="153">Batch 0</text>
+<text class="m2-tag-text m2-mono" x="642" y="181" text-anchor="middle">R0</text>
+<text class="m2-bold" x="18" y="269">Batch 1: [60 s, 120 s)</text>
+<path class="m2-wire" d="M249 300 H264 V415 H249 M264 357 H290"/>
+<path class="rel-external" d="M390 357 H423 V454 H642 V437" marker-end="url(#batch-root-arrow)"/>
+<path class="obj-document" d="M72 32 H210 L250 72 V232 H72 Z M210 32 V72 H250" transform="translate(21 311) scale(.3) translate(-72 -32)"/>
+<path class="obj-document" d="M72 32 H210 L250 72 V232 H72 Z M210 32 V72 H250" transform="translate(105 311) scale(.3) translate(-72 -32)"/>
+<text x="47" y="401" text-anchor="middle">60 s</text><text x="132" y="401" text-anchor="middle">61 s</text>
+<rect class="obj-anchor" x="290" y="334" width="100" height="46" rx="23"/>
+<text class="m2-mono" x="340" y="364" text-anchor="middle">R1</text>
+<text class="m2-small" x="340" y="412" text-anchor="middle">closes at</text><text class="m2-bold" x="340" y="436" text-anchor="middle">120 s</text>
+<g data-visual-asset="objects/metadata-compact.svg" transform="translate(439 295) scale(.75)">
+<path class="obj-transaction" d="M32 28 H206 L224 46 V126 C214 126 214 148 224 148 V176 L206 194 H32 L14 176 V148 C24 148 24 126 14 126 V46 Z"/>
+<path class="obj-metadata-string" d="M222 86 C246 90 262 103 272 118"/>
+<g transform="rotate(2 267 139)"><rect class="obj-metadata-tag" x="224" y="113" width="94" height="72" rx="6"/><circle class="obj-metadata-eyelet" cx="272" cy="120" r="6"/></g>
+</g>
+<text class="m2-ticket-text m2-bold" x="471" y="340">Transaction</text>
+<path class="m2-ticket-rule" d="M470 355 H585"/>
+<text class="m2-ticket-text" x="471" y="388">Batch 1</text>
+<text class="m2-tag-text m2-mono" x="642" y="416" text-anchor="middle">R1</text>
+<text class="m2-small" x="18" y="474">Events stay in the application.</text>
+<text class="m2-small" x="449" y="474">Then: inclusion and confirmations.</text>
+</g></svg></div>
+<figcaption id="caption-batch-window">A view of five events. The event at 59 s waits 1 second for its batch to close. The one at 60 s waits 60 seconds. The yellow tags carry the roots, not the complete records. Transaction inclusion and confirmations add waiting time after closing.</figcaption></figure>
+<p>A larger window reduces publications but increases waiting time. With roughly uniform arrivals, the average wait for closing is close to half a window. This is not a promise about total latency: queuing, construction, submission, inclusion and the confirmation policy also factor into the measurement.</p>
+
+<h3 id="aula-2-3-s2">2. Do the calculations without treating the example as a budget</h3>
+<p>In <a href="#aula-1-8-s2">Lesson 1.8</a>, the package with a 32-byte root and one signature measured 306 bytes. With the Preprod parameters queried on 17/09/2026, <code>a = 44</code> and <code>b = 155381</code>, its minimum fee was 168845 lovelace. We will reuse this measurement to compare publication frequencies, without rebuilding the package here.</p>
+<pre data-python-runner="true" data-exercise-id="batch-cost-window-demo" data-exercise-version="2"><code class="language-python">from math import ceil
+
+seconds = 3600
+events_per_second = 2
+bytes_per_event = 200
+bytes_per_transaction = 306  # Package measured in Lesson 1.8.
+a, b = 44, 155_381  # Preprod query used in that measurement.
+fee = a * bytes_per_transaction + b
+events = seconds * events_per_second
+
+print("events:", events)
+print("event bytes:", events * bytes_per_event)
+print("one tx per event, ADA:", events * fee / 1_000_000)
+for window in (60, 300, 900):
+    publications = ceil(seconds / window)
+    total = publications * fee
+    print("window:", window, "publications:", publications,
+          "fees in ADA:", total / 1_000_000,
+          "approximate average wait:", window / 2)
+</code></pre>
+<p>The 60-, 300- and 900-second windows produce 60, 12 and 4 publications: 10.1307, 2.02614 and 0.67538 ADA under these assumptions. One transaction per event would cost 1215.684 ADA. We kept the package size the same to isolate frequency. Different inputs, signatures, attachments or parameters require a new measurement. If the application requires closing within two minutes, the 300-second window already fails that requirement, even though it costs less.</p>
+<p>For a real budget, fix the network, era and a snapshot of the protocol parameters. Build the complete transaction, including witnesses and auxiliary data, serialize it to CBOR and calculate the fee with a compatible tool. Script transactions may include execution costs and other applicable components. An output's minimum ADA is value held in it, not the same as a fee paid.</p>
+<p>The 7200 records of 200 bytes total 1440000 bytes. Batching reduces the number of transactions, but the application still needs to store the complete records.</p>
+<p>An application can also carry several roots in the same transaction. This reduces submissions, but increases attachment bytes and may require waiting for other batches. It is a different design that needs a new measurement.</p>
+
+<div class="activity" data-progress-id="batch-publication-count-activity"><div class="box-label">Activity: one publication for each minute with records</div>
+<p>Six records arrive at seconds <code>0, 1, 59, 60, 61 and 180</code>. We will group those that arrive in the same minute:</p>
+<ul>
+<li>From 0 to 59 seconds: three records.</li>
+<li>From 60 to 119 seconds: two records.</li>
+<li>From 120 to 179 seconds: no records.</li>
+<li>From 180 to 239 seconds: one record.</li>
+</ul>
+<p>We publish one transaction for each group containing records. That means three publications. The code below still counts duplicates and returns six. Fix the count to consider each group only once.</p>
+<pre data-python-runner="true" data-exercise-id="batch-publication-count" data-exercise-version="3" data-validator="batch-publication-count-tests"><code class="language-python">def count_batches(times, window):
+    groups = [second // window for second in times]
+    return len(groups)
+
+times = [0, 1, 59, 60, 61, 180]
+print("Group for each record:", [second // 60 for second in times])
+publications = count_batches(times, 60)
+print("Publications:", publications)
+</code></pre>
+<p><code>second // 60</code> identifies the minute. The printed list is <code>[0, 0, 0, 1, 1, 3]</code>: only three distinct groups appear, <code>0</code>, <code>1</code> and <code>3</code>. Use <strong>Validate solution</strong> after fixing the function.</p>
+<details class="answer" id="answer-batch-publication-count"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Check answer</summary><div class="answer-body"><p>Replace <code>len(groups)</code> with <code>len(set(groups))</code>. The set removes duplicates: <code>{0, 1, 3}</code> has three elements. The minute with no records does not generate a publication.</p></div></details>
+</div>
+<script type="application/json" id="batch-publication-count-tests">
+{"version":1,"tests":[
+{"name":"Burst and empty interval","code":"assert count_batches([0, 1, 59, 60, 61, 180], 60) == 3, 'The occupied batches are 0, 1 and 3. Batch 2 is empty.'"},
+{"name":"Interval boundary","code":"assert count_batches([59, 60, 60, 119, 120], 60) == 3, 'An event at the boundary starts the next batch; two events at the same instant do not create two publications.'"},
+{"name":"Empty stream","code":"assert count_batches([], 60) == 0, 'Without events, there is no root to publish in this model.'"},
+{"name":"Different window and out-of-order input","code":"assert count_batches([900, 299, 0, 300, 901], 300) == 3, 'The window is a parameter, and the count does not depend on the order of arrivals in the list.'"},
+{"name":"Many events in the same batch","code":"assert count_batches([7] * 100, 10) == 1, 'Event volume is not publication volume.'\nassert count_batches([1000], 60) == 1, 'Do not count every interval since zero, only the occupied ones.'"}
+]}
+</script>
+
+
+<h3 id="aula-2-3-s3">3. When the problem is frequent interaction</h3>
+<p>Publishing roots on layer 1, or L1, addresses periodic commitments to batches. A different problem arises when a defined set of participants needs to make many transfers among themselves with low latency. A <strong>Hydra Head</strong> is a multi-party state channel: UTxOs are committed on L1, transactions update the state off-chain and a protocol allows the final state to be settled on L1.</p>
+<p>Consider three participants, A, B and C. The figure tracks 20 illustrative units, omitting L1 fees. It is not a real transaction or a performance guarantee.</p>
+<!-- Workshop visual language f4536110de13ab69c1b42311b823f84afdc2b6f7.
+     Lesson-specific Hydra lifecycle, not a copied generic L2 scene.
+     Reused geometry: objects/actor.svg, utxo-active.svg, document.svg,
+     transaction-body.svg and relations/semantic-badge-authorization.svg.
+     Green notes stand for selected/output UTxO groups, with aggregate didactic units.
+     Snapshots are signed state records, not L1 publications or account balances. -->
+<figure class="fig deck-figure m2-workshop head-cycle" aria-labelledby="caption-head-cycle" data-visual-source="cardano-workshop-visual-language/assets/svg/objects/utxo-active.svg" data-visual-revision="f4536110de13ab69c1b42311b823f84afdc2b6f7">
+<p class="m2-stage" id="hydra-open-heading">From commit to transfers in the Head</p>
+<p class="m2-scroll-hint">Scroll across the diagram to follow A, B and C.</p>
+<div class="m2-scroll" tabindex="0" role="region" aria-labelledby="hydra-open-heading">
+<svg class="m2-scene" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 510" role="img" aria-labelledby="hydra-open-title hydra-open-desc">
+<title id="hydra-open-title">Three participants commit UTxOs and confirm new states off L1.</title>
+<desc id="hydra-open-desc">Initialization defines the participants and contestation period. On L1, A selects UTxOs totaling 10 units, B selects 8 and C selects 2. The commits place these UTxOs under the Head protocol. Once the commits are collected, the Head opens. Off L1, confirmed snapshot 6 records A 10, B 8 and C 2. After transfers, confirmed snapshot 9 records A 7, B 9 and C 4. Both are signed by A, B and C. The tickets between them represent off-chain transactions, not blocks. The sum remains 20 illustrative units, excluding L1 fees.</desc>
+<defs><marker id="hydra-protocol-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path fill="var(--deck-blue)" d="M0 0 L10 5 L0 10 Z"/></marker></defs>
+<g aria-hidden="true">
+<text class="m2-bold" x="20" y="27">L1 · participants and selected UTxOs</text>
+<path class="rel-protocol" d="M157 131 V180 H637 V131 M397 131 V180" style="stroke-width:2.5"/>
+<path class="rel-protocol" d="M397 180 V244" style="stroke-width:2.5" marker-end="url(#hydra-protocol-arrow)"/>
+<g data-visual-asset="objects/actor.svg" transform="translate(20 58) scale(.35) translate(-92 -46)"><circle class="obj-actor" cx="160" cy="78" r="32"/><path class="obj-actor" d="M92 190 C104 129 216 129 228 190 M160 110 V177" style="fill:none"/></g>
+<text class="m2-bold" x="44" y="134" text-anchor="middle">A</text>
+<g data-visual-asset="objects/utxo-active.svg" transform="translate(91 58) scale(.4) translate(-30 -30)"><path class="obj-utxo" d="M30 30 H360 V200 H30 Z"/><path class="utxo-note-inner" d="M39 39 H351 V191 H39 Z"/></g>
+<text class="m2-small m2-success" x="102" y="84">UTxOs</text><text class="m2-letter m2-success" x="209" y="113" text-anchor="end">10</text>
+<g transform="translate(260 58) scale(.35) translate(-92 -46)"><circle class="obj-actor" cx="160" cy="78" r="32"/><path class="obj-actor" d="M92 190 C104 129 216 129 228 190 M160 110 V177" style="fill:none"/></g>
+<text class="m2-bold" x="284" y="134" text-anchor="middle">B</text>
+<g transform="translate(331 58) scale(.4) translate(-30 -30)"><path class="obj-utxo" d="M30 30 H360 V200 H30 Z"/><path class="utxo-note-inner" d="M39 39 H351 V191 H39 Z"/></g>
+<text class="m2-small m2-success" x="342" y="84">UTxOs</text><text class="m2-letter m2-success" x="449" y="113" text-anchor="end">8</text>
+<g transform="translate(500 58) scale(.35) translate(-92 -46)"><circle class="obj-actor" cx="160" cy="78" r="32"/><path class="obj-actor" d="M92 190 C104 129 216 129 228 190 M160 110 V177" style="fill:none"/></g>
+<text class="m2-bold" x="524" y="134" text-anchor="middle">C</text>
+<g transform="translate(571 58) scale(.4) translate(-30 -30)"><path class="obj-utxo" d="M30 30 H360 V200 H30 Z"/><path class="utxo-note-inner" d="M39 39 H351 V191 H39 Z"/></g>
+<text class="m2-small m2-success" x="582" y="84">UTxOs</text><text class="m2-letter m2-success" x="689" y="113" text-anchor="end">2</text>
+<text class="m2-small" x="171" y="160">commit</text><text class="m2-small" x="411" y="160">commit</text><text class="m2-small" x="651" y="160">commit</text>
+<text x="24" y="221">Collect the commits</text>
+<rect class="boundary-protocol" x="12" y="252" width="696" height="246" rx="4" fill="none"/>
+<text class="m2-bold" x="30" y="289">Open Head · off L1</text>
+<path class="rel-protocol" d="M296 390 H320 M401 390 H427" style="stroke-width:2.5" marker-end="url(#hydra-protocol-arrow)"/>
+<path class="obj-document" data-visual-asset="objects/document.svg" d="M72 32 H210 L250 72 V232 H72 Z M210 32 V72 H250" transform="translate(30 321) scale(1.46 .72) translate(-72 -32)"/>
+<text class="m2-bold" x="50" y="361">Snapshot 6</text>
+<text class="m2-mono" x="50" y="402">A 10 · B 8 · C 2</text>
+<g data-visual-asset="relations/semantic-badge-authorization.svg" transform="translate(47 425) scale(.34) translate(-60 -58)"><circle class="badge-accent" cx="92" cy="90" r="32"/><path d="M77 90 L88 101 L108 75" fill="none" stroke="var(--deck-orange-dark)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></g>
+<text class="m2-small" x="82" y="442">Signed: A, B, C</text>
+<text class="m2-small" x="361" y="341" text-anchor="middle">Transactions</text>
+<path class="obj-transaction" data-visual-asset="objects/transaction-body.svg" d="M603 245 H802 L820 263 V337 C808 337 808 361 820 361 V427 L802 445 H603 L585 427 V361 C597 361 597 337 585 337 V263 Z" transform="translate(326 359) scale(.3) translate(-585 -245)"/>
+<text class="m2-ticket-text m2-mono" x="361" y="397" text-anchor="middle">tx</text>
+<path class="obj-document" d="M72 32 H210 L250 72 V232 H72 Z M210 32 V72 H250" transform="translate(432 321) scale(1.46 .72) translate(-72 -32)"/>
+<text class="m2-bold" x="452" y="361">Snapshot 9</text>
+<text class="m2-mono" x="452" y="402">A 7 · B 9 · C 4</text>
+<g transform="translate(449 425) scale(.34) translate(-60 -58)"><circle class="badge-accent" cx="92" cy="90" r="32"/><path d="M77 90 L88 101 L108 75" fill="none" stroke="var(--deck-orange-dark)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></g>
+<text class="m2-small" x="484" y="442">Signed: A, B, C</text>
+</g></svg></div>
+<p class="m2-stage" id="hydra-close-heading">Closing with 6 does not erase snapshot 9</p>
+<div class="m2-scroll" tabindex="0" role="region" aria-labelledby="hydra-close-heading">
+<svg class="m2-scene" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 514" role="img" aria-labelledby="hydra-close-title hydra-close-desc">
+<title id="hydra-close-title">B contests in time with snapshot 9; fanout occurs only after the deadline.</title>
+<desc id="hydra-close-desc">The close on L1 presents snapshot 6 and opens the contestation period. B holds snapshot 9 signed by everyone and submits a valid contestation before the applicable deadline. The resolved state becomes 9. After the deadline, fanout distributes UTxOs from that state on L1: A receives 7 units, B 9 and C 4. The update requires a valid, timely contestation; it is neither automatic nor an ordinary metadata publication.</desc>
+<defs><marker id="hydra-contest-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path fill="var(--deck-blue)" d="M0 0 L10 5 L0 10 Z"/></marker></defs>
+<g aria-hidden="true">
+<text class="m2-bold" x="20" y="27">L1 · close and contestation</text>
+<path class="obj-transaction" d="M603 245 H802 L820 263 V337 C808 337 808 361 820 361 V427 L802 445 H603 L585 427 V361 C597 361 597 337 585 337 V263 Z" transform="translate(24 65) scale(.55 .62) translate(-585 -245)"/>
+<text class="m2-ticket-text m2-bold" x="89" y="105" text-anchor="middle">close</text>
+<path class="m2-ticket-rule" d="M40 117 H137"/>
+<text class="m2-letter m2-ticket-text" x="89" y="159" text-anchor="middle">6</text>
+<path class="m2-wire" d="M89 194 V229"/>
+<g data-visual-asset="objects/actor.svg" transform="translate(244 67) scale(.35) translate(-92 -46)"><circle class="obj-actor" cx="160" cy="78" r="32"/><path class="obj-actor" d="M92 190 C104 129 216 129 228 190 M160 110 V177" style="fill:none"/></g>
+<text class="m2-bold" x="268" y="143" text-anchor="middle">B</text>
+<path class="rel-external" d="M301 100 H372"/>
+<path class="obj-document" d="M72 32 H210 L250 72 V232 H72 Z M210 32 V72 H250" transform="translate(375 55) scale(1.73 .73) translate(-72 -32)"/>
+<text class="m2-bold" x="397" y="99">Snapshot 9</text>
+<text class="m2-mono" x="397" y="133">A 7 · B 9 · C 4</text>
+<g transform="translate(397 158) scale(.34) translate(-60 -58)"><circle class="badge-accent" cx="92" cy="90" r="32"/><path d="M77 90 L88 101 L108 75" fill="none" stroke="var(--deck-orange-dark)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></g>
+<text class="m2-small" x="433" y="177">Signed: A, B, C</text>
+<path class="rel-protocol" d="M528 205 V216 H340 V234" style="stroke-width:2.5" marker-end="url(#hydra-contest-arrow)"/>
+<path class="m2-line" d="M30 269 H690 M89 260 V278 M340 260 V278 M627 260 V278"/>
+<path class="boundary-protocol" d="M501 269 V324"/>
+<text class="m2-small" x="89" y="251" text-anchor="middle">close with 6</text>
+<text class="m2-small" x="340" y="251" text-anchor="middle">contest with 9</text>
+<text class="m2-small" x="501" y="251" text-anchor="middle">deadline</text>
+<text class="m2-small" x="627" y="251" text-anchor="middle">fanout</text>
+<path d="M89 293 H501" fill="none" stroke="var(--deck-orange)" stroke-width="4"/>
+<text class="m2-small" x="295" y="319" text-anchor="middle">Contestation period</text>
+<text class="m2-small m2-success" x="370" y="355" text-anchor="middle">Resolved state: snapshot 9</text>
+<path class="rel-protocol" d="M627 279 V373 H128" style="stroke-width:2.5"/>
+<path class="rel-protocol" d="M128 373 V397" style="stroke-width:2.5" marker-end="url(#hydra-contest-arrow)"/>
+<path class="rel-protocol" d="M364 373 V397" style="stroke-width:2.5" marker-end="url(#hydra-contest-arrow)"/>
+<path class="rel-protocol" d="M600 373 V397" style="stroke-width:2.5" marker-end="url(#hydra-contest-arrow)"/>
+<g data-visual-asset="objects/utxo-active.svg" transform="translate(36 403) scale(.55) translate(-30 -30)"><path class="obj-utxo" d="M30 30 H360 V200 H30 Z"/><path class="utxo-note-inner" d="M39 39 H351 V191 H39 Z"/></g>
+<text class="m2-small m2-success" x="54" y="432">UTxOs on L1</text><text class="m2-bold m2-success" x="54" y="475">A</text><text class="m2-letter m2-success" x="199" y="477" text-anchor="end">7</text>
+<g transform="translate(272 403) scale(.55) translate(-30 -30)"><path class="obj-utxo" d="M30 30 H360 V200 H30 Z"/><path class="utxo-note-inner" d="M39 39 H351 V191 H39 Z"/></g>
+<text class="m2-small m2-success" x="290" y="432">UTxOs on L1</text><text class="m2-bold m2-success" x="290" y="475">B</text><text class="m2-letter m2-success" x="435" y="477" text-anchor="end">9</text>
+<g transform="translate(508 403) scale(.55) translate(-30 -30)"><path class="obj-utxo" d="M30 30 H360 V200 H30 Z"/><path class="utxo-note-inner" d="M39 39 H351 V191 H39 Z"/></g>
+<text class="m2-small m2-success" x="526" y="432">UTxOs on L1</text><text class="m2-bold m2-success" x="526" y="475">C</text><text class="m2-letter m2-success" x="671" y="477" text-anchor="end">4</text>
+</g></svg></div>
+<figcaption id="caption-head-cycle">The green notes represent groups of UTxOs; the numbers are totals in illustrative units, not account balances. The orange badges indicate participants' signatures. Closing should not settle the old state if a valid contestation with the latest snapshot arrives in time. Only after the applicable deadline does fanout materialize the UTxOs on L1.</figcaption>
+</figure>
+<p>Initialization defines the group and the Head's parameters. Each participant commits their selected UTxOs, not their entire wallet. Collecting the commits opens the Head. If initialization does not finish, the protocol provides for aborting and recovering the committed value.</p>
+<p>In an open Head, nodes validate transactions using rules compatible with the eUTxO model. Numbered snapshots confirm the state through participants' signatures. A submitted transaction does not, by itself, amount to a confirmed snapshot. An unavailable participant can prevent new snapshots from being confirmed; keeping nodes responsive is part of operating the Head.</p>
+<p>A participant can initiate <span lang="en">close</span> on L1 with a state permitted by the protocol. During the contestation period, another participant presents a more recent confirmed snapshot. After the applicable deadline, <span lang="en">fanout</span> materializes the resolved state's UTxOs on L1. Saving snapshots and monitoring L1 lets participants respond to a stale close.</p>
+
+<div class="activity" data-progress-id="hydra-stale-close-activity"><div class="box-label">Activity: a stale close</div>
+<form class="activity-quiz" id="quiz-hydra-stale-close" data-progress-id="hydra-stale-close-quiz" data-answer="answer-hydra-stale-close">
+<fieldset class="quiz-question"><legend>The Head closed with snapshot 6. B holds snapshot 9 signed by everyone, and the deadline has not passed. Which action preserves the most recent confirmed state?</legend><div class="quiz-options">
+<label class="quiz-option"><input type="radio" name="hydra-stale-close" value="a" data-correct="false"/><span class="quiz-option-text">Publish only the Merkle root of snapshot 9 in ordinary metadata and wait, without interacting with the protocol.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input type="radio" name="hydra-stale-close" value="b" data-correct="true"/><span class="quiz-option-text">Submit a valid contestation with snapshot 9 before the deadline and monitor the resolution before fanout.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input type="radio" name="hydra-stale-close" value="c" data-correct="false"/><span class="quiz-option-text">Send a new off-chain transaction, as if the Head were still open, to overwrite the close.</span><span class="quiz-verdict"></span></label>
+</div><p class="quiz-question-feedback" aria-live="polite"></p></fieldset><div class="quiz-actions"><button class="quiz-check" type="submit" disabled="">Check answers</button><p class="quiz-status" aria-live="polite" tabindex="-1">0 of 1 question answered.</p></div>
+</form>
+<details class="answer" id="answer-hydra-stale-close"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Check answer</summary><div class="answer-body"><p>B must use the Head's contestation path. Ordinary metadata does not replace the evidence required by this protocol. After closing, new off-chain transactions do not override the dispute. The deadline makes monitoring and snapshot availability concrete requirements, not optional details.</p></div></details>
+</div>
+<p>Hydra is neither a private document database nor a generic rollup for any workload. Participants share Head information; movements in and out pass through L1. If one root per minute already meets asynchronous verification needs, opening a Head may merely add operational work. Compare the complete lifecycle, including commits, closing, participant availability and recovery, with the actual need for interaction.</p>
+
+<div class="closing"><h3>What we learned</h3><ul>
+<li>A window groups events into publications and adds waiting time before inclusion.</li>
+<li>Fees depend on the transaction and parameters; proofs and files still require storage and delivery.</li>
+<li>Hydra supports frequent interaction between defined participants, with snapshots confirmed off L1.</li>
+<li>Closing, timely contestation and fanout resolve the state on L1.</li>
+</ul></div>
+<div class="bridge"><h3>Next lesson</h3><p>In Lesson 2.4 we will test what an observer can discover from public hashes and build a verifiable opening with a private nonce.</p></div>

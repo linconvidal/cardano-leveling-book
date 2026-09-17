@@ -1,0 +1,198 @@
+---
+title: 'Transação como pacote verificável: intenção, bytes e regras'
+short_title: Transação como pacote verificável
+map_title: Transação
+summary: Relacionar corpo CBOR, body hash e bytes assinados por uma witness Ed25519.
+description: Entender como uma intenção vira estrutura, bytes CBOR, identificador, assinatura e pacote verificável pelas regras da rede.
+---
+
+
+<div class="objectives"><div class="box-label">Objetivos</div><p>Ao final desta aula, você será capaz de:</p>
+<ol class="objective-list">
+<li>diferenciar intenção humana e pacote técnico de transação;</li>
+<li>identificar corpo, witnesses, representação CBOR e bytes usados no identificador de uma transação;</li>
+<li>explicar como regras de validação aceitam ou recusam um pacote;</li>
+
+
+</ol></div>
+<div class="prereq"><div class="box-label">Antes de começar</div><p>Você precisa lembrar que bytes podem representar texto, números e estruturas; que hashes dependem dos bytes exatos; que assinaturas digitais vinculam bytes específicos a uma chave; e que carteira, endereço e rede fazem parte do contexto operacional.</p>
+
+<div class="guide-q"><span class="guide-q-label">Pergunta-guia</span><p>Como uma rede sai de uma frase como "quero registrar este compromisso" para um pacote de bytes que pode ser aceito ou recusado por regras compartilhadas?</p></div></div>
+<h3 id="aula-1-6-s1">1. Intenção humana e pacote técnico</h3>
+<p>“Enviar 5 unidades e registrar o hash de um documento” ainda não especifica uma transação. O builder precisa definir rede, ativo, quantidade inteira, endereço, digest, condições de autorização e validade. Esses campos permitem verificar a operação sem depender da frase que a motivou.</p>
+<p>Para facilitar a leitura, esta aula usa JSON fictício. Transações reais de Cardano usam CBOR. A Seção 4 abre essa representação e separa estrutura lógica, bytes binários, hexadecimal de transporte e visão JSON.</p>
+
+
+
+<h3 id="aula-1-6-s2">2. Campos, regras e validação</h3>
+<p>Um campo é uma posição nomeada ou definida dentro de uma estrutura. Ele tem um valor e, normalmente, um tipo esperado. Um campo de quantidade deve se comportar como número inteiro. Um campo de rede deve indicar um contexto reconhecido. Um campo de digest deve ter formato e tamanho compatíveis com o algoritmo declarado.</p>
+<p>Regras são condições que o pacote precisa satisfazer. Algumas regras verificam forma: campo obrigatório presente, tipo correto, tamanho correto, codificação correta. Outras regras verificam estado: recurso disponível, credencial ou condição de script satisfeita, validade temporal, taxa suficiente e ausência de conflito com algo já consumido.</p>
+
+
+
+
+
+
+<h3 id="aula-1-6-s3">3. Assinaturas dentro de uma transação em nível conceitual</h3>
+<p>Assinatura digital tem função no pacote: ela permite verificar a relação entre determinados bytes, uma assinatura e uma chave pública, conforme um esquema criptográfico. A chave privada não vai dentro da transação. O pacote leva a assinatura e a informação necessária para conferir a chave ou credencial esperada.</p>
+<p>Em nível conceitual, pense primeiro em dois conjuntos centrais. O corpo da transação reúne os campos que dizem o que a operação tenta fazer. O conjunto de witnesses reúne assinaturas, scripts e outros dados usados para satisfazer condições técnicas definidas pelas regras do ledger. Na serialização completa, também aparecem o indicador de validade de script e, quando houver, os dados auxiliares. Esses elementos não fazem parte do transaction body nem do witness set.</p>
+<!-- Workshop objects/actor.svg and transaction-body.svg, revision f4536110de13ab69c1b42311b823f84afdc2b6f7. The ticket separates body and witnesses; acceptance here is validation, not inclusion. -->
+<figure class="fig deck-figure m1-icon-pass" data-visual-revision="f4536110de13ab69c1b42311b823f84afdc2b6f7"><div class="table-scroll" tabindex="0" role="region" aria-label="Da intenção humana à validação dos bytes"><svg style="width:100%;min-width:680px" aria-label="Uma pessoa expressa a intenção. O builder prepara o pacote, com corpo e witnesses. A serialização produz bytes que o node valida conforme as regras. A aceitação ainda não demonstra inclusão." role="img" viewBox="0 0 720 280">
+<g data-visual-asset="objects/actor.svg" transform="translate(19 61) scale(.45) translate(-92 -46)"><circle class="obj-actor" cx="160" cy="78" r="32"/><path class="obj-actor" d="M92 190 C104 129 216 129 228 190 M160 110 V177" style="fill:none"/></g>
+<text x="50" y="163" text-anchor="middle">Intenção</text><text class="dim" x="50" y="186" text-anchor="middle">humana</text>
+<path d="M86 104 H133 M126 98 L134 104 L126 110" fill="none" stroke="var(--ink)" stroke-width="2"/><text class="dim" x="113" y="75" text-anchor="middle">builder</text>
+<path class="obj-transaction" data-visual-asset="objects/transaction-body.svg" d="M603 245 H802 L820 263 V337 C808 337 808 361 820 361 V427 L802 445 H603 L585 427 V361 C597 361 597 337 585 337 V263 Z" transform="translate(141 25) scale(.88 1.05) translate(-585 -245)"/>
+<text class="cap ticket-text" x="163" y="55">TRANSAÇÃO</text><path class="ticket-rule" d="M162 69 H326 M162 142 H326"/>
+<text class="ticket-text" x="163" y="98">Corpo</text><text class="dim ticket-text" x="163" y="122">campos e valores</text>
+<text class="ticket-text" x="163" y="171">Witnesses</text><text class="dim ticket-text" x="163" y="197">assinaturas e scripts</text>
+<path d="M352 120 H391 M384 114 L392 120 L384 126 M498 120 H546 M539 114 L547 120 L539 126" fill="none" stroke="var(--ink)" stroke-width="2"/>
+<text class="dim" x="444" y="76" text-anchor="middle">Serializar em CBOR</text>
+<rect x="399" y="96" width="95" height="49" rx="2" fill="var(--deck-neutral-fill)" stroke="var(--ink)"/><path d="M413 96 V105 M427 96 V105 M441 96 V105 M455 96 V105 M469 96 V105 M483 96 V105" stroke="var(--ink-dim)"/>
+<text class="mono" x="446" y="129" text-anchor="middle">bytes</text>
+<rect class="obj-system" x="555" y="27" width="153" height="204" rx="3"/><path d="M555 68 H708" fill="none" stroke="var(--ink)" stroke-width="2"/>
+<text class="cap" x="631" y="53" text-anchor="middle">NODE</text><text x="631" y="105" text-anchor="middle">Aplica as regras</text>
+<text class="pass-label" x="631" y="153" text-anchor="middle">Aceita</text><text class="dim" x="631" y="175" text-anchor="middle">ou</text><text class="fail-label" x="631" y="199" text-anchor="middle">Recusa</text>
+<text class="dim" x="555" y="264">Aceitação ≠ inclusão.</text>
+</svg></div><figcaption>A intenção vira um pacote cujos dois conjuntos centrais são o corpo, que declara a operação, e as witnesses, que ajudam a satisfazer condições exigidas pelas regras. A serialização completa pode incluir ainda o indicador de validade de script e dados auxiliares. A rede valida os bytes finais, não a frase original.</figcaption></figure>
+
+
+
+<p>Consumir um output controlado por credencial de chave exige a key witness correspondente. Sem essa witness válida, a transação falha; o conteúdo público anexado não precisa ter uma assinatura documental própria.</p>
+
+
+<h3 id="aula-1-6-s4">4. CBOR: da estrutura aos bytes de Cardano</h3>
+<p>Os campos que você viu até aqui ainda são uma estrutura lógica. Para transmitir, assinar e validar uma transação, Cardano precisa de uma representação binária definida. Essa representação usa CBOR, sigla de <code>Concise Binary Object Representation</code>.</p>
+<p>O <a href="https://www.rfc-editor.org/rfc/rfc8949" rel="noopener noreferrer" target="_blank">RFC 8949</a> define como valores como inteiros, bytes, textos, listas e mapas podem ser codificados. CBOR não define o significado de uma transação Cardano. As regras do ledger e a especificação da era definem quais campos existem, seus tipos e as combinações aceitas.</p>
+<div class="table-scroll"><table><thead><tr><th>Camada</th><th>Exemplo</th><th>Uso</th></tr></thead><tbody>
+<tr><td>Estrutura da aplicação</td><td>Objeto produzido pelo builder</td><td>Facilita construção e validação antes da serialização.</td></tr>
+<tr><td>Bytes CBOR</td><td>Sequência binária</td><td>É a representação processada pelas bibliotecas e pelo protocolo.</td></tr>
+<tr><td>Hexadecimal</td><td><code>a2647265...</code></td><td>É uma forma textual de transportar ou inspecionar os bytes CBOR.</td></tr>
+<tr><td>JSON do explorer</td><td>Campos legíveis na página</td><td>É uma visão reconstruída para leitura; não é o CBOR original.</td></tr>
+</tbody></table></div>
+
+
+<h4>Um mapa pequeno em CBOR</h4>
+<p>Considere o mapa didático <code>{"rede": "preprod", "quantidade": 5}</code>. Uma codificação determinística desse mapa produz 26 bytes. Escritos em hexadecimal, eles ficam assim:</p>
+<pre><code class="language-text">a2                                      # mapa com 2 pares
+  64 72656465                           # texto "rede"
+  67 70726570726f64                     # texto "preprod"
+  6a 7175616e746964616465               # texto "quantidade"
+  05                                    # inteiro 5
+
+hex contínuo:
+a264726564656770726570726f646a7175616e74696461646505
+</code></pre>
+
+<p>Transações reais contêm estruturas maiores e campos específicos da era. Endereços, hashes e identificadores aparecem como bytes, não como os textos amigáveis exibidos pela interface. Não tente montar esse CBOR manualmente: use uma biblioteca compatível com a era e confira a estrutura antes de assinar.</p>
+
+<h4>Do objeto Python ao CBOR</h4>
+<p>Com PyCardano, os campos ficam em um objeto <code>TransactionBody</code>. Este exemplo tem uma entrada, uma saída de 100 ADA, taxa de 200000 lovelace e limite de validade no slot 1000. A entrada é fictícia: estamos estudando o corpo, não preparando uma transferência para envio.</p>
+<p><code>inputs</code> identifica o recurso consumido; <code>outputs</code> descreve o destino e o valor. <code>fee</code> guarda a taxa e <code>ttl</code> guarda o limite superior de validade. Execute o código para ver esses campos serializados por <code>to_cbor_hex()</code>.</p>
+<!-- Corpo adaptado de build_tx_body em https://github.com/linconvidal/pycardano-workshop. -->
+<pre data-python-runner="true" data-python-packages="pycardano-workshop-0.19.2-pyodide-314.0.7-v1" data-exercise-id="body-cbor-sdk-demo" data-exercise-version="1"><code class="language-python">from pycardano import (
+    Address, TransactionBody, TransactionId, TransactionInput,
+    TransactionOutput, Value,
+)
+
+destino = Address.from_primitive(
+    "addr_test1qz5p9x623ngvjtzf89gcz2pjhxcahq7rper4q534ejegyd406v8dc860wkryxpgsaeqzvwz7y2nmp7caz35yfpqsw7as9v22t0"
+)
+corpo = TransactionBody(
+    inputs=[TransactionInput(TransactionId(bytes(32)), 0)],
+    outputs=[TransactionOutput(destino, Value(100_000_000))],
+    fee=200_000,
+    ttl=1000,
+)
+print(corpo.to_cbor_hex())
+</code></pre>
+<p>A saída é o corpo em CBOR escrito como hexadecimal. <code>TransactionBody.from_cbor()</code> faz o caminho de volta: recebe essa representação e recupera os campos do objeto.</p>
+
+<h4>Corpo, identificador e witnesses</h4>
+<p>O corpo da transação é serializado antes da coleta de witnesses. Em Cardano, o identificador da transação é o digest Blake2b-256 dos bytes CBOR do transaction body conforme a era do ledger. As vkey witnesses assinam esse mesmo body hash. A assinatura não pode fazer parte dos bytes sobre os quais ela é calculada; ela entra no transaction witness set anexado ao corpo. O witness set também pode carregar scripts, datums e redeemers exigidos pela transação, conforme a era e o tipo de script.</p>
+<p>Esse alcance precisa ficar explícito. O transaction ID e a vkey witness não abrangem diretamente o witness set nem o indicador <code>is_valid</code>, que fica fora do body na serialização completa. Auxiliary data também fica fora, mas seus bytes são comprometidos indiretamente pelo <code>auxiliary_data_hash</code> incluído no body. O ledger valida a combinação completa segundo as regras da era; uma key witness válida não significa que cada byte externo ao body foi assinado por aquela chave.</p>
+<p>O transaction ID é um digest opaco, sem prefixo textual que identifique a rede. O body pode incluir o campo opcional <code>network_id</code>, e endereços de outputs ou contas de recompensa carregam contexto de rede em suas codificações. Ainda assim, wallet, nó, API e parâmetros precisam estar configurados para o mesmo ambiente. Registre a rede separadamente e não use apenas o transaction ID para distinguir Mainnet, Preprod ou Preview.</p>
+
+<p>Em interfaces como CIP-30, os bytes CBOR costumam atravessar a API escritos como hexadecimal. Um argumento chamado <code>cbor</code> ou uma string como <code>84a4...</code> não é JSON, não é texto do contrato e não é material secreto. É uma representação textual dos bytes serializados.</p>
+
+<h4>CBOR válido não basta</h4>
+<p>CBOR admite mais de uma forma válida de representar certos valores. Cardano restringe a estrutura com regras próprias e descrições CDDL específicas da era. Uma biblioteca precisa produzir a forma aceita pelo ledger, não apenas qualquer documento que um decoder CBOR consiga abrir.</p>
+
+
+
+
+<h3 id="aula-1-6-s5">5. Ed25519 e a mensagem de uma key witness</h3>
+<p>Na Aula 0.4, usamos Ed25519 para assinar os bytes de uma mensagem. Ed25519 é um esquema real de assinatura EdDSA sobre a curva Edwards25519, especificado no RFC 8032. Curva, esquema, implementação e uso pelo protocolo são camadas distintas: Cardano determina qual mensagem deve ser entregue à biblioteca.</p>
+<p>No formato Ed25519, a chave pública tem 32 bytes e a assinatura tem 64 bytes. A assinatura recebe material privado e mensagem em bytes; a verificação recebe chave pública, a mesma mensagem e assinatura. Ed25519 usa SHA-512 internamente e deriva deterministicamente seu valor efêmero; a aplicação não inventa um nonce para a operação. Formatos de chave privada variam entre seed, chave expandida e objeto opaco. Chaves estendidas de uma wallet Cardano não são intercambiáveis com qualquer arquivo chamado “Ed25519”.</p>
+<p>Para uma <strong>vkey witness de Cardano</strong>, a mensagem é o body hash de 32 bytes, calculado com Blake2b-256. Assinar esse digest conforme o protocolo não significa usar a variante Ed25519ph. Também não significa assinar seus 64 caracteres hexadecimais: texto hex e bytes decodificados são entradas diferentes. A witness contém verification key e assinatura. No gasto por chave, o ledger verifica a assinatura e relaciona o hash da verification key à credencial exigida. Há ainda required signers e condições de scripts; verificar uma assinatura isolada não verifica toda a transação.</p>
+<h4>Do corpo à mensagem que será assinada</h4>
+<p>Agora recupere o corpo serializado no exemplo anterior e chame <code>hash()</code>. Compare o digest de 32 bytes com os 64 caracteres da sua representação hexadecimal. A assinatura recebe os bytes do digest.</p>
+<pre data-python-runner="true" data-python-packages="pycardano-workshop-0.19.2-pyodide-314.0.7-v1" data-exercise-id="body-hash-bytes-demo" data-exercise-version="2"><code class="language-python">from pycardano import TransactionBody
+
+corpo = TransactionBody.from_cbor(
+    "a400818258200000000000000000000000000000000000000000000000000000"
+    "00000000000000018182583900a8129b4a8cd0c92c493951812832b9b1db83c3"
+    "0e47505235ccb28236afd30edc1f4f7586430510ee4026385e22a7b0fb1d1468"
+    "44841077bb1a05f5e100021a00030d40031903e8"
+)
+digest = corpo.hash()
+print("digest:", len(digest), "bytes")
+print("hex:", digest.hex())
+print("hex como texto:", len(digest.hex().encode("ascii")), "bytes")
+print("mesma entrada?", digest == digest.hex().encode("ascii"))
+</code></pre>
+<div class="activity" data-progress-id="body-hash-witness-message-activity"><div class="box-label">Atividade: corrija a taxa, preserve o prazo</div>
+<p>A taxa precisa passar de 200000 para 200001 lovelace, mantendo o prazo em 1000. A função abaixo altera o campo errado. Corrija somente essa atribuição e use <strong>Validar solução</strong>.</p>
+<p>O corpo do exemplo anterior já está em CBOR. A função deve devolver o corpo revisado e o hash correspondente a ele: mudar a taxa também muda a mensagem que será assinada.</p>
+<pre data-python-runner="true" data-python-packages="pycardano-workshop-0.19.2-pyodide-314.0.7-v1" data-exercise-id="body-hash-witness-message" data-exercise-version="3" data-validator="body-hash-witness-message-tests"><code class="language-python">from pycardano import TransactionBody
+
+corpo_exemplo = TransactionBody.from_cbor(
+    "a400818258200000000000000000000000000000000000000000000000000000"
+    "00000000000000018182583900a8129b4a8cd0c92c493951812832b9b1db83c3"
+    "0e47505235ccb28236afd30edc1f4f7586430510ee4026385e22a7b0fb1d1468"
+    "44841077bb1a05f5e100021a00030d40031903e8"
+)
+
+def mensagem_do_signer(body_cbor_hex, nova_taxa):
+    corpo = TransactionBody.from_cbor(body_cbor_hex)
+    corpo.ttl = nova_taxa
+    return corpo.to_cbor_hex(), corpo.hash()
+
+body_hex, mensagem = mensagem_do_signer(corpo_exemplo.to_cbor_hex(), 200_001)
+revisado = TransactionBody.from_cbor(body_hex)
+print("taxa:", revisado.fee, "prazo:", revisado.ttl)
+print("mensagem:", mensagem.hex())
+</code></pre>
+<details class="answer"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Conferir resposta</summary><div class="answer-body"><p>Troque <code>corpo.ttl = nova_taxa</code> por <code>corpo.fee = nova_taxa</code>. A taxa passa a 200001 lovelace e o prazo continua 1000. O hash é calculado depois da revisão. Se alguém já tivesse assinado o corpo anterior, aquela assinatura não serviria para o corpo com a nova taxa.</p></div></details>
+</div>
+<script type="application/json" id="body-hash-witness-message-tests">
+{
+  "version": 1,
+  "tests": [
+    {
+      "name": "Altera fee, preserva todos os outros campos",
+      "code": "for taxa, prazo, valor in ((200_001, 1000, 100_000_000), (350_000, 2000, 7_000_000)):\n    entrada = TransactionBody.from_cbor(corpo_exemplo.to_cbor())\n    entrada.ttl = prazo\n    entrada.outputs[0].amount.coin = valor\n    original = entrada.to_cbor_hex()\n    hex_revisado, mensagem = mensagem_do_signer(original, taxa)\n    assert isinstance(hex_revisado, str), 'Devolva o CBOR do corpo revisado em hex.'\n    revisado = TransactionBody.from_cbor(hex_revisado)\n    assert revisado.fee == taxa, 'Altere fee, não ttl: taxa e prazo são campos diferentes.'\n    entrada.fee = taxa\n    assert revisado.to_cbor() == entrada.to_cbor(), 'Preserve inputs, outputs, ttl e os demais campos.'"
+    },
+    {
+      "name": "Signer recebe o hash binário do corpo revisado",
+      "code": "import hashlib as referencia_hash\nfor taxa in (200_000, 200_001, 350_000):\n    esperado = TransactionBody.from_cbor(corpo_exemplo.to_cbor())\n    esperado.fee = taxa\n    hex_revisado, mensagem = mensagem_do_signer(corpo_exemplo.to_cbor_hex(), taxa)\n    assert isinstance(mensagem, bytes) and len(mensagem) == 32, 'A mensagem deve ter 32 bytes, não texto hex.'\n    assert mensagem == esperado.hash(), 'Calcule o body hash depois de revisar a taxa.'\n    assert mensagem == referencia_hash.blake2b(esperado.to_cbor(), digest_size=32).digest(), 'Use os bytes do corpo, não do envelope com witnesses.'"
+    },
+    {
+      "name": "Mudança de taxa muda a mensagem; transporte hex não muda",
+      "code": "original = corpo_exemplo.to_cbor_hex()\na = mensagem_do_signer(original, 200_000)\nb = mensagem_do_signer(original, 200_001)\nassert a[1] != b[1], 'A revisão da taxa precisa mudar a mensagem.'\nassert mensagem_do_signer(original.upper(), 200_001) == b, 'Maiúsculas no transporte hex não mudam os bytes.'"
+    }
+  ]
+}
+</script>
+
+<p>Uma witness válida vincula chave e corpo. O cadastro que relaciona a chave a uma pessoa, sua vigência e sua competência para aprovar o documento continuam sendo evidências separadas. O signer deve revisar os efeitos antes de assinar, pois uma assinatura correta sobre o corpo errado continua autorizando a operação descrita por aquele corpo.</p>
+<div class="closing"><h3>O que aprendemos</h3>
+<ul>
+<li>Uma transação é um pacote estruturado que descreve uma operação para a rede verificar.</li>
+<li>Estrutura, representação em CBOR, corpo da transação e witnesses têm papéis distintos. O identificador depende dos bytes do corpo.</li>
+<li>Uma vkey witness usa Ed25519 sobre o body hash binário Blake2b-256, não sobre seu texto hexadecimal. A aceitação ainda depende das demais regras do ledger.</li>
+</ul>
+
+
+</div>
+
+<div class="bridge"><h3>Próxima aula</h3><p>Se uma transação precisa apontar para recursos disponíveis e produzir novos resultados, como a rede sabe exatamente o que está sendo consumido e o que está sendo criado?</p></div>

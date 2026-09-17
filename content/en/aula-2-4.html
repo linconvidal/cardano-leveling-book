@@ -1,0 +1,272 @@
+---
+title: Privacy and publication
+map_title: Privacy
+summary: Test predictable hashes, open commitments with a private nonce and preserve only what is needed.
+---
+
+<div class="objectives"><div class="box-label">Objectives</div><ol class="objective-list">
+<li>Recover a predictable value by enumerating hashes.</li>
+<li>Build and verify a commitment with a private nonce.</li>
+<li>Distinguish limited disclosure, anonymity and controlled recovery of artifacts.</li>
+</ol></div>
+<div class="prereq"><div class="box-label">Before you begin</div><p>Review the Merkle proofs from Lesson 2.2 and the distinction between publications and files from Lesson 2.3. Use only the supplied fictional data. Do not put private documents, credentials or recovery phrases in the editors, which save drafts in this browser.</p><div class="guide-q"><span class="guide-q-label">Guiding question</span><p>Can someone who sees a hash test what it hides?</p></div></div>
+
+<h3 id="aula-2-4-s1">1. Nine candidates are enough</h3>
+<p>A portal wants to publish a commitment to a result without revealing the result. The file is always the text <code>status=...|revisao=...</code>, encoded in UTF-8. There are three possible statuses and three revisions. An observer knows this format and the options, even though they have not received the file. The fixed data uses <code>revisao</code> for revision and <code>aprovado</code>, <code>pendente</code> and <code>reprovado</code> for passed, pending and failed.</p>
+<p>SHA-256 produces the same digest for the same input. The observer does not need to reverse the algorithm: they can generate the nine candidate files and compare their hashes with the public value.</p>
+<pre data-python-runner="true" data-exercise-id="predictable-hash-enumeration" data-exercise-version="1"><code class="language-python">import hashlib
+from itertools import product
+
+def message(status, revision):
+    return f"status={status}|revisao={revision}".encode("utf-8")
+
+options = list(product(
+    ["aprovado", "pendente", "reprovado"], ["R1", "R2", "R3"]))
+published = hashlib.sha256(message("aprovado", "R2")).digest()
+for status, revision in options:
+    candidate = message(status, revision)
+    if hashlib.sha256(candidate).digest() == published:
+        print("found:", candidate.decode("utf-8"))
+print("possible candidates:", len(options))
+</code></pre>
+<p>Change the actual status to <code>pendente</code> and run it again. The attack still works. Making the digest longer does not increase the number of possible messages. Sequential identifiers, nearby dates and files with few combinations can also allow guessing. A salt published alongside the digest can prevent the use of shared precomputed tables, but does not stop the observer from repeating this small search for each record.</p>
+
+<h3 id="aula-2-4-s2">2. Add a random secret to the commitment</h3>
+<p>To make the search harder, we will generate a <strong>private nonce</strong>: 16 fresh random bytes for each commitment, produced by <code>secrets.token_bytes(16)</code>. An observer who does not receive the nonce no longer has only nine inputs to test. They must also discover a value chosen from 2 to the power of 128 possibilities.</p>
+<p>The teaching profile <code>guia.abertura.v1</code> calculates <code>SHA-256(domain || nonce || length || data)</code>. The domain is the ASCII text <code>GUIA-ABERTURA:v1</code> followed by a zero byte; the nonce is exactly 16 bytes; the length is an unsigned eight-byte integer, from most significant to least significant; and the data is the exact file bytes. The recipe fixes the boundaries to avoid ambiguous concatenations.</p>
+<p>In the <strong>opening</strong>, the recipient receives the data and nonce through an authorized channel. They apply the same recipe and compare with the commitment obtained from the publication. The hash's resistance to finding alternative inputs supports its binding to those bytes. The nonce makes guessing the input before the opening harder; it does not encrypt the stored file.</p>
+<pre data-python-runner="true" data-exercise-id="private-nonce-opening-demo" data-exercise-version="1"><code class="language-python">import hashlib
+import secrets
+
+DOMAIN = b"GUIA-ABERTURA:v1\x00"
+def commit(data, nonce):
+    if len(nonce) != 16:
+        raise ValueError("The nonce must be 16 bytes long.")
+    input_bytes = DOMAIN + nonce + len(data).to_bytes(8, "big") + data
+    return hashlib.sha256(input_bytes).digest()
+
+data = b"status=aprovado|revisao=R2"
+nonce = secrets.token_bytes(16)
+published = commit(data, nonce)
+print("correct opening:", commit(data, nonce) == published)
+wrong_nonce = bytes([nonce[0] ^ 1]) + nonce[1:]
+print("modified nonce:", commit(data, wrong_nonce) == published)
+
+candidates = [f"status={s}|revisao={r}".encode("utf-8")
+    for s in ["aprovado", "pendente", "reprovado"]
+    for r in ["R1", "R2", "R3"]]
+print("search with zero nonce:", any(
+    commit(c, bytes(16)) == published for c in candidates))
+# Leak simulation: the observer now knows the nonce.
+print("with leaked nonce:", [c.decode("utf-8") for c in candidates
+    if commit(c, nonce) == published])
+</code></pre>
+<p>The correct opening passes; changing one bit of the nonce fails. The search with a zero nonce should fail, except for the negligible probability that the randomly chosen nonce is exactly zero. This alone does not prove security: the difficulty comes from secret randomness, not just from changing the formula. The last line gives the nonce to the observer, and enumeration finds the file again.</p>
+<p>Do not replace random generation with a date, counter or human password, or reuse a nonce across commitments. Preserving the nonce adds material that requires access control and backup. Losing the nonce prevents that commitment from being opened, even if the file still exists. A new nonce produces a different commitment and does not repair the old one.</p>
+
+<h3 id="aula-2-4-s3">3. The file stays outside the blockchain</h3>
+<p>Imagine someone needs to check the result published by the portal. The original file and nonce remain in the application's system. The blockchain receives the commitment and the name of the profile used to calculate it. Querying the transaction retrieves this reference, but does not recover the file or nonce: the verifier must receive them through another route.</p>
+<style>
+#aula-2-4 .opening-route { width:100%; text-align:left; }
+#aula-2-4 .opening-stage { margin:24px 0 12px; font:600 18px/1.4 var(--font-sans); }
+#aula-2-4 .opening-scroll { overflow-x:auto; padding:4px; scrollbar-width:thin; }
+#aula-2-4 .opening-scroll:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+#aula-2-4 .opening-scene { display:block; width:100%; min-width:640px; max-width:none; height:auto; }
+#aula-2-4 .opening-scene text { font:17px var(--font-sans); fill:var(--ink); }
+#aula-2-4 .opening-scene .small-label { font-size:15px; }
+#aula-2-4 .opening-scene .object-label { font:600 17px var(--font-sans); }
+#aula-2-4 .opening-scene .recipe-label { font:14px var(--font-mono); }
+#aula-2-4 .opening-scene .doc-rule { stroke:var(--ink-dim); stroke-width:3; }
+#aula-2-4 .opening-scene .neutral-line { fill:none; stroke:var(--ink); stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+#aula-2-4 .opening-scene .nonce-bytes { fill:var(--deck-neutral-fill); stroke:var(--ink); stroke-width:1.5; }
+#aula-2-4 .opening-scene .obj-transaction { fill:#fff7e3; stroke:#2f6787; }
+#aula-2-4 .opening-scene .ticket-text { fill:#2f6787; font-weight:600; }
+#aula-2-4 .opening-scene .ticket-rule { fill:none; stroke:#2f6787; stroke-width:2; stroke-dasharray:5 6; }
+#aula-2-4 .opening-scene .obj-metadata-tag { fill:#fdeecb; stroke:#e07b00; }
+#aula-2-4 .opening-scene .obj-metadata-eyelet { fill:#f6e3b8; stroke:#b75f00; }
+#aula-2-4 .opening-scene .metadata-text { fill:#272727; }
+#aula-2-4 .opening-scene .blue-text { fill:var(--deck-blue); font-weight:600; }
+#aula-2-4 .opening-scene .arrow-external { fill:var(--deck-orange); }
+#aula-2-4 .opening-scene .arrow-query { fill:var(--deck-blue); }
+#aula-2-4 .opening-scene .arrow-neutral { fill:var(--ink); }
+#aula-2-4 .opening-scroll-hint { display:none; }
+@media (max-width:700px) {
+  #aula-2-4 .opening-scroll-hint { display:block; margin:8px 0; font:14px var(--font-sans); color:var(--ink-dim); }
+}
+@media print {
+  #aula-2-4 .opening-route { break-inside:auto; }
+  #aula-2-4 .opening-scroll { overflow:visible; break-inside:avoid; }
+  #aula-2-4 .opening-scene { min-width:0; }
+  #aula-2-4 .opening-stage { break-after:avoid; }
+  #aula-2-4 .opening-scroll-hint { display:none; }
+}
+</style>
+<!-- Workshop visual language f4536110de13ab69c1b42311b823f84afdc2b6f7.
+     Composition adapted from assets/svg/scenes/public-blockchain-and-publication.svg.
+     Reused silhouettes: objects/document.svg, system.svg, actor.svg, block.svg,
+     metadata-compact.svg (transaction ticket and hanging yellow tag).
+     Keep the private-nonce lesson, not the source scene's Merkle-root example.
+     The byte strip and the separate opening route are lesson-specific additions.
+     Name the file, nonce and commitments directly; do not introduce symbolic aliases.
+     Wording follows Lincon's raw CIMATEC Day 3 transcript (2026-08-06),
+     05:26:53–05:35:57 and 06:27:03–06:30:11: source system, original file,
+     external verifier, public comparison reference. Private nonce is this lesson's exercise. -->
+<figure class="fig deck-figure opening-route" aria-labelledby="caption-opening-route" data-visual-source="cardano-workshop-visual-language/assets/svg/scenes/public-blockchain-and-publication.svg" data-visual-revision="f4536110de13ab69c1b42311b823f84afdc2b6f7">
+<p class="opening-stage" id="opening-publication-heading">Publish without sending the file</p>
+<p class="opening-scroll-hint">Scroll across the diagram to see both sides of the boundary.</p>
+<div class="opening-scroll" tabindex="0" role="region" aria-labelledby="opening-publication-heading">
+<svg class="opening-scene" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 365" role="img" aria-labelledby="opening-publication-title opening-publication-desc">
+<title id="opening-publication-title">The file and nonce stay in the application; the commitment and profile are published on the blockchain.</title>
+<desc id="opening-publication-desc">The application's system stores the original file and the private 16-byte nonce. It applies the guia.abertura.v1 recipe and calculates the commitment. Only the commitment and the profile cross the dashed boundary, on the yellow metadata tag of the transaction included in a Cardano block. The diagram shows the publication already included, not a promise of inclusion upon submission.</desc>
+<defs>
+  <marker id="opening-arrow-neutral" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arrow-neutral" d="M0 0 L10 5 L0 10 Z"/></marker>
+  <marker id="opening-arrow-query" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-query" d="M0 0 L10 5 L0 10 Z"/></marker>
+  <marker id="opening-arrow-external" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow-external" d="M0 0 L10 5 L0 10 Z"/></marker>
+</defs>
+<g aria-hidden="true">
+  <rect class="obj-system" x="10" y="20" width="286" height="303" rx="9"/>
+  <path class="neutral-line" d="M10 70 H296"/>
+  <text x="28" y="52" font-weight="600">Application system</text>
+  <g data-visual-asset="objects/document.svg" transform="translate(38 89) scale(.47) translate(-64 -24)">
+    <path class="obj-document" d="M72 32 H210 L250 72 V232 H72 Z M210 32 V72 H250"/>
+    <path class="doc-rule" d="M100 139 H219 M100 171 H208 M100 203 H190"/>
+  </g>
+  <text class="small-label" x="83" y="218" text-anchor="middle">Original file</text>
+  <g class="nonce-bytes"><rect x="168" y="109" width="96" height="44" rx="3"/><path d="M180 109 V117 M192 109 V117 M204 109 V117 M216 109 V117 M228 109 V117 M240 109 V117 M252 109 V117 M180 145 V153 M192 145 V153 M204 145 V153 M216 145 V153 M228 145 V153 M240 145 V153 M252 145 V153"/></g>
+  <text class="object-label" x="216" y="140" text-anchor="middle">Nonce</text>
+  <text class="small-label" x="216" y="177" text-anchor="middle">Private nonce</text>
+  <text class="small-label" x="216" y="196" text-anchor="middle">16 bytes</text>
+  <path class="neutral-line" d="M83 224 V235 H147 M216 204 V235 H147 M147 235 V248" marker-end="url(#opening-arrow-neutral)"/>
+  <rect class="obj-anchor" x="65" y="253" width="164" height="42" rx="3"/>
+  <text class="object-label" x="147" y="280" text-anchor="middle">Commitment</text>
+  <text class="recipe-label" x="153" y="314" text-anchor="middle">guia.abertura.v1</text>
+  <text class="small-label" x="153" y="349" text-anchor="middle">The file and nonce stay here.</text>
+  <path class="boundary-protocol" d="M350 16 V350"/>
+  <text class="small-label" x="368" y="29">What is published</text>
+  <path class="rel-external" d="M233 273 H438" marker-end="url(#opening-arrow-external)"/>
+  <g data-object="included-publication">
+    <rect class="obj-block-back" x="470" y="43" width="222" height="268" rx="6"/>
+    <rect class="obj-block-back" x="456" y="55" width="222" height="268" rx="6" style="opacity:.68"/>
+    <rect class="obj-block obj-block-front" x="442" y="67" width="222" height="268" rx="6"/>
+    <rect class="obj-block-header" x="442" y="67" width="222" height="39" rx="6"/>
+    <text class="blue-text" x="553" y="93" text-anchor="middle">Cardano block</text>
+    <path class="obj-transaction" d="M32 28 H206 L224 46 V126 C214 126 214 148 224 148 V176 L206 194 H32 L14 176 V148 C24 148 24 126 14 126 V46 Z" transform="translate(461 101) scale(.78)"/>
+    <text class="ticket-text" x="553" y="151" text-anchor="middle">TRANSACTION</text>
+    <path class="ticket-rule" d="M489 164 H615"/>
+    <text class="ticket-text" x="553" y="193" text-anchor="middle">included</text>
+    <path class="obj-metadata-string" d="M552 252 C552 257 553 260 553 265"/>
+    <g transform="rotate(1 553 278)">
+      <rect class="obj-metadata-tag" x="450" y="262" width="206" height="64" rx="7"/>
+      <circle class="obj-metadata-eyelet" cx="553" cy="268" r="5"/>
+      <text class="recipe-label metadata-text" x="553" y="293" text-anchor="middle">guia.abertura.v1</text>
+      <text class="object-label metadata-text" x="553" y="317" text-anchor="middle">Commitment</text>
+    </g>
+  </g>
+</g>
+</svg>
+</div>
+<p class="opening-stage" id="opening-verification-heading">How someone checks the file</p>
+<div class="opening-scroll" tabindex="0" role="region" aria-labelledby="opening-verification-heading">
+<svg class="opening-scene" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 465" role="img" aria-labelledby="opening-verification-title opening-verification-desc">
+<title id="opening-verification-title">The verifier receives the file and nonce from the application and looks up the published commitment on the blockchain.</title>
+<desc id="opening-verification-desc">The application delivers copies of the file and nonce to someone authorized to receive them. Along the dashed blue path, this person queries the publication and obtains the published commitment. They recalculate the commitment with the file and nonce, following the guia.abertura.v1 profile, and compare the recalculated commitment with the published one. If they match, the opening corresponds to the commitment. The application controls delivery; the hash does not control how the copies are used afterward.</desc>
+<g aria-hidden="true">
+  <text x="16" y="27" font-weight="600">From the application system</text>
+  <g data-visual-asset="objects/document.svg" transform="translate(40 46) scale(.403) translate(-64 -24)">
+    <path class="obj-document" d="M72 32 H210 L250 72 V232 H72 Z M210 32 V72 H250"/>
+    <path class="doc-rule" d="M100 139 H219 M100 171 H208 M100 203 H190"/>
+  </g>
+  <g class="nonce-bytes"><rect x="148" y="66" width="96" height="44" rx="3"/><path d="M160 66 V74 M172 66 V74 M184 66 V74 M196 66 V74 M208 66 V74 M220 66 V74 M232 66 V74 M160 102 V110 M172 102 V110 M184 102 V110 M196 102 V110 M208 102 V110 M220 102 V110 M232 102 V110"/></g>
+  <text class="object-label" x="196" y="94" text-anchor="middle">Nonce</text>
+  <text class="small-label" x="141" y="164" text-anchor="middle">Copies of the file and nonce</text>
+  <path class="neutral-line" d="M140 177 C140 219 226 241 296 241" marker-end="url(#opening-arrow-neutral)"/>
+  <text class="small-label" x="30" y="247">Authorized delivery</text>
+  <g data-visual-asset="objects/actor.svg" transform="translate(307 183) scale(.57) translate(-82 -36)">
+    <circle class="obj-actor" cx="160" cy="78" r="32"/>
+    <path class="neutral-line" d="M92 190 C104 129 216 129 228 190 M160 110 V177"/>
+  </g>
+  <text x="351" y="301" text-anchor="middle">Verifier</text>
+  <text class="small-label" x="156" y="333">Recalculate</text>
+  <path class="neutral-line" d="M344 311 L250 342" marker-end="url(#opening-arrow-neutral)"/>
+  <rect class="obj-anchor" x="155" y="350" width="190" height="58" rx="3"/>
+  <text class="object-label" x="250" y="374" text-anchor="middle"><tspan x="250">Recalculated</tspan><tspan x="250" dy="23">commitment</tspan></text>
+  <g data-object="queried-publication">
+    <rect class="obj-block-back" x="501" y="22" width="166" height="147" rx="6"/>
+    <rect class="obj-block-back" x="491" y="31" width="166" height="147" rx="6" style="opacity:.68"/>
+    <rect class="obj-block obj-block-front" x="481" y="40" width="166" height="147" rx="6"/>
+    <rect class="obj-block-header" x="481" y="40" width="166" height="33" rx="6"/>
+    <text class="blue-text" x="564" y="63" text-anchor="middle">Publication</text>
+    <path class="obj-transaction" d="M32 28 H206 L224 46 V126 C214 126 214 148 224 148 V176 L206 194 H32 L14 176 V148 C24 148 24 126 14 126 V46 Z" transform="translate(508 67) scale(.46)"/>
+    <path class="ticket-rule" d="M532 105 H594"/>
+    <path class="obj-metadata-string" d="M563 156 C563 159 563 161 563 163"/>
+    <g transform="rotate(1 563 168)">
+      <rect class="obj-metadata-tag" x="490" y="161" width="146" height="54" rx="6"/>
+      <circle class="obj-metadata-eyelet" cx="563" cy="167" r="4"/>
+      <text class="object-label metadata-text" x="563" y="196" text-anchor="middle">Commitment</text>
+    </g>
+  </g>
+  <text class="small-label" x="564" y="237" text-anchor="middle">Checked publication</text>
+  <path class="rel-query" d="M563 247 V290 H612 V379 H569" marker-end="url(#opening-arrow-query)"/>
+  <text class="small-label blue-text" x="601" y="332" text-anchor="end">Query</text>
+  <rect class="obj-anchor" x="375" y="350" width="190" height="58" rx="3"/>
+  <text class="object-label" x="470" y="374" text-anchor="middle"><tspan x="470">Published</tspan><tspan x="470" dy="23">commitment</tspan></text>
+  <text class="small-label" x="360" y="444" text-anchor="middle">Does the recalculated value match the published one?</text>
+  <text class="object-label" x="360" y="385" text-anchor="middle">=?</text>
+</g>
+</svg>
+</div>
+<figcaption id="caption-opening-route">The verifier needs two sources: the application delivers the original and the nonce; the blockchain provides the commitment for comparison. After delivery, that person can also copy the file and nonce. The hash does not prevent this use.</figcaption>
+</figure>
+<p>In this example, publishing the commitment and profile name is enough. The portal remains responsible for storing the file and nonce, controlling who can receive them and maintaining a way to recover them. If an address must be published to locate the file, check what that address reveals: do not include people's names, internal paths or access tokens. The address helps locate the file; the commitment lets us check its bytes.</p>
+<p>Commitments of this kind can also be placed in the leaves of a Merkle batch. The recipient receives the opening, position and proof, and compares the root with the publication. This requires its own profile, defining exactly how the commitment enters the leaf. Do not silently mix this variant with the file recipe from Lesson 2.2.</p>
+
+<div class="activity" data-progress-id="nonce-opening-verifier-activity"><div class="box-label">Activity: recover the correct opening</div>
+<p>The application delivered a 16-byte nonce, but the verifier replaces it with zeros. Fix <code>verify_opening</code> to use the received nonce and compare the calculated digest with the expected commitment. Keep the calculation profile and test data. The fixed nonce below is public and for teaching purposes only; it offers no hiding. The fixed file text <code>resultado da revisão</code> means review result.</p>
+<pre data-python-runner="true" data-exercise-id="nonce-opening-verifier" data-exercise-version="1" data-validator="nonce-opening-verifier-tests"><code class="language-python">import hashlib
+
+def commit(data, nonce):
+    if len(nonce) != 16:
+        raise ValueError("The nonce must be 16 bytes long.")
+    return hashlib.sha256(b"GUIA-ABERTURA:v1\x00" + nonce
+        + len(data).to_bytes(8, "big") + data).digest()
+
+def verify_opening(expected, data, nonce):
+    if len(nonce) != 16:
+        return False
+    return commit(data, bytes(16)) == expected
+
+data = "resultado da revisão".encode("utf-8")
+nonce = bytes.fromhex("00112233445566778899aabbccddeeff")
+published = commit(data, nonce)
+print("opening:", verify_opening(published, data, nonce))
+print("another file:", verify_opening(published, data + b"!", nonce))
+</code></pre>
+<details class="answer" id="answer-nonce-opening-verifier"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Check answer</summary><div class="answer-body"><p>The final check should be <code>commit(data, nonce) == expected</code>. The output now shows <code>True</code> and <code>False</code>. If the test with another file also passes, the verifier is not comparing the right bytes. If only the initial example passes, check whether you hard-coded its nonce instead of using the argument.</p></div></details>
+</div>
+<script type="application/json" id="nonce-opening-verifier-tests">
+{"version":1,"tests":[
+{"name":"Openings with different nonces","code":"import hashlib as reference\ndef ref_c(d, n):\n    return reference.sha256(b'GUIA-ABERTURA:v1\\x00' + n + len(d).to_bytes(8, 'big') + d).digest()\nfor d, n in [(b'arquivo A', bytes(range(16))), ('correção'.encode('utf-8'), bytes(range(16, 32))), (b'', b'Z' * 16)]:\n    assert verify_opening(ref_c(d, n), d, n) is True, 'Recalculate with the received data and nonce; do not hard-code the example nonce.'"},
+{"name":"Replaced file","code":"d, n = b'original', bytes(range(16))\nc = ref_c(d, n)\nassert verify_opening(c, d + b'!', n) is False, 'A modified file does not open the previous commitment.'"},
+{"name":"Replaced nonce","code":"assert verify_opening(c, d, bytes(range(1, 17))) is False, 'The same data with another nonce produces a different commitment.'"},
+{"name":"Replaced commitment","code":"assert verify_opening(bytes(32), d, n) is False, 'Compare with the expected digest, rather than accepting based only on length.'"},
+{"name":"Missing or truncated nonce","code":"assert verify_opening(c, d, b'') is False, 'Without a nonce, there is no opening in this profile.'\nassert verify_opening(c, d, n[:-1]) is False, 'Keep rejecting nonces of the wrong length.'"}
+]}
+</script>
+
+
+<h3 id="aula-2-4-s4">4. Limited disclosure is not anonymity</h3>
+<p>A Merkle proof reveals fewer files than the complete batch, but still exposes the opened item, its position and sibling hashes. If a sibling corresponds to a predictable leaf without a nonce, it too can be enumerated. Revealing less content does not automatically hide who published, who received or which publications are related.</p>
+<p>A repeatedly used address, a stable identifier or coinciding times can link records. Even without names, additional information can allow reidentification. Pseudonymization preserves that possibility; assessing anonymization requires considering the context and reasonably available means. A hash, nonce or new address, on its own, does not justify calling data anonymous.</p>
+<p>Public exposure is persistent. Removing a field from the portal does not remove copies of the history or material already delivered. Personal data and operational secrets should stay off-chain when they require access control or limited retention. If there is no need for a public commitment, keeping the record in a controlled system, or not collecting an unnecessary field, avoids this exposure.</p>
+
+<h3 id="aula-2-4-s5">5. Test recovery before relying on it</h3>
+<p>For the required retention period, preserve the exact file, the nonce, the profile and, if there is a batch, the data needed to recover the proof. Protect the copies and storage encryption keys. The period and access must match the purpose; do not keep everything indefinitely for convenience.</p>
+<p>Run a restoration test with fictional data: recover the package through an authorized account, obtain the commitment through the defined query route and run verification. Then simulate a missing nonce and a missing sibling in the proof. The result should be “insufficient material”, not “false document”. Deleting the restricted material at the end of retention may end the ability to open the commitment; it does not erase the public commitment or revoke copies already shared.</p>
+
+<div class="closing"><h3>What we learned</h3><ul>
+<li>A small domain allows data to be discovered by comparing candidate hashes.</li>
+<li>A random private nonce makes this search harder; opening the commitment requires preserving the bytes, nonce and recipe.</li>
+<li>Limited disclosure reduces the content revealed, but does not eliminate correlation or guarantee anonymity.</li>
+<li>Minimal publication depends on controlled recovery and an explicit retention decision.</li>
+</ul></div>
+<div class="bridge"><h3>To continue</h3><p>This is the last lesson in the guide.</p><p>In the <a href="#referencias-modulo-2">module references</a>, revisit the specifications before adapting the teaching profiles. To review what you have learned, reproduce an event modification, an inclusion proof and an opening without changing the expected reference.</p></div>

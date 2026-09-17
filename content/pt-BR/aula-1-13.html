@@ -1,0 +1,199 @@
+---
+title: 'CIP-68: token do usuário e estado de referência'
+short_title: CIP-68 e estado
+map_title: CIP-68
+summary: Relacionar os dois assets por CIP-67 e distinguir leitura por referência de atualização do datum.
+---
+
+<div class="objectives"><div class="box-label">Objetivos</div><ol class="objective-list">
+<li>Relacionar User Token e Reference NFT por policy ID, label CIP-67 e base name.</li>
+<li>Interpretar o wrapper do datum sem confundir versão do padrão com revisão do registro.</li>
+<li>Distinguir reference input de gasto normal e delimitar o que um validator confere.</li>
+</ol></div>
+<div class="prereq"><div class="box-label">Antes de começar</div><p>Retome identidade de ativos e CIP-25 na Aula 1.10 e a validação de sucessoras Plutus na Aula 1.12. Aqui aplicamos esses mecanismos a um estado descoberto por meio de um par de ativos.</p><div class="guide-q"><span class="guide-q-label">Pergunta-guia</span><p>Como atualizar a descrição de um registro sem retirar do usuário o token que identifica esse registro?</p></div></div>
+
+<h3 id="aula-1-13-s1">1. Dois ativos com controles distintos</h3>
+<p>Considere o registro REC-0042. Seu usuário recebe um token que pode transferir. A aplicação precisa atualizar a descrição de referência de REC-0042 quando o relatório é revisado. Se o estado depender do output do usuário, cada atualização exigiria consumir esse output. A convenção <strong>CIP-68</strong> separa o ativo transferível do ativo que identifica o estado de referência.</p>
+<p>O <strong>User Token</strong> fica no output controlado pelo usuário. O <strong>Reference NFT</strong> identifica o output que carrega o datum de referência. Os dois pertencem à mesma policy e têm o mesmo nome-base, mas prefixos diferentes no asset name. São dois assets distintos; compartilhar policy não significa compartilhar condição de gasto.</p>
+<p>Nesta aplicação, o User Token é um NFT com quantidade 1, em endereço de chave. O Reference NFT tem quantidade 1 e está em endereço de script Plutus, com um validator que limita atualizações. CIP-68 organiza representação e descoberta; a segurança da emissão, a unicidade do Reference NFT e as regras de gasto dependem das políticas e scripts escolhidos.</p>
+
+<h3 id="aula-1-13-s2">2. Os labels são bytes do asset name</h3>
+<p>CIP-67 define um prefixo de quatro bytes que codifica label e checksum. O Reference NFT usa label 100; o User Token usa 222 para NFT, 333 para token fungível (FT) ou 444 para Rich Fungible Token (RFT). Não escreva os dígitos “100” ou “222” como texto e não coloque o label apenas em metadata: o prefixo faz parte dos bytes do nome.</p>
+<div class="table-scroll"><table><thead><tr><th>Papel</th><th>Label</th><th>Prefixo CIP-67 em hex</th></tr></thead><tbody>
+<tr><td>Reference NFT</td><td>100</td><td><code>000643b0</code></td></tr>
+<tr><td>User Token NFT</td><td>222</td><td><code>000de140</code></td></tr>
+<tr><td>User Token FT</td><td>333</td><td><code>0014df10</code></td></tr>
+<tr><td>User Token RFT</td><td>444</td><td><code>001bc280</code></td></tr>
+</tbody></table></div>
+<p>O nome-base <code>REC-0042</code> tem bytes UTF-8 <code>5245432d30303432</code>. Para a mesma policy, os nomes completos ficam:</p>
+<pre data-python-runner="true" data-exercise-id="cip68-labeled-names-demo"><code class="language-python">base = "REC-0042".encode("utf-8")
+usuario = bytes.fromhex("000de140") + base
+referencia = bytes.fromhex("000643b0") + base
+print("User Token:", usuario.hex())
+print("Reference NFT:", referencia.hex())
+print("nomes iguais?", usuario == referencia)
+print("mesma base?", usuario[4:] == referencia[4:])
+</code></pre>
+<p>A saída tem nomes diferentes e bases iguais. O limite total de 32 bytes do asset name continua valendo, deixando no máximo 28 bytes para o nome-base. Em produção, valide o prefixo CIP-67, inclusive o checksum, com ferramenta compatível. Os prefixos completos da tabela bastam para reconhecer os três tipos usados no exercício.</p>
+<div class="activity" data-progress-id="cip68-reference-name-activity"><div class="box-label">Atividade 1: derive o nome da referência</div>
+<p>Complete <code>nome_referencia</code>: receba os bytes do nome de um User Token, reconheça um dos três prefixos permitidos, conserve o nome-base e troque o prefixo pelo label 100. Rejeite com <code>ValueError</code> nomes menores que 4 ou maiores que 32 bytes e prefixos desconhecidos. A função não altera nem procura o policy ID; a consulta posterior deve manter a mesma policy.</p>
+<pre data-python-runner="true" data-exercise-id="cip68-reference-name" data-exercise-version="1" data-validator="cip68-reference-name-tests"><code class="language-python">def nome_referencia(nome_usuario):
+    return nome_usuario
+
+usuario = bytes.fromhex("000de1405245432d30303432")
+print(nome_referencia(usuario).hex())
+</code></pre>
+<details class="answer"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Conferir resposta</summary><div class="answer-body"><p>Depois de validar tamanho e os quatro bytes iniciais contra a tabela, devolva <code>bytes.fromhex("000643b0") + nome_usuario[4:]</code>. Para REC-0042, o resultado é <code>000643b05245432d30303432</code>. Procurar esse nome sob outra policy pode encontrar um ativo sem relação com o usuário; o par é determinado pelos dois componentes.</p></div></details>
+</div>
+<script type="application/json" id="cip68-reference-name-tests">
+{"version":1,"tests":[
+{"name":"Trocar label, preservar base","code":"for prefixo in ('000de140', '0014df10', '001bc280'):\n    for base in (b'REC-0042', b'outro', b''):\n        assert nome_referencia(bytes.fromhex(prefixo) + base) == bytes.fromhex('000643b0') + base, 'Troque somente os quatro bytes do prefixo e preserve a base.'"},
+{"name":"Respeitar o limite em bytes","code":"assert len(nome_referencia(bytes.fromhex('000de140') + b'x' * 28)) == 32\nfor invalido in (b'', b'abc', bytes.fromhex('000de140') + b'x' * 29):\n    try:\n        nome_referencia(invalido)\n    except ValueError:\n        continue\n    raise AssertionError('Rejeite nomes fora do intervalo de 4 a 32 bytes.')"},
+{"name":"Prefixo não é texto nem qualquer label","code":"for invalido in (b'222:REC-0042', bytes.fromhex('000643b05245432d30303432'), bytes.fromhex('000de1415245432d30303432')):\n    try:\n        nome_referencia(invalido)\n    except ValueError:\n        continue\n    raise AssertionError('Aceite somente os prefixos completos de User Token da tabela, incluindo o checksum.')"}
+]}</script>
+
+
+<h3 id="aula-1-13-s3">3. O datum contém um wrapper, não apenas uma descrição</h3>
+<p>O output do Reference NFT guarda um inline datum segundo CIP-32. CIP-68 define um constructor 0 de Plutus Data com três campos: <code>[metadata, version, extra]</code>. A primeira posição é o mapa de metadata; a segunda é a versão de representação do padrão; a terceira contém Plutus Data adicional. Essa metadata em datum é visível a Plutus e não se confunde com transaction metadata dos auxiliary data.</p>
+<p>Para o NFT de label 222 do exemplo, a metadata direta inclui <code>name</code> e <code>image</code>. Nossa aplicação acrescenta <code>record_version</code> e <code>artifact_hash</code>. O hash abaixo está abreviado e a notação <code>utf8</code> apenas indica bytes de texto; este bloco não é CBOR serializado.</p>
+<pre><code class="language-text">constructor 0 [
+  {
+    utf8("name"): utf8("Registro REC-0042"),
+    utf8("image"): utf8("https://example.org/rec-0042.svg"),
+    utf8("record_version"): 3,
+    utf8("artifact_hash"): h'7c20...'
+  },
+  1,
+  unit
+]
+</code></pre>
+<p>A revisão do registro é 3; a versão do wrapper usada aqui é 1. Atualizar o relatório para revisão 4 não significa trocar automaticamente <code>version</code> para 4. O aplicativo deve interpretar a versão suportada antes de ler os demais campos. Dar ao campo da aplicação o nome <code>record_version</code> evita misturar esses contadores.</p>
+
+<h3 id="aula-1-13-s4">4. Ler por referência ou consumir para atualizar</h3>
+<style>
+#aula-1-13 .cip68-figure { width:100%; text-align:left; }
+#aula-1-13 .cip68-stage { margin:26px 0 12px; font:600 18px/1.4 var(--font-sans); }
+#aula-1-13 .cip68-scroll { overflow-x:auto; padding:4px; scrollbar-width:thin; }
+#aula-1-13 .cip68-scroll:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+#aula-1-13 .cip68-scene { display:block; width:100%; min-width:680px; max-width:none; height:auto; }
+#aula-1-13 .cip68-scene text { font:18px var(--font-sans); fill:var(--ink); }
+#aula-1-13 .cip68-scene .small { font-size:16px; }
+#aula-1-13 .cip68-scene .field { font:16px var(--font-mono); }
+#aula-1-13 .cip68-scene .output-ref { font:600 20px var(--font-mono); }
+#aula-1-13 .cip68-scene .asset-label { font-weight:600; }
+#aula-1-13 .cip68-scene .quantity { font-size:23px; font-weight:700; fill:var(--paper); }
+#aula-1-13 .cip68-scene .datum-title { fill:var(--deck-teal); font-size:16px; font-weight:600; }
+#aula-1-13 .cip68-scene .obj-transaction { fill:#fff7e3; stroke:#2f6787; }
+#aula-1-13 .cip68-scene .ticket-text { fill:#2f6787; }
+#aula-1-13 .cip68-scene .ticket-rule { fill:none; stroke:#2f6787; stroke-width:1.5; stroke-dasharray:5 6; }
+#aula-1-13 .cip68-scene .consumed-note { fill:var(--deck-neutral-fill); stroke:var(--ink-dim); stroke-width:3; }
+#aula-1-13 .cip68-scene .consumed-inner { fill:none; stroke:var(--ink-dim); stroke-width:1.4; stroke-dasharray:3 3; opacity:.48; }
+#aula-1-13 .cip68-hint { display:none; }
+@media(max-width:700px) { #aula-1-13 .cip68-hint { display:block; font:14px var(--font-sans); color:var(--ink-dim); } }
+@media print {
+  #aula-1-13 .cip68-figure { break-inside:auto; }
+  #aula-1-13 .cip68-scroll { overflow:visible; break-inside:avoid; }
+  #aula-1-13 .cip68-scene { min-width:0; }
+  #aula-1-13 .cip68-stage { break-after:avoid; }
+  #aula-1-13 .cip68-hint { display:none; }
+}
+</style>
+<!-- Workshop visual language f4536110de13ab69c1b42311b823f84afdc2b6f7.
+     Recomposition of scenes/cip-68-identity-and-state.svg and cip-68-read-and-update.svg.
+     Preserve object proportions with uniform scales: objects/utxo-active.svg,
+     utxo-consumed.svg, native-asset.svg, datum-compact.svg and transaction-body.svg.
+     Adapt the workshop's EAC/FT example to this lesson's REC-0042 NFT pair: labels 222/100,
+     quantity 1, record_version 3 -> 4, wrapper version 1 unchanged. No EAC retirement.
+     Reading and updating are separate alternatives, not consecutive required steps. -->
+<figure class="fig deck-figure cip68-figure" aria-labelledby="caption-cip68-objects" data-visual-source="cardano-workshop-visual-language/assets/svg/scenes/cip-68-identity-and-state.svg" data-visual-revision="f4536110de13ab69c1b42311b823f84afdc2b6f7">
+<p class="cip68-stage" id="cip68-pair-heading">O ativo fica no valor da UTxO; o datum é outro campo</p>
+<p class="cip68-hint">Deslize cada desenho para ver os dois lados.</p>
+<div class="cip68-scroll" tabindex="0" role="region" aria-labelledby="cip68-pair-heading">
+<svg class="cip68-scene" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 370" role="img" aria-labelledby="cip68-pair-title cip68-pair-desc">
+<title id="cip68-pair-title">Dois ativos distintos, em UTxOs com controles diferentes.</title>
+<desc id="cip68-pair-desc">Os ativos têm a mesma policy e nome-base REC-0042. A UTxO 7a91c4e2b860…#0 está em endereço de chave e contém uma unidade do User Token, label 222. A UTxO d42e8a1b6c90…#0 está em endereço de script e contém uma unidade do Reference NFT, label 100. Seu inline datum tem record_version 3 e wrapper version 1. Notas verdes são UTxOs; fichas azuis dentro delas são ativos; a etiqueta verde pendurada representa o datum, não transaction metadata. Ter o User Token não autoriza gastar d42e8a1b6c90…#0.</desc>
+<g aria-hidden="true">
+<text x="360" y="25" text-anchor="middle">Mesma policy e nome-base REC-0042; labels diferentes.</text>
+<text class="small" x="18" y="57">UTxO do usuário · endereço de chave</text><text class="small" x="396" y="57">UTxO de referência · endereço de script</text>
+<g data-visual-asset="objects/utxo-active.svg" transform="translate(18 72) scale(.9) translate(-30 -30)"><path class="obj-utxo" d="M30 30 H360 V200 H30 Z"/><path class="utxo-note-inner" d="M39 39 H351 V191 H39 Z"/></g>
+<text class="output-ref" x="38" y="104">7a91c4e2b860…#0</text>
+<g data-visual-asset="objects/native-asset.svg" transform="translate(43 119) scale(.85) translate(-28 -38)"><path class="obj-native-asset" d="M28 38 H246 L272 64 V132 H28 Z"/><circle class="native-asset-qty" cx="246" cy="105" r="30"/></g>
+<text class="asset-label" x="58" y="146">User Token</text><text class="field" x="58" y="179">label 222</text><text class="quantity" x="228.3" y="184" text-anchor="middle">1</text>
+<g transform="translate(396 72) scale(.9) translate(-30 -30)"><path class="obj-utxo" d="M30 30 H360 V200 H30 Z"/><path class="utxo-note-inner" d="M39 39 H351 V191 H39 Z"/></g>
+<text class="output-ref" x="416" y="104">d42e8a1b6c90…#0</text>
+<g transform="translate(421 119) scale(.85) translate(-28 -38)"><path class="obj-native-asset" d="M28 38 H246 L272 64 V132 H28 Z"/><circle class="native-asset-qty" cx="246" cy="105" r="30"/></g>
+<text class="asset-label" x="436" y="146">Reference NFT</text><text class="field" x="436" y="179">label 100</text><text class="quantity" x="606.3" y="184" text-anchor="middle">1</text>
+<path class="obj-datum-string" d="M487.2 225 V232"/>
+<g data-visual-asset="objects/datum-compact.svg" transform="translate(420 265) scale(1.6) translate(-168 -159)"><path class="obj-datum-string" d="M210 138 C214 151 219 158 229 163"/><rect class="obj-datum-tag" x="168" y="159" width="168" height="54" rx="7"/><circle class="obj-datum-eyelet" cx="229" cy="165" r="5"/></g>
+<text class="datum-title" x="436" y="296">Datum</text><text class="field" x="436" y="320">record_version: 3</text><text class="field" x="436" y="340">version: 1</text>
+<text class="small" x="18" y="272">O User Token pode ficar onde está</text><text class="small" x="18" y="296">durante a atualização da referência.</text>
+</g></svg></div>
+<p class="cip68-stage" id="cip68-read-heading">Ler por referência não consome a UTxO</p>
+<div class="cip68-scroll" tabindex="0" role="region" aria-labelledby="cip68-read-heading">
+<svg class="cip68-scene" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 355" role="img" aria-labelledby="cip68-read-title cip68-read-desc">
+<title id="cip68-read-title">Reference input permite ler o estado sem gastá-lo.</title>
+<desc id="cip68-read-desc">Uma transação referencia d42e8a1b6c90…#0 por um reference input. Ela pode ler seu datum, mas esse vínculo não consome a UTxO, não financia a transação com seu valor e não executa por si só seu spending validator. O Reference NFT permanece em d42e8a1b6c90…#0; record_version continua 3 e wrapper version continua 1.</desc>
+<defs><marker id="cip68-query-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path fill="var(--deck-blue)" d="M0 0 L10 5 L0 10 Z"/></marker></defs>
+<g aria-hidden="true">
+<path class="rel-query" d="M222 151 H392" marker-end="url(#cip68-query-arrow)"/>
+<text class="small" x="307" y="132" text-anchor="middle">reference input</text>
+<path class="obj-transaction" data-visual-asset="objects/transaction-body.svg" d="M603 245 H802 L820 263 V337 C808 337 808 361 820 361 V427 L802 445 H603 L585 427 V361 C597 361 597 337 585 337 V263 Z" transform="translate(35 59) scale(.78) translate(-585 -245)"/>
+<text class="ticket-text" x="55" y="96">Transação</text><path class="ticket-rule" d="M54 112 H198"/>
+<text class="ticket-text" x="55" y="145">Lê esta saída</text><text class="small ticket-text" x="55" y="180">por referência</text>
+<g transform="translate(396 60) scale(.9) translate(-30 -30)"><path class="obj-utxo" d="M30 30 H360 V200 H30 Z"/><path class="utxo-note-inner" d="M39 39 H351 V191 H39 Z"/></g>
+<text class="output-ref" x="416" y="92">d42e8a1b6c90…#0</text>
+<g transform="translate(421 107) scale(.85) translate(-28 -38)"><path class="obj-native-asset" d="M28 38 H246 L272 64 V132 H28 Z"/><circle class="native-asset-qty" cx="246" cy="105" r="30"/></g>
+<text class="asset-label" x="436" y="134">Reference NFT</text><text class="field" x="436" y="167">label 100</text><text class="quantity" x="606.3" y="172" text-anchor="middle">1</text>
+<path class="obj-datum-string" d="M487.2 213 V220"/>
+<g transform="translate(420 253) scale(1.6) translate(-168 -159)"><path class="obj-datum-string" d="M210 138 C214 151 219 158 229 163"/><rect class="obj-datum-tag" x="168" y="159" width="168" height="54" rx="7"/><circle class="obj-datum-eyelet" cx="229" cy="165" r="5"/></g>
+<text class="datum-title" x="436" y="284">Datum</text><text class="field" x="436" y="308">record_version: 3</text><text class="field" x="436" y="328">version: 1</text>
+<text class="small" x="35" y="260">A UTxO não é consumida.</text><text class="small" x="35" y="285">O datum não muda.</text>
+</g></svg></div>
+<p class="cip68-stage" id="cip68-update-heading">Atualizar exige consumir e criar outro output</p>
+<div class="cip68-scroll" tabindex="0" role="region" aria-labelledby="cip68-update-heading">
+<svg class="cip68-scene" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 395" role="img" aria-labelledby="cip68-update-title cip68-update-desc">
+<title id="cip68-update-title">O mesmo Reference NFT sai de d42e8a1b6c90…#0 e aparece em 0c7f92a6e4b1…#0, com um novo datum.</title>
+<desc id="cip68-update-desc">Este é o resultado de uma atualização validada e incluída. A transação consome d42e8a1b6c90…#0 como input normal e cria 0c7f92a6e4b1…#0 sob o mesmo script. Ambos os estados mostram o mesmo Reference NFT, mesma policy, nome-base REC-0042, label 100 e quantidade 1: não há mint nem burn neste recorte. O datum de d42e8a1b6c90…#0 tinha record_version 3; o de 0c7f92a6e4b1…#0 tem record_version 4. O wrapper version permanece 1. O User Token e sua UTxO 7a91c4e2b860…#0 não são consumidos. Ler por referência, mostrado na cena anterior, não realiza esta atualização.</desc>
+<defs><marker id="cip68-update-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path fill="var(--deck-blue)" d="M0 0 L10 5 L0 10 Z"/></marker></defs>
+<g aria-hidden="true">
+<text class="small" x="360" y="25" text-anchor="middle">Resultado após validação e inclusão</text>
+<path class="rel-protocol" d="M282 128 H309" style="stroke-width:2.5" marker-end="url(#cip68-update-arrow)"/>
+<path class="rel-protocol" d="M406 128 H434" style="stroke-width:2.5" marker-end="url(#cip68-update-arrow)"/>
+<g data-visual-asset="objects/utxo-consumed.svg" transform="translate(14 60) scale(.8) translate(-30 -28)"><path class="consumed-note" d="M30 28 H360 V198 H30 Z"/><path class="consumed-inner" d="M39 37 H351 V189 H39 Z"/></g>
+<text class="small" x="31" y="49">Saída consumida</text>
+<text class="output-ref" x="31" y="88">d42e8a1b6c90…#0</text>
+<g transform="translate(32 107) scale(.8) translate(-28 -38)"><path class="obj-native-asset" d="M28 38 H246 L272 64 V132 H28 Z"/><circle class="native-asset-qty" cx="246" cy="105" r="30"/></g>
+<text class="asset-label" x="47" y="133">Reference NFT</text><text class="field" x="47" y="166">label 100</text><text class="quantity" x="206.4" y="169" text-anchor="middle">1</text>
+<path class="obj-transaction" d="M603 245 H802 L820 263 V337 C808 337 808 361 820 361 V427 L802 445 H603 L585 427 V361 C597 361 597 337 585 337 V263 Z" transform="translate(314 87) scale(.38) translate(-585 -245)"/>
+<text class="ticket-text" x="359" y="132" text-anchor="middle">tx</text>
+<text class="small" x="359" y="185" text-anchor="middle">Regras do script</text><text class="small" x="359" y="208" text-anchor="middle">e do ledger</text>
+<g transform="translate(438 60) scale(.8) translate(-30 -30)"><path class="obj-utxo" d="M30 30 H360 V200 H30 Z"/><path class="utxo-note-inner" d="M39 39 H351 V191 H39 Z"/></g>
+<text class="small" x="455" y="49">Nova saída · mesmo script</text>
+<text class="output-ref" x="455" y="88">0c7f92a6e4b1…#0</text>
+<g transform="translate(456 107) scale(.8) translate(-28 -38)"><path class="obj-native-asset" d="M28 38 H246 L272 64 V132 H28 Z"/><circle class="native-asset-qty" cx="246" cy="105" r="30"/></g>
+<text class="asset-label" x="471" y="133">Reference NFT</text><text class="field" x="471" y="166">label 100</text><text class="quantity" x="630.4" y="169" text-anchor="middle">1</text>
+<path class="obj-datum-string" d="M87.2 196 V215 M511.2 196 V215"/>
+<g transform="translate(20 248) scale(1.6) translate(-168 -159)"><path class="obj-datum-string" d="M210 138 C214 151 219 158 229 163"/><rect class="obj-datum-tag" x="168" y="159" width="168" height="54" rx="7"/><circle class="obj-datum-eyelet" cx="229" cy="165" r="5"/></g>
+<text class="datum-title" x="36" y="279">Datum anterior</text><text class="field" x="36" y="303">record_version: 3</text><text class="field" x="36" y="323">version: 1</text>
+<g transform="translate(444 248) scale(1.6) translate(-168 -159)"><path class="obj-datum-string" d="M210 138 C214 151 219 158 229 163"/><rect class="obj-datum-tag" x="168" y="159" width="168" height="54" rx="7"/><circle class="obj-datum-eyelet" cx="229" cy="165" r="5"/></g>
+<text class="datum-title" x="460" y="279">Novo datum</text><text class="field" x="460" y="303">record_version: 4</text><text class="field" x="460" y="323">version: 1</text>
+<text class="small" x="360" y="376" text-anchor="middle">A UTxO do usuário permanece: o User Token não participa deste gasto.</text>
+</g></svg></div>
+<figcaption id="caption-cip68-objects">A nota é a UTxO; a ficha azul é o ativo contido no seu valor; a etiqueta verde é o datum. Ler por referência e atualizar são operações diferentes. Na atualização, o mesmo Reference NFT continua na sucessora; a revisão do registro muda de 3 para 4, mas a versão do wrapper permanece 1. Posse do User Token não autoriza essa atualização. Hashes ilustrativos e abreviados; ADA, taxas e outros campos omitidos.</figcaption>
+</figure>
+<p>Um <strong>reference input</strong>, definido na CIP-31, torna um output disponível para leitura sem consumi-lo. Seu valor não financia a transação, e só referenciá-lo não executa seu spending validator. Um script que lê essa referência precisa conferir a identidade completa do Reference NFT e o formato dos dados; não deve confiar em qualquer datum encontrado no mesmo endereço.</p>
+<p>Para atualizar, a transação usa o output de referência como <strong>input normal</strong>, satisfaz seu spending validator e cria uma sucessora com o mesmo Reference NFT e datum atualizado. A regra deve conferir autorização, continuação do token e transição permitida, como no exercício Plutus. O User Token pode permanecer onde estava. Se outra transação já consumiu a referência, o builder precisa consultar o estado ativo e reconstruir sua tentativa.</p>
+<p>A versão antiga continua no histórico, mas já não é um output disponível. Ler uma cópia em cache não demonstra que ela seja a versão atual; confira a referência e seu estado de consumo. Mudar código do validator continua exigindo a migração aceita pelo script anterior.</p>
+<div class="activity" data-progress-id="cip68-read-update-activity"><div class="box-label">Atividade 2: o relatório mudou</div><p>REC-0042 passa de revisão 3 para 4. A versão CIP-68 continua compatível com 1. Uma aplicação propõe somente adicionar <code>d42e8a1b6c90…#0</code> como reference input e alterar o datum em memória. Anote o que falta para efetivar a atualização.</p><details class="answer"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Conferir resposta</summary><div class="answer-body"><p>Reference input apenas lê. A atualização precisa consumir <code>d42e8a1b6c90…#0</code> como input normal e criar <code>0c7f92a6e4b1…#0</code> com o mesmo Reference NFT, sob a condição de gasto esperada, preservando o wrapper version 1 e alterando <code>record_version</code> para 4. O validator precisa aceitar essa transição. Alterar a memória da aplicação não altera o ledger.</p></div></details></div>
+
+<h3 id="aula-1-13-s5">5. O que a atualização não verifica</h3>
+<p>Mesmo um validator correto só verifica as condições implementadas sobre dados visíveis. CIP-68 não obriga o ledger a recuperar a imagem ou o relatório e não comprova sua correção. Para conferir <code>artifact_hash</code>, obtenha o original e use o mesmo algoritmo e a mesma representação de bytes definidos para o registro, como estudamos nas <a href="#aula-0-1">Aulas 0.1</a> e <a href="#aula-0-2">0.2</a>. Posse do User Token também não prova entrega do artefato, autorização institucional ou acesso ao repositório.</p>
+<p>O par CIP-68 é útil quando a aplicação precisa dessa relação entre ativo transferível e estado descoberto por referência. Um estado de script sem token do usuário pode bastar em outro caso; adotar o padrão não elimina a necessidade de definir quem atualiza, como o estado é identificado e como os artefatos permanecem recuperáveis.</p>
+
+<div class="closing"><h3>O que aprendemos</h3><ul>
+<li>CIP-68 relaciona dois assets por policy e base name, com labels CIP-67 distintos.</li>
+<li>O wrapper contém metadata, version e extra; revisão do registro é um campo separado.</li>
+<li>Reference input lê sem gastar. Atualizar exige consumo e sucessora sob a regra aplicável.</li>
+<li>O padrão organiza estado e descoberta, sem comprovar o conteúdo externo.</li>
+</ul></div>
+<div class="bridge"><h3>Próxima aula</h3><p>No Módulo 2, começaremos por eventos encadeados e checkpoints. Veremos como registrar mudanças e acrescentar correções a um histórico externo, sem confundir a visão atual com a sequência que a produziu.</p></div>

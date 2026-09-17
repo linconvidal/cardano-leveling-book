@@ -1,0 +1,69 @@
+---
+title: CIPs, governance and network parameters
+short_title: CIPs, governance and parameters
+map_title: Governance and parameters
+summary: Understand how technical proposals and governance relate to the parameters applications use.
+---
+
+<div class="objectives"><div class="box-label">Objectives</div><ol class="objective-list">
+<li>Distinguish the role of a CIP from the process that brings a network change into effect.</li>
+<li>Recognize the governance participants and their role in parameter changes.</li>
+<li>Explain why transaction construction depends on the current parameters.</li>
+</ol></div>
+<div class="prereq"><div class="box-label">Before you begin</div><p>Revisit the distinction between application and protocol introduced in Lesson 1.1, and the concept of an epoch from Lesson 1.3.</p>
+<div class="guide-q"><span class="guide-q-label">Guiding question</span><p>How does a change discussed in the ecosystem come to affect the transactions an application can submit?</p></div></div>
+
+<h3 id="aula-1-4-s1">1. CIPs: agreeing on how tools work together</h3>
+<p>A wallet and an application developed by different teams need to agree on formats and interfaces. <strong>Cardano Improvement Proposals</strong>, or CIPs, document proposals, standards and conventions for this collaboration. They also record discussions about protocol changes.</p>
+<p><a href="https://cips.cardano.org/cip/CIP-0019">CIP-19</a>, for example, describes the address structure we will study in the next lesson. <a href="https://cips.cardano.org/cip/CIP-0030">CIP-30</a> standardizes communication between an application and a browser wallet. In the latter case, wallets and applications implement the interface; this does not require each call to be decided by a network vote.</p>
+<p>The drafting and review process is described in <a href="https://cips.cardano.org/cip/CIP-0001">CIP-1</a>. A CIP's status indicates its stage in that process. Publishing the document does not install software, guarantee that every tool implements it or automatically change the rules applied by nodes.</p>
+
+<h3 id="aula-1-4-s2">2. What governance decides</h3>
+<p>Choices that affect the entire network require shared decision-making mechanisms. <strong>On-chain governance</strong> records actions and votes for decisions provided for in the protocol, such as changing parameters, initiating a protocol upgrade or authorizing a treasury withdrawal.</p>
+<p>The model described in <a href="https://cips.cardano.org/cip/CIP-1694">CIP-1694</a> brings together three groups with distinct roles:</p>
+<ul>
+<li><strong>DReps</strong> are representatives to whom ADA holders can delegate voting power. They vote on actions in which this group participates.</li>
+<li><strong>Stake pool operators (SPOs)</strong> participate in decisions assigned to this group, including protocol upgrades and changes to security-relevant parameters.</li>
+<li>The <strong>constitutional committee</strong> assesses actions for compliance with the Cardano Constitution in decisions where its approval is required.</li>
+</ul>
+<p>The participating groups and approval thresholds depend on the action type. Delegating voting power to a DRep neither transfers ADA to them nor gives them the keys that authorize payments.</p>
+<p>A CIP can provide the technical basis for a change. The governance action, its votes and its enactment are events distinct from the document's editorial process.</p>
+
+<h3 id="aula-1-4-s3">3. Parameters that affect the application</h3>
+<p>The protocol uses parameters to define limits and costs. They directly affect the work of building transactions:</p>
+<ul>
+<li>The maximum transaction size limits how many bytes a transaction can occupy.</li>
+<li>Fee coefficients contribute to the calculation of how much a transaction must pay.</li>
+<li>Execution limits restrict the resources scripts can consume.</li>
+</ul>
+<p>The maximum block size is also a parameter. Increasing it may allow more data per block, but places greater transmission and processing demands on nodes. This choice affects operators and applications, not just a product's screen.</p>
+<p>Changing a parameter already provided for in the protocol differs from introducing a new rule that the software does not yet recognize. A protocol upgrade may require new node versions and a coordinated transition, such as a hard fork.</p>
+
+<h3 id="aula-1-4-s4">4. From approval to the value in effect</h3>
+<p>A <strong>ratified</strong> action has met the approval conditions. It takes effect when it is <strong>enacted</strong>, according to the protocol rules. Parameter updates are applied at epoch transitions; receiving favorable votes does not immediately change the limit a node uses to check a transaction.</p>
+<p>Suppose a change increases the maximum permitted size. A transaction exceeding the current limit does not become acceptable just because the change was announced or approved. Until enactment, the previous limit continues to apply.</p>
+<p>When building a transaction, the application obtains the target network's current parameters through a node or access service. It should not treat a value copied from a proposal as if it were already the network configuration. If preparation spans an epoch transition, the parameters must be checked again before completing or submitting the transaction. A change to the body may require new signatures.</p>
+
+<div class="activity"><div class="box-label">Activity: use the current limit</div>
+<p>An action increasing the maximum transaction size has been ratified but not yet enacted. The application is about to submit a transaction that exceeds the current limit but fits within the new one.</p>
+<form class="activity-quiz" id="quiz-aula-1-4-a1" data-answer="answer-aula-1-4-a1">
+<fieldset class="quiz-question"><legend>Which approach complies with the network rules?</legend><div class="quiz-options">
+<label class="quiz-option"><input name="q-aula-1-4-a1" type="radio" value="a"/><span class="quiz-option-text">Submit now, because ratification has already replaced the previous limit.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-4-a1" type="radio" value="b"/><span class="quiz-option-text">Submit through another provider, which can apply the new limit early.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-4-a1" type="radio" value="c" data-correct="true"/><span class="quiz-option-text">Respect the current limit and use the new one only after confirming it has taken effect.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-4-a1" type="radio" value="d"/><span class="quiz-option-text">Update only the application's library so that nodes accept the new limit.</span><span class="quiz-verdict"></span></label>
+</div><p class="quiz-question-feedback" aria-live="polite"></p></fieldset>
+<div class="quiz-actions"><button class="quiz-check" disabled="" type="submit">Check answers</button><p class="quiz-status" aria-live="polite" tabindex="-1">0 of 1 question answered.</p></div>
+</form>
+<details class="answer" id="answer-aula-1-4-a1"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Check answer</summary><div class="answer-body">
+<p>Option C is correct. Approval allows the action to advance through the process but does not bring its effect forward. The application can prepare a transaction that respects the current limit or wait for the change and confirm the parameters then in effect. Switching providers or updating a library does not change the rule applied by nodes.</p>
+</div></details>
+</div>
+
+<div class="closing"><h3>What we learned</h3><ul>
+<li>CIPs document proposals and standards that help tools and participants work compatibly.</li>
+<li>Governance involves DReps, stake pool operators and the constitutional committee, with participation and conditions defined by action type.</li>
+<li>Network parameters affect transaction size, costs and execution limits.</li>
+<li>Ratification and enactment are different stages. The application must work with the values currently in effect.</li>
+</ul></div>
+<div class="bridge"><h3>Next lesson</h3><p>Participation associated with stake and authorization of payments have distinct roles. In the next lesson, we will see how Shelley addresses combine payment credentials, stake credentials and network identification.</p></div>

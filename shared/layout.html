@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="{{ book.language }}"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>{{ book.title }}</title>
+<link href="data:," rel="icon"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&amp;family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<style>{{ styles | safe }}</style>
+<script crossorigin="anonymous" defer="" integrity="sha384-IfXV8q9IOAE+W1GXzqnINhrSCZlBZr69tB8V4IEhv9CCAzJ3eL+4UpAuHk30yRx8" src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/prism.js"></script>
+<script crossorigin="anonymous" defer="" integrity="sha384-uqX3OaQPJzBC7kgptE8/uMwvOn5tFUKPyn+U2kPjj/hE3MKLulUpG5kQpJVZNabi" src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/prism-python.js"></script>
+<script crossorigin="anonymous" defer="" integrity="sha384-cfG0CuE76V2LBKgoGVzSRDZsl7GVisUsgn3hMVOEiET5SCw5HgMivj2kdqIDl3UO" src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/prism-json.js"></script>
+<script>
+(function () {
+  var saved = null;
+  try { saved = localStorage.getItem('book-theme'); } catch (e) {}
+  var theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-theme', theme);
+})();
+</script>
+<noscript><style>
+#theme-toggle, .toc-toggle, .toc-backdrop, .toc-language, .quiz-actions, .cq-actions { display: none !important; }
+@media (max-width: 1000px) {
+  .toc {
+    position: static;
+    display: block;
+    width: auto;
+    height: auto;
+    max-height: none;
+    margin: 0 0 28px;
+    padding: 18px;
+    overflow: visible;
+    visibility: visible;
+    pointer-events: auto;
+    transform: none;
+    border: 1px solid var(--rule-soft);
+    box-shadow: none;
+  }
+  .table-scroll { overflow-x: visible; }
+  .table-scroll table { table-layout: fixed; }
+  .table-scroll th, .table-scroll td { min-width: 0; overflow-wrap: anywhere; padding-right: 8px; }
+}
+</style></noscript>
+
+</head>
+<body>
+<div id="readbar"></div>
+<button aria-label="{{ i18n.toggleTheme }}" id="theme-toggle" type="button"></button>
+<div class="wrap">
+
+<button aria-controls="toc" aria-expanded="false" aria-label="{{ i18n.openContents }}" class="toc-toggle" id="toc-toggle" type="button"><span aria-hidden="true" class="toc-toggle-icon"><span></span><span></span><span></span></span></button>
+<button aria-label="{{ i18n.closeContents }}" class="toc-backdrop" id="toc-backdrop" tabindex="-1" type="button"></button>
+{% include "navigation.html" %}
+
+
+<div class="main">
+
+{% include "book.html" %}
+
+
+
+
+
+
+
+
+
+</div>
+</div>
+<script id="book-ui" type="application/json">{{ i18n | tojson }}</script>
+<script>{{ app | safe }}</script>
+
+
+</body></html>

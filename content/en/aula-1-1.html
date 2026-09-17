@@ -1,0 +1,133 @@
+---
+title: The Cardano network and applications
+map_title: Cardano network
+summary: Understand the network and distinguish applications, access services and the protocol.
+description: Public infrastructure operated by different participants that independent applications can use.
+---
+
+<div class="objectives"><div class="box-label">Objectives</div><ol class="objective-list">
+<li>Distinguish applications, access services and network nodes.</li>
+<li>Distinguish a query, transaction submission and inclusion in the history.</li>
+<li>Explain why changing an interface does not change the network rules or erase published records.</li>
+</ol></div>
+<div class="prereq"><div class="box-label">Before you begin</div>
+<p>The concepts of hashes and signatures from Module 0 will help you follow this lesson. You do not need to know about blockchain or install a wallet.</p>
+<div class="guide-q"><span class="guide-q-label">Guiding question</span><p>What does an application do on its own, and which operations require the Cardano network?</p></div></div>
+<h3 id="aula-1-1-s1">1. The application and the infrastructure it uses</h3>
+<p>A web application usually has an interface, services that receive requests and somewhere to store data. When someone submits a form, for example, the application checks the data it receives and decides what to record. The developers can change its rules, reorganize storage or replace the interface as the product evolves.</p>
+<p>When this application uses Cardano, it connects to an existing network that other applications also use. Some requests retrieve information already recorded; others propose new operations. Querying these data and requesting the inclusion of an operation are two different uses of the network.</p>
+<p>Cardano is a public network of computers connected over the internet and operated by different people and organizations. These computers are called <strong>nodes</strong>. They exchange information about operations and check what they receive before accepting a change to the record they maintain. The shared set of rules governing this communication and these checks is the <strong>protocol</strong>.</p>
+<!-- Visual source: cardano-workshop-visual-language/assets/svg/objects/network.svg. Geometry retained; labels localized. -->
+<figure class="fig" style="width:100%">
+<div style="max-width:400px;margin:0 auto;background:transparent;border-radius:8px;padding:8px">
+<svg aria-label="Schematic of the Cardano network: four interconnected nodes" role="img" viewBox="0 0 360 280" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:auto" preserveAspectRatio="xMidYMid meet">
+<path d="M62 135 L180 58 L298 135 L180 212 Z M62 135 H298 M180 58 V212" style="fill:none;stroke:var(--deck-blue);stroke-width:4;stroke-linecap:round;stroke-linejoin:round"></path>
+<circle cx="62" cy="135" r="30" style="fill:var(--paper);stroke:var(--deck-blue);stroke-width:3"></circle><circle cx="180" cy="58" r="30" style="fill:var(--paper);stroke:var(--deck-blue);stroke-width:3"></circle><circle cx="298" cy="135" r="30" style="fill:var(--paper);stroke:var(--deck-blue);stroke-width:3"></circle><circle cx="180" cy="212" r="30" style="fill:var(--paper);stroke:var(--deck-blue);stroke-width:3"></circle>
+<text x="62" y="141" text-anchor="middle" style="fill:var(--ink);font-family:Switzer,Arial,sans-serif;font-size:17px;font-weight:700">NODE</text><text x="180" y="64" text-anchor="middle" style="fill:var(--ink);font-family:Switzer,Arial,sans-serif;font-size:17px;font-weight:700">NODE</text><text x="298" y="141" text-anchor="middle" style="fill:var(--ink);font-family:Switzer,Arial,sans-serif;font-size:17px;font-weight:700">NODE</text><text x="180" y="218" text-anchor="middle" style="fill:var(--ink);font-family:Switzer,Arial,sans-serif;font-size:17px;font-weight:700">NODE</text>
+<text x="180" y="271" text-anchor="middle" style="fill:var(--ink);font-family:Switzer,Arial,sans-serif;font-size:17px;font-weight:700">CARDANO NETWORK</text>
+</svg>
+</div>
+<figcaption>The circles represent nodes; the lines represent connections for exchanging information. This is a schematic: the real network has many nodes, and each connects to a subset of them.</figcaption>
+</figure>
+<h4 id="aula-1-1-s2">A public network</h4>
+<p>Application developers can query Cardano's public data and build services that use them. They can also operate a node, taking on the work of keeping that software connected and up to date. Participating in the network does not require belonging to the organization that created a particular application.</p>
+<p>Node operators can be different people or organizations. This matters because distributing servers across several locations is not enough to distribute control: a company could maintain all of them and decide on its own which operations to accept.</p>
+<p>On Cardano, each node checks the operations it receives. If an operator modifies their node's software to accept an operation without a required signature, the other nodes following the protocol will reject it because that signature is missing.</p>
+<h4 id="aula-1-1-implementacoes">Node implementations</h4>
+<p>The program an operator installs is a node <strong>implementation</strong>. <a href="https://github.com/IntersectMBO/cardano-node"><code>cardano-node</code></a> is the reference implementation in Haskell, originally developed by Input Output Global (IOG). Other projects are developing their own implementations in different languages:</p>
+<ul>
+<li><a href="https://github.com/pragma-org/amaru">Amaru</a>, in Rust, by PRAGMA.</li>
+<li><a href="https://github.com/blinklabs-io/dingo">Dingo</a>, in Go, by Blink Labs.</li>
+</ul>
+<p>These programs may organize their code differently, but to participate in the same Cardano network, they must communicate compatibly and apply the same verification rules. The signature required in the previous example must be checked regardless of the language the node is written in.</p>
+<p>The projects are at different stages and have different limitations. Before using a release to operate a node, check its repository for supported features and networks and whether the maintainers recommend it for production use. To discover other projects, see the <a href="https://developers.cardano.org/tools/?tags=node">Cardano node catalog</a> on the Cardano Developer Portal.</p>
+<h3 id="aula-1-1-s3">2. How the application queries the network</h3>
+<p>The application can query Cardano data through an <strong>API</strong>, an interface for communication between programs. It sends a request to a service connected to the network and receives a response with the requested information.</p>
+<h4 id="aula-1-1-consultas">From the record to the query response</h4>
+<p>The node tracks the network's records, but an application may need to search this information in various ways. To support queries by period or identifier, for example, a service can use an <strong>indexer</strong>: software that reads the node's data and organizes them in a database for querying. The API can retrieve the answer from this database without scanning the entire history for each request. You can find examples in the <a href="https://developers.cardano.org/tools/?tags=indexer">indexer catalog</a>.</p>
+<p>Services such as <a href="https://blockfrost.io/">Blockfrost</a> and <a href="https://www.koios.rest/">Koios</a> offer APIs for querying Cardano data. Application developers can use these services or operate a node with their own query services. In the latter case, they also need to keep the data up to date and access available. Other access options are listed in the <a href="https://developers.cardano.org/tools/?tags=api">API provider catalog</a>.</p>
+<!-- Visual sources: cardano-workshop-visual-language/assets/svg/objects/system.svg and objects/network.svg; simplified access scene from scenes/cardano-as-infrastructure.svg. -->
+<figure class="fig" style="width:100%">
+<div role="region" tabindex="0" aria-label="Diagram of the application, access service and Cardano network; scrolls horizontally on narrow screens" style="max-width:100%;overflow-x:auto;background:transparent;border-radius:8px">
+<svg aria-label="An application connects to the Cardano network through an access API. The service and application are separate from the network." role="img" viewBox="0 0 780 300" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;min-width:650px;height:auto" preserveAspectRatio="xMidYMid meet">
+<path d="M220 144 H310 M490 144 H557" style="fill:none;stroke:var(--deck-blue);stroke-width:3;stroke-dasharray:9 8;stroke-linecap:round"></path>
+<g transform="translate(10 35) scale(.75)" aria-hidden="true">
+<rect height="180" rx="9" style="fill:var(--paper);stroke:var(--ink);stroke-width:4" width="240" x="40" y="43"></rect><line style="stroke:var(--ink);stroke-width:4" x1="40" x2="280" y1="87" y2="87"></line><circle cx="65" cy="65" r="6" style="fill:var(--deck-blue)"></circle>
+<text x="66" y="128" style="font-family:Switzer,Arial,sans-serif;fill:var(--ink);font-size:24px;font-weight:700">Application</text><text x="66" y="165" style="font-family:Switzer,Arial,sans-serif;fill:var(--ink-dim);font-size:18px">interface and services</text><text x="66" y="195" style="font-family:Switzer,Arial,sans-serif;fill:var(--ink-dim);font-size:18px">queries and submissions</text>
+</g>
+<g transform="translate(280 35) scale(.75)" aria-hidden="true">
+<rect height="180" rx="9" style="fill:var(--paper);stroke:var(--ink);stroke-width:4" width="240" x="40" y="43"></rect><line style="stroke:var(--ink);stroke-width:4" x1="40" x2="280" y1="87" y2="87"></line><circle cx="65" cy="65" r="6" style="fill:var(--deck-blue)"></circle>
+<text x="66" y="128" style="font-family:Switzer,Arial,sans-serif;fill:var(--ink);font-size:24px;font-weight:700">Access</text><text x="66" y="165" style="font-family:Switzer,Arial,sans-serif;fill:var(--ink-dim);font-size:18px">infrastructure</text><text x="66" y="195" style="font-family:Switzer,Arial,sans-serif;fill:var(--ink-dim);font-size:18px">provider's API</text>
+</g>
+<g transform="translate(535 50) scale(.65)" aria-hidden="true">
+<path d="M62 135 L180 58 L298 135 L180 212 Z M62 135 H298 M180 58 V212" style="fill:none;stroke:var(--deck-blue);stroke-width:4;stroke-linecap:round;stroke-linejoin:round"></path><circle cx="62" cy="135" r="30" style="fill:var(--paper);stroke:var(--deck-blue);stroke-width:3"></circle><circle cx="180" cy="58" r="30" style="fill:var(--paper);stroke:var(--deck-blue);stroke-width:3"></circle><circle cx="298" cy="135" r="30" style="fill:var(--paper);stroke:var(--deck-blue);stroke-width:3"></circle><circle cx="180" cy="212" r="30" style="fill:var(--paper);stroke:var(--deck-blue);stroke-width:3"></circle><text x="180" y="271" text-anchor="middle" style="fill:var(--ink);font-family:Switzer,Arial,sans-serif;font-size:25px;font-weight:700">CARDANO NETWORK</text>
+</g>
+<text x="255" y="245" text-anchor="middle" style="fill:var(--ink-dim);font-family:Switzer,Arial,sans-serif;font-size:18px">access route</text><text x="390" y="282" text-anchor="middle" style="fill:var(--ink);font-family:Switzer,Arial,sans-serif;font-size:19px">The access service connects the application to the network.</text>
+</svg>
+</div>
+<figcaption>In this setup, the application uses a provider's API to query data and submit operations. The provider maintains the connection to the network and the services that serve the application.</figcaption>
+</figure>
+<p>A provider may require registration, limit queries or charge for access. These conditions belong to the service it offers. Switching providers may require new credentials, different API calls and adjustments to response formats, even though the application is still querying the same network.</p>
+<p>If the API stops responding, the application may be left without the data it needs to display. The error indicates a failure along that query path; by itself, it does not tell you whether nodes are still accepting operations. A response may also contain outdated data if the service has not yet caught up with the latest records.</p>
+<h3 id="aula-1-1-transacoes">3. How an operation enters the record</h3>
+<p>Querying published data does not add an operation to the history. To propose a change, the application must prepare a <strong>transaction</strong>. It describes the intended operation and gathers the required authorizations in a format the nodes can verify.</p>
+<p>A transfer of ADA, Cardano's currency, is one example: the transaction specifies which funds will be used and where they will go. Nodes check authorizations, such as the signatures studied in Module 0, and verify that the funds are still available. A transaction can also publish data or create other digital assets, provided it meets the applicable rules.</p>
+<h4>Submitting and tracking the result</h4>
+<p>The prepared transaction must reach a node. The application can send it through a submission service, which receives the data and forwards them to the network. This service may be available through the same API used for queries. A message saying the service received the submission confirms that step; the result still needs to be tracked to determine whether the operation entered the history.</p>
+<p>The checks performed by nodes can prevent a transaction from being accepted. If a required signature is missing, for example, resubmitting the same data through another provider does not supply it. Credentials used to access the API authorize use of the service; they do not replace the authorizations required in the transaction. The operation must also cover network fees, which are separate from any provider charges.</p>
+<h4>The history and the current state</h4>
+<p>Nodes that produce <strong>blocks</strong> gather transactions and propose their inclusion in the history. The other nodes verify the blocks they receive. Each block contains a hash reference to the previous one; these links form the <strong>blockchain</strong>, or chain of blocks. The choice of which chain to follow is governed by the protocol's <strong>consensus</strong> rules.</p>
+<p>Verifying a new transaction depends on the results of previous ones. The <strong>ledger</strong> encompasses the network's current state, such as the resources available to spend, and the rules used to update it. Each node applies these rules to the transactions in the blocks it accepts. This state can be reconstructed from the blockchain's history.</p>
+<p>After submission, the application can query a source that reports the transaction's inclusion in a block. This observation differs from the submission service's initial response. Depending on the use case and risk, the application may wait for more blocks before treating the operation as complete. This is an example of a <strong>confirmation policy</strong>, discussed in <a href="#aula-1-3">Lesson 1.3</a>.</p>
+<h3 id="aula-1-1-s4">4. What remains in the application</h3>
+<h4 id="aula-1-1-regras">Interface rules and network rules</h4>
+<p>Disabling a submit button can prevent a mistake in the interface, but someone can still try to build the transaction using another program. When the protocol requires an authorization, nodes check it regardless of the interface used. Application developers therefore need to know which restrictions exist only in their software and which will also be checked by the network.</p>
+<h4>Other applications can query the same records</h4>
+<p>A <strong>wallet</strong> queries assets and manages the use of keys to authorize transfers. A reporting system can use the same records to present a history of operations. Each application organizes information for its own purpose; the application that created a transaction need not be the only one able to query it.</p>
+<h4 id="aula-1-1-publicacao">Choosing what to publish</h4>
+<p>The application may need to store users' personal data and documents that must not become public. These data require their own storage and access controls. Using Cardano does not require publishing the system's entire contents; you need to choose which information can be part of a public transaction.</p>
+<p>Once published, information can be copied and queried outside the application. Removing it from a screen changes its presentation but does not erase the publication from the blockchain. This must be considered before submission, while it is still possible to decide what to disclose.</p>
+<p>The interface, documents and private services also still need hosting and maintenance. The application operator is responsible for keeping them running and for the information shown to users. The network checks the operations it receives according to the protocol, without taking on the operation of these other services.</p>
+<div class="activity"><div class="box-label">Activity 1: follow the query and submission</div>
+<p>An application uses a provider's API to query records and submit transactions to Cardano. In each situation below, choose the conclusion supported by the observation.</p>
+<form class="activity-quiz" data-answer="answer-aula-1-1-a1" id="quiz-aula-1-1-a1">
+<fieldset class="quiz-question"><legend>1. When querying a history, the application receives a “service unavailable” message from the API. No data are returned. What message can the application show the user?</legend><div class="quiz-options">
+<label class="quiz-option"><input data-correct="true" name="q-aula-1-1-a1" type="radio" value="a"/><span class="quiz-option-text">The history could not be queried through this service.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-1-a1" type="radio" value="b"/><span class="quiz-option-text">The Cardano network has temporarily stopped producing blocks.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-1-a1" type="radio" value="c"/><span class="quiz-option-text">The history is empty; no operations have been recorded.</span><span class="quiz-verdict"></span></label>
+</div><p aria-live="polite" class="quiz-question-feedback"></p></fieldset>
+<fieldset class="quiz-question"><legend>2. When submitting a transaction, the application receives the response “received for forwarding”. This response does not identify a block. What does it confirm?</legend><div class="quiz-options">
+<label class="quiz-option"><input name="q-aula-1-1-a2" type="radio" value="a"/><span class="quiz-option-text">The transaction was included in the history; the query just needs to catch up.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input data-correct="true" name="q-aula-1-1-a2" type="radio" value="b"/><span class="quiz-option-text">The service received the submission; the result still needs to be tracked and inclusion verified.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-1-a2" type="radio" value="c"/><span class="quiz-option-text">The transaction was rejected because the response does not yet identify a block.</span><span class="quiz-verdict"></span></label>
+</div><p aria-live="polite" class="quiz-question-feedback"></p></fieldset>
+<fieldset class="quiz-question"><legend>3. A node rejects a transaction because a required signature is missing. The application resubmits the same data through another provider without adding the signature. What changes?</legend><div class="quiz-options">
+<label class="quiz-option"><input name="q-aula-1-1-a3" type="radio" value="a"/><span class="quiz-option-text">Submission permission on the new API can authorize the spending that lacked a signature.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-1-a3" type="radio" value="b"/><span class="quiz-option-text">The new provider can record the operation first and request the signature later.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input data-correct="true" name="q-aula-1-1-a3" type="radio" value="c"/><span class="quiz-option-text">The submission route changes, but the condition remains unmet: the transaction needs the signature.</span><span class="quiz-verdict"></span></label>
+</div><p aria-live="polite" class="quiz-question-feedback"></p></fieldset>
+<fieldset class="quiz-question"><legend>4. A website starts hiding an already published record by changing only the page's display filter. What is the scope of this change?</legend><div class="quiz-options">
+<label class="quiz-option"><input data-correct="true" name="q-aula-1-1-a4" type="radio" value="a"/><span class="quiz-option-text">The record no longer appears on that page, but remains published and can be queried by other systems.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-1-a4" type="radio" value="b"/><span class="quiz-option-text">The record also disappears from queries by other applications using the same provider.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-1-a4" type="radio" value="c"/><span class="quiz-option-text">The change will be reflected in the network when indexers synchronize the removal.</span><span class="quiz-verdict"></span></label>
+</div><p aria-live="polite" class="quiz-question-feedback"></p></fieldset>
+<div class="quiz-actions"><button class="quiz-check" disabled="" type="submit">Check answers</button><p aria-live="polite" class="quiz-status" tabindex="-1">0 of 4 questions answered.</p></div>
+</form>
+<details class="answer" id="answer-aula-1-1-a1"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Check answer</summary><div class="answer-body">
+<ol>
+<li>The first option describes the observation: the query failed at that service. A failure to retrieve data does not show that the history is empty or that block production has stopped. Revisit <a href="#aula-1-1-consultas">the query path</a> if you attributed the error directly to the network.</li>
+<li>The second option distinguishes receipt by the service from inclusion in the history. The absence of a block in this response does not demonstrate rejection either. The submission's result must be tracked, as described in <a href="#aula-1-1-transacoes">How an operation enters the record</a>.</li>
+<li>The third option retains the signature requirement. API credentials allow use of the access service but do not authorize spending the funds. The new provider may receive the submission; the same data still fail to meet the condition required by the nodes.</li>
+<li>The first option limits the change to the page where the filter was applied. The website did not erase the record from the network or change the service queried by other applications. The indexer follows network data, not each website's display decisions. Revisit <a href="#aula-1-1-publicacao">choosing what to publish</a> to review this distinction.</li>
+</ol>
+</div></details>
+</div>
+<div class="closing"><h3>What we learned</h3>
+<ul>
+<li>The application queries data through access services, which may use indexers to organize network information. A failure along this path does not, on its own, demonstrate a failure of the entire network.</li>
+<li>A transaction proposes an operation. Receipt by the submission service and inclusion in a block are separate stages that the application needs to track.</li>
+<li>Nodes verify transactions and blocks according to the protocol. The blockchain's history allows the ledger state to be reconstructed.</li>
+<li>The interface and private data still need their own services. A change on screen neither waives network authorizations nor erases already published records.</li>
+</ul></div>
+
+<div class="bridge"><h3>Next lesson</h3><p>An operation can reach a node and still be rejected. In the next lesson, we will see how the software separates communication with other nodes, chain selection and verification of ledger changes. This allows these stages to be investigated without confusing a query problem with a failure to accept operations.</p></div>

@@ -1,0 +1,121 @@
+---
+title: Shelley addresses, credentials and network
+short_title: Shelley addresses and credentials
+map_title: Addresses and credentials
+summary: Distinguish payment from stake, compare base, enterprise and reward addresses, and interpret an address's network.
+---
+
+<div class="objectives"><div class="box-label">Objectives</div><ol class="objective-list">
+<li>Distinguish the roles of payment and stake credentials.</li>
+<li>Compare base, enterprise and reward formats and recognize the use of key or script credentials.</li>
+<li>Inspect an address with a library and explain why testnet does not identify a specific test network.</li>
+</ol></div>
+<div class="prereq"><div class="box-label">Before you begin</div><p>Revisit bytes, encodings, hashes and signatures from Module 0. The separation between application and network, and the participation associated with stake, covered in this module, will help you interpret the roles of an address.</p>
+<div class="guide-q"><span class="guide-q-label">Guiding question</span><p>What does an address tell you about payment, stake and network, and what can you not conclude from it alone?</p></div></div>
+
+<h3 id="aula-1-5-s1">1. What lies behind an address</h3>
+<p>When preparing to receive funds, an application needs to specify where the value will go and under what condition it can be spent. On Cardano, the address carries information about this condition. It is not simply an account name or a private key to hand over to the payer.</p>
+<p>The formats introduced with Shelley remain in use in later eras. <a href="https://cips.cardano.org/cip/CIP-0019">CIP-19</a> describes their structure: a <strong>header</strong> identifies the type and network; the following bytes identify the credentials specified by that type.</p>
+<p>A <strong>credential</strong> identifies a public key or a script through a hash. For a key, Cardano uses BLAKE2b-224 to produce this 28-byte hash. The private key remains outside the address.</p>
+
+<h3 id="aula-1-5-s2">2. Payment and stake have separate roles</h3>
+<p>The <strong>payment credential</strong> identifies the authorization needed to spend funds sent to the address. For a key credential, the transaction provides the corresponding public key and a valid signature. For a script credential, spending must satisfy the rule identified by that script.</p>
+<p>The <strong>stake credential</strong> is involved in operations such as delegation to a stake pool and reward withdrawals. In current governance, it is also used to delegate voting power to a DRep. Controlling this credential does not grant the spending authorization of the payment credential.</p>
+<p>A wallet normally manages both roles, but uses separate keys for them. A payment credential and a stake credential controlled by different parties can be combined. This separation allows a choice of who moves the funds and who manages the participation associated with stake.</p>
+<h4>One wallet, several addresses</h4>
+<p>Hierarchical wallets can derive several keys from the same recovery material, following a scheme such as <a href="https://cips.cardano.org/cip/CIP-1852">CIP-1852</a>. A wallet can therefore present several addresses rather than a single fixed identifier. It queries the ledger to find the funds associated with them.</p>
+<p>The recovery phrase allows keys to be reconstructed in a compatible wallet. It is not a receiving address and must not be given to a dApp or to someone sending a payment.</p>
+
+<h3 id="aula-1-5-s3">3. Base, enterprise and reward</h3>
+<p>Let's compare three formats found in applications. They differ in the credentials they contain and the roles they serve.</p>
+<h4>Base: payment and stake</h4>
+<p>A <strong>base address</strong> combines a payment credential and a stake credential. It can receive funds and associate the ADA at that address with stake participation. Having both parts in the same address does not merge their authorizations.</p>
+<h4>Enterprise: payment only</h4>
+<p>An <strong>enterprise address</strong> has a payment credential without the stake part. It allows receiving and spending, but the ADA at that address is not associated with a stake credential for delegation.</p>
+<h4>Reward: reward account</h4>
+<p>A <strong>reward address</strong>, also called a stake address, identifies a reward account through its stake credential. It appears in operations such as withdrawing those rewards. It cannot be used as a transaction output destination to receive ADA or tokens. A withdrawal moves rewards from that account to a payment address.</p>
+<style id="aula-1-5-address-structure-styles">
+/* Component order follows CIP-19 and the CIMATEC address-decode slides.
+   Hash pills reuse the workshop visual library's anchor geometry. */
+#aula-1-5 .address-structure { width:100%; margin:28px 0; font-family:var(--font-sans); }
+#aula-1-5 .as-row { display:grid; grid-template-columns:95px 68px minmax(0,1fr) minmax(0,1fr) 65px; gap:10px; align-items:center; padding:14px 0; }
+#aula-1-5 .as-label { color:var(--ink); font-size:16px; font-weight:600; }
+#aula-1-5 .as-header { padding:10px 4px; border:1px solid var(--ink-dim); border-radius:3px; color:var(--ink); text-align:center; font-size:13px; }
+#aula-1-5 .as-credential { padding:10px 7px; border:2px solid var(--deck-orange-dark); border-radius:999px; background:var(--deck-orange-fill); color:var(--ink); text-align:center; font-size:15px; }
+#aula-1-5 .as-header small, #aula-1-5 .as-credential small { display:block; color:var(--ink-dim); font-size:13px; margin-top:3px; }
+#aula-1-5 .as-size { color:var(--ink); text-align:right; font-size:14px; }
+@media (max-width:600px) {
+  #aula-1-5 .as-row { grid-template-columns:56px minmax(0,1fr) minmax(0,1fr); gap:8px; padding:14px 0 18px; }
+  #aula-1-5 .as-label { grid-column:1 / -1; }
+  #aula-1-5 .as-size { grid-column:1 / -1; }
+  #aula-1-5 .as-credential { font-size:13px; padding:10px 4px; }
+}
+@media print { #aula-1-5 .address-structure { break-inside:avoid; } }
+</style>
+<figure class="fig address-structure" id="fig-aula-1-5-formatos" aria-labelledby="caption-aula-1-5-formatos">
+<div class="as-row"><span class="as-label">Base</span><span class="as-header">Header<small>1 byte</small></span><span class="as-credential">Payment<small>28 bytes</small></span><span class="as-credential">Stake<small>28 bytes</small></span><span class="as-size">57 bytes</span></div>
+<div class="as-row"><span class="as-label">Enterprise</span><span class="as-header">Header<small>1 byte</small></span><span class="as-credential">Payment<small>28 bytes</small></span><span aria-hidden="true"></span><span class="as-size">29 bytes</span></div>
+<div class="as-row"><span class="as-label">Reward</span><span class="as-header">Header<small>1 byte</small></span><span class="as-credential">Stake<small>28 bytes</small></span><span aria-hidden="true"></span><span class="as-size">29 bytes</span></div>
+<figcaption id="caption-aula-1-5-formatos">The header identifies type and network. Each credential occupies 28 bytes: base has two; enterprise and reward have one each, with different roles.</figcaption>
+</figure>
+<h4>What about script addresses?</h4>
+<p>Base and enterprise addresses can have a key or script payment credential. Thus, <q>script address</q> describes the authorization mechanism, not a fourth alternative to the three formats above. A stake credential can also be a script credential.</p>
+<p>For example, an application can receive funds at an enterprise address whose payment credential is a script hash. To spend them, the transaction must satisfy that script; there is no private key for the script that can be recovered from a phrase.</p>
+
+<h3 id="aula-1-5-s4">4. Bech32 presents the bytes; the network provides context</h3>
+<p>What we copy from a wallet is usually a <strong>Bech32</strong> encoding of the address. Like hexadecimal and base64, it writes bytes as text; it also includes a check that helps detect typing errors. The protocol works with the bytes, not with the text's appearance on screen.</p>
+<p>The prefixes defined in <a href="https://cips.cardano.org/cip/CIP-0005">CIP-5</a> help with interpretation:</p>
+<ul>
+<li><code>addr1…</code> and <code>addr_test1…</code> are used for mainnet and test payment addresses, respectively. Decoding confirms whether the format is base or enterprise.</li>
+<li><code>stake1…</code> and <code>stake_test1…</code> are used for mainnet and test reward addresses.</li>
+</ul>
+<p>In the header, the network identifier is <code>1</code> for mainnet and <code>0</code> for testnets. <strong>Preprod and Preview use the same test identifier.</strong> An <code>addr_test1…</code> address therefore does not, on its own, tell you which of them to query.</p>
+<p>The application needs to combine the address with the intended network and the corresponding access service. Switching networks in the wallet changes the environment being queried; it does not transfer funds between networks. A well-formed address also does not confirm the identity of the person who supplied it: check the complete destination with the expected source.</p>
+
+<h3 id="aula-1-5-s5">5. Inspecting and composing addresses</h3>
+<p>The PyCardano library lets you read an address's parts and compose other formats. The example uses a public base address from the <a href="https://cips.cardano.org/cip/CIP-0019#test-vectors">CIP-19 test vectors</a>. It then uses only its payment part to form an enterprise address and only its stake part to form a reward address.</p>
+<pre data-python-runner="true" data-exercise-id="shelley-address-components" data-exercise-version="1" data-python-packages="pycardano-workshop-0.19.2-pyodide-314.0.7-v1"><code class="language-python">from pycardano import Address
+
+base_address = Address.from_primitive(
+    "addr_test1qz2fxv2umyhttkxyxp8x0dlpdt3k6cwng5pxj3jhsydzer3n"
+    "0d3vllmyqwsx5wktcd8cc3sq835lu7drv2xwl2wywfgs68faae"
+)
+enterprise_address = Address(base_address.payment_part, network=base_address.network)
+reward_address = Address(staking_part=base_address.staking_part, network=base_address.network)
+
+print("Network:", base_address.network.name)
+print("Base:", len(bytes(base_address)), "bytes")
+print("Enterprise:", len(bytes(enterprise_address)), "bytes")
+print("Reward:", len(bytes(reward_address)), "bytes")
+</code></pre>
+<p>The output shows <code>TESTNET</code> and lengths of 57, 29 and 29 bytes. The credentials were reused, but the three addresses have different structures and roles. The code only composes addresses; it does not query the network or move funds.</p>
+
+<div class="activity"><div class="box-label">Activity: choose by role</div>
+<form class="activity-quiz" id="quiz-aula-1-5-a1" data-answer="answer-aula-1-5-a1">
+<fieldset class="quiz-question"><legend>1. An application wants to receive funds under a script rule without associating them with stake. Which structure matches this use?</legend><div class="quiz-options">
+<label class="quiz-option"><input name="q-aula-1-5-a1-1" type="radio" value="a"/><span class="quiz-option-text">Base with a key payment credential and a script stake credential.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-5-a1-1" type="radio" value="b" data-correct="true"/><span class="quiz-option-text">Enterprise with a script payment credential.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-5-a1-1" type="radio" value="c"/><span class="quiz-option-text">Reward with a script stake credential.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-5-a1-1" type="radio" value="d"/><span class="quiz-option-text">Enterprise with a key payment credential.</span><span class="quiz-verdict"></span></label>
+</div><p class="quiz-question-feedback" aria-live="polite"></p></fieldset>
+<fieldset class="quiz-question"><legend>2. The library decoded a base address and reported TESTNET. What information is still missing to query its incoming funds?</legend><div class="quiz-options">
+<label class="quiz-option"><input name="q-aula-1-5-a1-2" type="radio" value="a"/><span class="quiz-option-text">Confirmation that the address is exactly 57 bytes long.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-5-a1-2" type="radio" value="b"/><span class="quiz-option-text">The presence of the addr_test prefix in the text form.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-5-a1-2" type="radio" value="c" data-correct="true"/><span class="quiz-option-text">The specific test network, such as Preprod or Preview, and its corresponding endpoint.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-5-a1-2" type="radio" value="d"/><span class="quiz-option-text">The private stake key associated with the received address.</span><span class="quiz-verdict"></span></label>
+</div><p class="quiz-question-feedback" aria-live="polite"></p></fieldset>
+<div class="quiz-actions"><button class="quiz-check" disabled="" type="submit">Check answers</button><p class="quiz-status" aria-live="polite" tabindex="-1">0 of 2 questions answered.</p></div>
+</form>
+<details class="answer" id="answer-aula-1-5-a1"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Check answer</summary><div class="answer-body"><ol>
+<li>Option B is correct. Enterprise omits the stake part, and the script payment credential identifies the rule required for spending. Placing the script in the stake part does not control payment spending; reward identifies the reward account, not a payment destination.</li>
+<li>Option C is correct. TESTNET and the addr_test prefix do not distinguish Preprod from Preview. The query must target the intended environment. The size identifies the structure, not this network choice, and querying a public address does not require its private key.</li>
+</ol></div></details>
+</div>
+
+<div class="closing"><h3>What we learned</h3><ul>
+<li>Payment and stake have distinct roles. Controlling one does not automatically grant control of the other.</li>
+<li>Base combines payment and stake; enterprise has payment only; reward identifies the reward account.</li>
+<li>A credential can identify a key or a script. Address format and authorization rule are related but different choices.</li>
+<li>Bech32 presents the address bytes. The testnet identifier does not distinguish Preprod from Preview; the application also needs to know which network to access.</li>
+</ul></div>
+<div class="bridge"><h3>Next lesson</h3><p>With the destination address and its authorization conditions identified, the operation itself still needs to be described. In the next lesson, we will see which data make up a transaction and which bytes are used for signing and verification.</p></div>

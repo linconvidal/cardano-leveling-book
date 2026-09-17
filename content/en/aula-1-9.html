@@ -1,0 +1,49 @@
+---
+title: 'Metadata: attach a message to a transaction'
+short_title: Metadata
+map_title: Metadata
+summary: Create metadata with PyCardano and observe how changing the text changes its hash.
+---
+
+<div class="objectives"><div class="box-label">Objectives</div><ol class="objective-list">
+<li>Create metadata from a Python dictionary.</li>
+<li>Observe its CBOR representation and hash.</li>
+<li>Explain how the transaction body is linked to these data.</li>
+</ol></div>
+<div class="prereq"><div class="box-label">Before you begin</div><p>Review hash calculations in <a href="#aula-0-2">Lesson 0.2</a> and the transaction's CBOR representation in <a href="#aula-1-6">Lesson 1.6</a>.</p><div class="guide-q"><span class="guide-q-label">Guiding question</span><p>If someone changes a message attached to a transaction, what happens to the hash of those data?</p></div></div>
+
+<h3 id="aula-1-9-s1">1. A message in the transaction</h3>
+<p>Metadata are optional data that can accompany a transaction, such as a message. Writing a message does not create tokens or make the network check whether the text is true.</p>
+<p>In Python, we can represent these data with a dictionary: <code>{1001: {"mensagem": "Olá, Cardano!"}}</code>. The outer key must be an integer; we chose <code>1001</code> for this example. The person preparing the data chooses the key <code>mensagem</code> (Portuguese for “message”) and its text. We keep the original message, “Hello, Cardano!” in Portuguese, unchanged so that its bytes and hash remain the same.</p>
+
+<h3 id="aula-1-9-s2">2. Create metadata with PyCardano</h3>
+<p><code>Metadata</code> takes the dictionary. The <code>AlonzoMetadata</code> and <code>AuxiliaryData</code> classes assemble the attachment in the format used by the transaction. Run the example: it shows the message, the attachment as hex-encoded CBOR and the attachment's hash.</p>
+<pre data-python-runner="true" data-python-packages="pycardano-workshop-0.19.2-pyodide-314.0.7-v1" data-exercise-id="metadata-auxiliary-commitment" data-exercise-version="3"><code class="language-python">from pycardano import Metadata, AlonzoMetadata, AuxiliaryData
+
+message = "Olá, Cardano!"
+data = Metadata({1001: {"mensagem": message}})
+attachment = AuxiliaryData(AlonzoMetadata(metadata=data))
+
+print("message:", data[1001]["mensagem"])
+print("CBOR:", attachment.to_cbor_hex())
+print("hash:", attachment.hash().payload.hex())
+</code></pre>
+<p>Use short messages: each metadata text string can occupy up to 64 bytes. Characters such as <code>á</code> take more than one byte in UTF-8.</p>
+
+<div class="activity" data-progress-id="metadata-message-change-activity"><div class="box-label">Activity: change the message</div>
+<p>Run the code above. Replace <code>Olá, Cardano!</code> with <code>Olá, Ada!</code> (“Hello, Ada!”) and run it again. What changed in the CBOR and the hash?</p>
+<p>Then restore the original message and run it once more. Compare the result with the first run.</p>
+<details class="answer"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Check answer</summary><div class="answer-body"><p>Changing the message changes the attachment's bytes and its hash. When you restore the original message, the same code produces the original CBOR and hash again. The calculation depends on the data, not on when it runs.</p></div></details>
+</div>
+
+<h3 id="aula-1-9-s3">3. How these data are linked to the transaction</h3>
+<p>The attachment sits in the <em>auxiliary data</em>, outside the transaction body. The body stores the attachment's hash in the <code>auxiliary_data_hash</code> field.</p>
+<p>If the message changes, this field must be updated. That changes the body and its body hash. A transaction that has already been signed therefore needs new signatures after this change.</p>
+<p>When the transaction is published, the message becomes accessible along with the other data.</p>
+
+<div class="closing"><h3>What we learned</h3><ul>
+<li>A Python dictionary can supply the data to create metadata with PyCardano.</li>
+<li>Changing the message changes the attachment's CBOR and hash.</li>
+<li>The <code>auxiliary_data_hash</code> field links the transaction body to the attachment.</li>
+</ul></div>
+<div class="bridge"><h3>Next lesson</h3><p>A message in metadata does not create transferable units. In the next lesson, we will see how native assets appear in transaction values.</p></div>

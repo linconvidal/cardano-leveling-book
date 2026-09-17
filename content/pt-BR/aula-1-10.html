@@ -1,0 +1,212 @@
+---
+title: 'Ativos nativos e políticas: identidade, quantidade e multisig'
+short_title: Ativos nativos e políticas
+map_title: Ativos nativos
+summary: Identificar ativos, fechar sua conservação e construir políticas nativas de assinatura e tempo.
+description: Entender que a identidade técnica de um ativo nativo combina policy ID e asset name, e não apenas um rótulo legível.
+---
+
+
+<div class="objectives"><div class="box-label">Objetivos</div><p>Ao final desta aula, você será capaz de:</p>
+<ol class="objective-list">
+<li>diferenciar metadata anexada a uma transação de um ativo nativo representado pelo ledger;</li>
+<li>explicar por que policy ID faz parte da identidade de um ativo;</li>
+<li>interpretar asset names como bytes e avaliar um native script de assinaturas e tempo;</li>
+<li>explicar como mint, burn e transferência alteram quantidades inteiras sob uma minting policy.</li>
+
+</ol></div>
+<div class="prereq"><div class="box-label">Antes de começar</div><p>Você precisa lembrar que uma transação consome saídas e cria novas saídas, que taxas dependem dos bytes finais do pacote, e que metadata é um anexo estruturado, não uma prova automática de verdade externa.</p>
+
+<div class="guide-q"><span class="guide-q-label">Pergunta-guia</span><p>Se dois ativos aparecem com o mesmo nome em uma interface, quando a rede os trata como o mesmo ativo e quando ela os trata como ativos diferentes?</p></div></div>
+<h3 id="aula-1-10-s1">1. Ativo nativo em nível conceitual</h3>
+<p>Um ativo nativo é um ativo que o ledger consegue representar diretamente no valor de uma saída. Em vez de aparecer apenas como texto em metadata, ele aparece como uma quantidade dentro da contabilidade da transação.</p>
+<p>Você pode imaginar uma saída com um valor assim:</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Componente do valor</th>
+<th style="text-align: right;">Quantidade</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ada</td>
+<td style="text-align: right;">10</td>
+</tr>
+<tr>
+<td>ativo definido por uma política e um nome</td>
+<td style="text-align: right;">50</td>
+</tr>
+</tbody>
+</table></div>
+
+
+<p>Escrever <code>nome: TOKEN</code> em metadata não cria unidades no ledger. Um native asset aparece no valor dos outputs, mas não herda o papel de ADA em taxas, staking, depósitos ou governança.</p>
+<h3 id="aula-1-10-s2">2. Policy ID como parte da identidade</h3>
+<p>O policy ID é uma parte da identidade do ativo. Em Cardano, ele é o hash de 28 bytes da minting policy, normalmente exibido como 56 caracteres hexadecimais. Não é um rótulo livre. A política define as condições técnicas para permitir mint positivo ou negativo daquele ativo; autoridade institucional e finalidade continuam externas.</p>
+
+<p>O exemplo usa dois policy IDs calculados a partir de políticas de assinatura. <code>ScriptHash</code> guarda o ID; <code>AssetName</code> guarda os bytes do nome. <code>MultiAsset</code> organiza quantidades primeiro por política e depois por nome.</p>
+<pre data-python-runner="true" data-python-packages="pycardano-workshop-0.19.2-pyodide-314.0.7-v1" data-exercise-id="multiasset-policy-identity" data-exercise-version="1"><code class="language-python">from pycardano import ScriptHash, AssetName, Asset, MultiAsset
+
+p1 = ScriptHash(bytes.fromhex("b42438993a121732d88cf0719ef8a895953e5cd686c48782bccec209"))
+p2 = ScriptHash(bytes.fromhex("d3b22f481e20b76f395e04df54fc7e480c385cdc83f9b99412d295dd"))
+nome = AssetName(b"TOKEN")
+minusculo = AssetName(b"token")
+saldo = MultiAsset({p1: Asset({nome: 50, minusculo: 3}), p2: Asset({nome: 7})})
+for politica, ativos in saldo.items():
+    for nome_do_ativo, quantidade in ativos.items():
+        print(politica.payload.hex(), nome_do_ativo.payload.hex(), quantidade)
+print("CBOR:", saldo.to_cbor_hex())
+</code></pre>
+<p>A saída mostra três identidades distintas. Há 50 unidades de TOKEN e 3 de token sob <code>b42438993a12…</code>, e 7 de TOKEN sob <code>d3b22f481e20…</code>. Criar esse objeto em Python descreve um valor; emitir as unidades no ledger exige uma transação de mint autorizada pela política.</p>
+
+<p>Usar apenas <code>TOKEN</code> como chave no banco de dados pode misturar saldos de ativos com políticas diferentes.</p>
+<!-- Workshop objects/native-asset.svg, revision f4536110de13ab69c1b42311b823f84afdc2b6f7. Reuse the asset silhouette; omit quantity because this comparison concerns identity. Use abbreviated policy IDs from the executable example, not symbolic aliases. -->
+<figure class="fig deck-figure m1-icon-pass" data-visual-revision="f4536110de13ab69c1b42311b823f84afdc2b6f7"><div class="table-scroll" tabindex="0" role="region" aria-label="Comparação de identidade por policy ID e bytes do nome"><svg style="width:100%;min-width:680px" aria-label="TOKEN e token pertencem à política com ID iniciado em b42438993a12, mas têm bytes diferentes. Outro TOKEN tem o mesmo nome sob a política com ID iniciado em d3b22f481e20. As três identidades são diferentes; a comparação não representa uma transferência." role="img" viewBox="0 0 720 300">
+<rect x="12" y="14" width="298" height="275" fill="none" class="boundary-protocol"/><text class="cap" x="32" y="44">POLÍTICA b42438993a12…</text>
+<rect x="410" y="14" width="298" height="153" fill="none" class="boundary-protocol"/><text class="cap" x="430" y="44">POLÍTICA d3b22f481e20…</text>
+<path class="obj-native-asset" data-visual-asset="objects/native-asset.svg" d="M28 38 H246 L272 64 V132 H28 Z" transform="translate(32 65) scale(.78 .74) translate(-28 -38)"/>
+<text class="mono" x="122" y="94" text-anchor="middle">544f4b454e</text><text x="122" y="120" text-anchor="middle">TOKEN</text>
+<path class="obj-native-asset" d="M28 38 H246 L272 64 V132 H28 Z" transform="translate(32 201) scale(.78 .74) translate(-28 -38)"/>
+<text class="mono" x="122" y="230" text-anchor="middle">746f6b656e</text><text x="122" y="256" text-anchor="middle">token</text>
+<text class="dim" x="32" y="176">Mesma política, bytes diferentes.</text>
+<path class="obj-native-asset" d="M28 38 H246 L272 64 V132 H28 Z" transform="translate(430 65) scale(.78 .74) translate(-28 -38)"/>
+<text class="mono" x="520" y="94" text-anchor="middle">544f4b454e</text><text x="520" y="120" text-anchor="middle">TOKEN</text>
+<text x="360" y="111" text-anchor="middle" style="font-size:28px">≠</text><text class="dim" x="430" y="194">Mesmo nome, outra política.</text>
+<text class="mono" x="430" y="244">policy ID + asset name</text><text class="dim" x="430" y="270">formam a identidade do ativo.</text>
+</svg></div><figcaption>Os três ativos têm identidades distintas: mudar os bytes do nome ou o policy ID muda a identidade. Os policy IDs estão abreviados; os bytes dos nomes estão completos.</figcaption></figure>
+
+
+
+<h3 id="aula-1-10-s3">3. Asset name como bytes</h3>
+<p>O asset name não é, conceitualmente, uma palavra. Ele é uma sequência de zero a 32 bytes. Muitas vezes esses bytes são escolhidos para formar um texto legível em UTF-8, mas isso é uma escolha de emissão e de integração, não uma garantia universal.</p>
+<p>Por isso, ferramentas frequentemente mostram asset names em hexadecimal. Hexadecimal é uma forma estável de escrever bytes. Cada par de caracteres hex representa um byte. Por exemplo, o texto <code>TOKEN</code>, quando codificado em UTF-8, vira os bytes:</p>
+<pre><code class="language-text">54 4f 4b 45 4e
+</code></pre>
+
+<pre><code class="language-text">544f4b454e
+</code></pre>
+
+<p>Também pode existir asset name vazio. Nesse caso, a identidade ainda precisa ser lida com cuidado: o asset name é a sequência de zero bytes, não um texto ausente por esquecimento.</p>
+
+
+
+<h3 id="aula-1-10-s4">4. Quantidades inteiras, mint, burn e transferência</h3>
+<p>O ledger contabiliza cada ativo nativo em quantidades inteiras. Se uma interface exibe casas decimais, essa escala pertence ao esquema e à apresentação da aplicação; o valor on-chain continua inteiro. Por isso, a unidade mínima precisa ser definida antes de emitir ou integrar o ativo.</p>
+<p>Para um <code>asset_id</code> específico, uma forma compacta de ler a conservação é:</p>
+<pre><code class="language-text">quantidade nos inputs + quantidade em mint = quantidade nos outputs
+</code></pre>
+<p>O campo <code>mint</code> usa quantidades com sinal. Um valor positivo cria unidades; um valor negativo remove unidades que também entram pelos inputs; zero significa que a transação não altera a quantidade total daquele ativo. Mint positivo e negativo exigem que a minting policy correspondente seja executada e satisfeita.</p>
+<div class="table-scroll"><table>
+<thead><tr><th>Operação</th><th>Inputs do ativo</th><th>Mint</th><th>Outputs do ativo</th><th>Leitura</th></tr></thead>
+<tbody>
+<tr><td>Mint</td><td>0</td><td>+100</td><td>100</td><td>A quantidade total aumenta em 100.</td></tr>
+<tr><td>Transferência</td><td>70</td><td>0</td><td>20 + 50</td><td>As mesmas 70 unidades são realocadas entre outputs.</td></tr>
+<tr><td>Burn</td><td>100</td><td>-25</td><td>75</td><td>Vinte e cinco unidades deixam a contabilidade.</td></tr>
+</tbody>
+</table></div>
+<p>Transferir não é cunhar novamente. Quando <code>mint = 0</code> para o ativo, sua minting policy não é executada apenas por causa da transferência; as condições de gasto dos inputs continuam sendo verificadas. Já mint e burn usam o campo <code>mint</code> e precisam satisfazer a política cujo hash forma o <code>policy_id</code>.</p>
+
+<div class="activity"><div class="box-label">Atividade 1: feche a conservação de um ativo</div>
+<p>Considere que cada linha descreve todos os inputs, o campo <code>mint</code> e todos os outputs do mesmo <code>asset_id</code>. Classifique cada linha como mint, transferência, burn ou inválida e justifique com <code>inputs + mint = outputs</code>.</p>
+<ul>
+<li>A: inputs <code>0</code>; mint <code>+60</code>; outputs <code>60</code>.</li>
+<li>B: inputs <code>60</code>; mint <code>0</code>; outputs <code>15 + 45</code>.</li>
+<li>C: inputs <code>60</code>; mint <code>-10</code>; outputs <code>50</code>.</li>
+<li>D: inputs <code>60</code>; mint <code>0</code>; outputs <code>55</code>.</li>
+</ul>
+<details class="answer"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Conferir resposta</summary><div class="answer-body"><p>A é mint: <code>0 + 60 = 60</code>. B é transferência: <code>60 + 0 = 15 + 45</code>, sem mudança na quantidade total. C é burn: <code>60 - 10 = 50</code>. D é inválida neste exemplo, que informa todas as entradas e saídas, pois <code>60 + 0</code> não é igual a <code>55</code>. Em A e C, a minting policy precisa ser executada e satisfeita; em B, ela não é reexecutada apenas pela transferência.</p></div></details></div>
+
+<h3 id="aula-1-10-s5">5. Native scripts: quais chaves, em qual intervalo?</h3>
+<p>Uma <strong>minting policy</strong> pode ser um native script, que combina condições de assinatura e tempo. O mesmo tipo de script também pode funcionar como credencial de gasto de um output. Os pontos de controle são distintos: a policy verifica mint ou burn sob seu policy ID; a credencial de gasto verifica o consumo da eUTxO. Possuir um token não concede automaticamente capacidade de emitir mais unidades.</p>
+<p>O formato nativo oferece <code>sig</code> para exigir uma chave, <code>all</code> e <code>any</code> para combinar condições e <code>atLeast</code> para exigir um limiar. Timelocks usam <code>after</code> e <code>before</code>. A regra compara os limites de validade da transação: <code>after 100</code> exige limite inferior pelo menos 100; <code>before 200</code> exige limite superior no máximo 200. O ledger também verifica se o slot de processamento pertence ao intervalo. Uma assinatura criada antes do prazo não autoriza inclusão depois dele.</p>
+<p>Em PyCardano, <code>ScriptNofK(2, ...)</code> exige duas das condições de assinatura. <code>ScriptAll</code> combina esse limiar com as duas condições temporais. As credenciais abaixo são hashes de três chaves públicas de estudo.</p>
+<pre data-python-runner="true" data-python-packages="pycardano-workshop-0.19.2-pyodide-314.0.7-v1" data-exercise-id="native-policy-cbor" data-exercise-version="1"><code class="language-python">from pycardano import (
+    VerificationKeyHash, ScriptPubkey, ScriptNofK, ScriptAll,
+    InvalidBefore, InvalidHereAfter,
+)
+
+chaves = [
+    VerificationKeyHash(bytes.fromhex("70e402284201ec81d7aa495d17e52209c8bb47489395b16bcd7a2a67")),
+    VerificationKeyHash(bytes.fromhex("b44173e4bc81916bb53443b01ce8d8d635b618ca7fa197265a0cb2a2")),
+    VerificationKeyHash(bytes.fromhex("d5c6555b5a7c12cc53893955e9b779c9320afb2411994a5c70cee206")),
+]
+assinaturas = ScriptNofK(2, [ScriptPubkey(chave) for chave in chaves])
+politica = ScriptAll([InvalidBefore(100), InvalidHereAfter(200), assinaturas])
+print("CBOR:", politica.to_cbor_hex())
+print("policy ID:", politica.hash().payload.hex())
+</code></pre>
+<p>Execute e depois troque o limite 200 por 201. A política mudou, portanto seu CBOR e seu policy ID também mudam. Restaure 200. Para satisfazer a política original, uma transação pode usar o intervalo <code>[120, 180)</code> e assinaturas válidas de duas dessas chaves. Serializar o script não executa a validação do ledger.</p>
+<p>O native script não lê datum, redeemer ou metadata e não inspeciona asset name ou quantidade cunhada. Assim, “duas assinaturas antes do prazo” não impõe, por si só, supply máxima de 100 ou emissão única.</p>
+<div class="activity" data-progress-id="native-multisig-window-activity"><div class="box-label">Atividade 2: não conte a mesma chave duas vezes</div>
+<p>A função deve construir a mesma política de duas entre três chaves distintas, dentro da janela recebida. Mas uma credencial aparece duas vezes. Corrija a referência repetida, sem mudar o limiar nem os limites, e use <strong>Validar solução</strong>.</p>
+<pre data-python-runner="true" data-python-packages="pycardano-workshop-0.19.2-pyodide-314.0.7-v1" data-exercise-id="native-multisig-window" data-exercise-version="2" data-validator="native-multisig-window-tests"><code class="language-python">from pycardano import (
+    VerificationKeyHash, ScriptPubkey, ScriptNofK, ScriptAll,
+    InvalidBefore, InvalidHereAfter,
+)
+
+def criar_politica(chaves, inicio, fim):
+    assinaturas = ScriptNofK(2, [
+        ScriptPubkey(chaves[0]), ScriptPubkey(chaves[0]), ScriptPubkey(chaves[2])
+    ])
+    return ScriptAll([InvalidBefore(inicio), InvalidHereAfter(fim), assinaturas])
+
+chaves = [
+    VerificationKeyHash(bytes.fromhex("70e402284201ec81d7aa495d17e52209c8bb47489395b16bcd7a2a67")),
+    VerificationKeyHash(bytes.fromhex("b44173e4bc81916bb53443b01ce8d8d635b618ca7fa197265a0cb2a2")),
+    VerificationKeyHash(bytes.fromhex("d5c6555b5a7c12cc53893955e9b779c9320afb2411994a5c70cee206")),
+]
+politica = criar_politica(chaves, 100, 200)
+print("CBOR:", politica.to_cbor_hex())
+print("policy ID:", politica.hash().payload.hex())
+</code></pre>
+<details class="answer"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Conferir resposta</summary><div class="answer-body"><p>Troque a segunda ocorrência de <code>chaves[0]</code> por <code>chaves[1]</code>. Com A, A e C, a mesma assinatura de A pode satisfazer as duas condições repetidas. Com A, B e C, o limiar exige duas credenciais distintas. PyCardano serializa ambas as versões: produzir CBOR não garante que você escreveu a política pretendida. Os testes conferem a estrutura construída, sem simular a aceitação de uma transação pelo ledger.</p></div></details>
+</div>
+<script type="application/json" id="native-multisig-window-tests">
+{
+  "version": 1,
+  "tests": [
+    {
+      "name": "Política CBOR com três credenciais e limiar dois",
+      "code": "from pycardano import NativeScript\nfor credenciais, inicio, fim in ((chaves, 100, 200), (chaves[::-1], 120, 240)):\n    obtida = criar_politica(credenciais, inicio, fim)\n    esperada = ScriptAll([InvalidBefore(inicio), InvalidHereAfter(fim), ScriptNofK(2, [ScriptPubkey(c) for c in credenciais])])\n    assert isinstance(obtida, ScriptAll), 'Construa um native script, não uma resposta booleana.'\n    assert NativeScript.from_cbor(obtida.to_cbor()).to_cbor() == esperada.to_cbor(), 'Preserve as três credenciais, o limiar e a janela recebida.'"
+    },
+    {
+      "name": "Uma credencial não ocupa duas condições",
+      "code": "politica = criar_politica(chaves, 100, 200)\nlimiar = politica.native_scripts[2]\nassert isinstance(limiar, ScriptNofK) and limiar.n == 2, 'Mantenha duas de três condições.'\nids = [s.key_hash.payload for s in limiar.native_scripts]\nassert len(ids) == 3 and len(set(ids)) == 3, 'Use três credenciais distintas, não A, A e C.'\nassert ids == [c.payload for c in chaves], 'Use as credenciais recebidas na função.'"
+    },
+    {
+      "name": "Policy ID compromete a política nativa",
+      "code": "import hashlib\np = criar_politica(chaves, 100, 200)\nassert p.hash().payload == hashlib.blake2b(b'\\x00' + p.to_cbor(), digest_size=28).digest()\nassert p.hash() != criar_politica(chaves, 100, 201).hash(), 'Alterar o prazo altera a política e seu ID.'"
+    }
+  ]
+}
+</script>
+
+<p>Mesmo uma combinação válida de duas chaves não comprova duas pessoas independentes nem uma deliberação válida. O processo externo precisa relacionar chaves a responsáveis e papéis. Além disso, se a policy deixar de aceitar mint após um prazo, o mesmo bloqueio temporal pode impedir burn; retirada de circulação precisa ser planejada antes da emissão.</p>
+
+<h3 id="aula-1-10-s6">6. Uma contabilidade curta de EAC</h3>
+<p>Um certificado de atributo ambiental (EAC) tem unidade e critérios definidos por uma metodologia externa. Neste exemplo, uma decisão externa autoriza 8.400 unidades inteiras do ativo de nome UTF-8 <code>EAC-DEMO-VINTAGE-A</code>. Sob o mesmo policy ID e sem outras emissões, mint de <code>+8400</code> seguido de retiradas por burn de <code>-1250</code> e <code>-700</code> deixa 6.450 unidades.</p>
+<pre data-python-runner="true" data-exercise-id="eac-supply-arithmetic"><code class="language-python">supply = 0
+for mint in (8400, -1250, -700):
+    supply += mint
+    print("mint:", mint, "supply:", supply)
+</code></pre>
+<p>A saída é 8400, 7150 e 6450. Para executar cada burn, a transação precisa trazer pelos inputs as unidades removidas e satisfazer a policy. Uma transferência não altera supply. A soma de três operações só demonstra a supply global se o histórico de mint e burn estiver completo. O ledger não mede o benefício ambiental nem impede dupla contagem em outro sistema. Esse exemplo usa burn como retirada; o significado institucional dessa operação é definido fora do protocolo.</p>
+
+<h3 id="aula-1-10-s7">7. CIP-25 para descrição de media tokens</h3>
+<p>CIP-25 é uma convenção de metadata para <em>media tokens</em> sob o label 721, associando policy ID e asset name a campos como <code>name</code> e <code>image</code>. Ela não é padrão universal para todo native asset e não é necessária para a aritmética do EAC. Nome e imagem exibidos por uma wallet não substituem a identidade técnica.</p>
+<p>Essa metadata permanece na transação de mint positivo. Transferir o ativo não a move nem a edita. Pelo padrão, uma publicação posterior considerada atualização também depende de mint positivo sob a policy correspondente; burn não satisfaz essa regra. Uma policy já encerrada pode impedir tal atualização. Quando a aplicação precisa de um estado de referência substituível, CIP-68 oferece outro desenho, estudado depois de Plutus.</p>
+<div class="closing"><h3>O que aprendemos</h3>
+<ul>
+<li>Um native asset aparece no valor contabilizado pelo ledger. Metadata descritiva, sozinha, não cria esse ativo.</li>
+<li>A identidade técnica combina policy ID e asset name. Um nome ou rótulo visível não basta para identificar o ativo.</li>
+<li>Asset names são bytes; texto e hexadecimal são formas de representá-los.</li>
+<li>Mint e burn alteram supply sob a policy; transferência apenas redistribui unidades. A aritmética de EAC não comprova o benefício externo.</li>
+<li>Native scripts combinam chaves e tempo, em papéis de minting ou gasto. CIP-25 descreve media tokens, sem impor regras sobre o conteúdo.</li>
+</ul>
+
+
+
+</div>
+
+<div class="bridge"><h3>Próxima aula</h3><p>Como localizar uma transação real e conferir os dados que foram publicados? Na próxima aula, abriremos o mesmo registro em explorers diferentes e compararemos o que eles mostram.</p></div>

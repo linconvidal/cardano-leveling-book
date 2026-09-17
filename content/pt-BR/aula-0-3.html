@@ -1,0 +1,163 @@
+---
+title: Chave privada e chave pública
+short_title: Chave privada e chave pública
+map_title: Chaves
+summary: Separar as capacidades de assinar e verificar e reconhecer os cuidados com o segredo.
+---
+
+<div class="objectives"><div class="box-label">Objetivos</div>
+<ol class="objective-list">
+<li>Distinguir as funções da chave privada e da chave pública em uma assinatura.</li>
+<li>Gerar bytes aleatórios para estudo e explicar por que uma frase previsível não os substitui.</li>
+<li>Reconhecer a exposição de um segredo, mesmo quando ele aparece em outra representação.</li>
+</ol></div>
+<div class="prereq"><div class="box-label">Antes de começar</div>
+<p>Para acompanhar esta aula, você precisa reconhecer bytes e sua representação hexadecimal e saber que qualquer pessoa com os mesmos bytes pode repetir o cálculo de um hash.</p>
+<div class="guide-q"><span class="guide-q-label">Pergunta-guia</span><p>Como permitir a verificação sem compartilhar a capacidade de assinar?</p></div>
+</div>
+
+<h3 id="aula-0-3-s1">1. Verificar sem receber o segredo</h3>
+<p>Ao receber uma mensagem, um programa pode precisar conferir um vínculo com uma chave conhecida. Um hash calculado apenas sobre a mensagem não cria esse vínculo: qualquer pessoa que tenha os bytes pode repetir o cálculo.</p>
+<p>Uma <strong>assinatura digital</strong> depende também de um segredo. O desafio é permitir que outras pessoas a confiram sem lhes entregar esse segredo e, com ele, a capacidade de produzir assinaturas.</p>
+<p>Um <strong>par de chaves</strong> separa essas funções. A <strong>chave privada</strong> permite assinar e precisa ficar protegida. A <strong>chave pública</strong>, matematicamente relacionada à privada, permite verificar e pode ser compartilhada. Em um esquema seguro, conhecer a pública não torna viável recuperar a privada nem forjar assinaturas.</p>
+
+<style id="aula-0-3-key-figures-styles">
+/* Key symbol and custody boundary adapted from the workshop scene
+   assets/svg/scenes/who-holds-the-key.svg; calculation circle from
+   assets/svg/scenes/credential-hash.svg. No wallet or network semantics. */
+#aula-0-3 .key-fig { margin:28px 0 34px; width:100%; max-width:100%; break-inside:avoid; font-family:var(--font-sans); }
+#aula-0-3 .kf-derivation { display:grid; grid-template-columns:minmax(0,1fr) 140px minmax(0,1fr); align-items:center; gap:12px; }
+#aula-0-3 .kf-holder { min-width:0; padding:18px 10px; text-align:center; }
+#aula-0-3 .kf-private { border:1.5px dashed var(--sp-warning); border-radius:6px; }
+#aula-0-3 .kf-key { display:block; width:56px; height:64px; margin:0 auto 10px; fill:none; stroke:var(--sp-warning); stroke-width:3; stroke-linecap:round; stroke-linejoin:round; }
+#aula-0-3 .kf-public .kf-key { stroke:var(--sp-info); }
+#aula-0-3 .kf-label { display:block; color:var(--ink); font:600 16px/1.4 var(--font-sans); }
+#aula-0-3 .kf-note { display:block; margin-top:6px; color:var(--ink-dim); font:14px/1.5 var(--font-sans); }
+#aula-0-3 .kf-route { display:flex; align-items:center; justify-content:center; gap:4px; }
+#aula-0-3 .kf-operation { display:flex; align-items:center; justify-content:center; flex-shrink:0; width:76px; height:76px; border:2.5px solid var(--sp-info); border-radius:50%; color:var(--ink); font:600 14px var(--font-sans); }
+#aula-0-3 .kf-arrow { display:block; width:28px; height:20px; flex-shrink:0; color:var(--sp-info); }
+#aula-0-3 .kf-copy { display:grid; grid-template-columns:minmax(0,1fr) 88px minmax(0,1fr); align-items:start; gap:8px; }
+#aula-0-3 .kf-copy-route { padding-top:40px; text-align:center; }
+#aula-0-3 .kf-copy-route .kf-arrow { width:56px; margin:8px auto; }
+#aula-0-3 .kf-copy .kf-label { margin-bottom:14px; }
+#aula-0-3 .kf-copy .kf-note { color:var(--ink); }
+@media (max-width:600px) {
+  #aula-0-3 .kf-derivation { grid-template-columns:1fr; gap:4px; justify-items:center; }
+  #aula-0-3 .kf-derivation .kf-holder { width:100%; max-width:240px; box-sizing:border-box; }
+  #aula-0-3 .kf-route { flex-direction:column; gap:8px; padding:8px 0; }
+  #aula-0-3 .kf-route .kf-arrow { transform:rotate(90deg); }
+  #aula-0-3 .kf-copy { grid-template-columns:minmax(0,1fr) 56px minmax(0,1fr); gap:0; }
+  #aula-0-3 .kf-copy .kf-holder { padding:12px 2px; }
+  #aula-0-3 .kf-copy .kf-label { font-size:14px; }
+  #aula-0-3 .kf-copy .kf-note { font-size:13px; }
+  #aula-0-3 .kf-copy-route { padding-top:33px; }
+  #aula-0-3 .kf-copy-route .kf-arrow { width:40px; }
+}
+@media print {
+  #aula-0-3 .kf-derivation { grid-template-columns:minmax(0,1fr) 140px minmax(0,1fr); }
+  #aula-0-3 .kf-route { flex-direction:row; padding:0; gap:4px; }
+  #aula-0-3 .kf-route .kf-arrow { transform:none; }
+}
+</style>
+<figure class="fig key-fig" id="fig-aula-0-3-par" aria-labelledby="caption-aula-0-3-par">
+<div class="kf-derivation">
+<div class="kf-holder kf-private">
+<svg class="kf-key" viewBox="0 0 56 64" aria-hidden="true"><circle cx="28" cy="17" r="13"/><path d="M28 30V59H38 M28 49H36"/></svg>
+<span class="kf-label">Chave privada</span><span class="kf-note">Permite assinar.<br>Fica sob custódia.</span>
+</div>
+<div class="kf-route">
+<svg class="kf-arrow" viewBox="0 0 28 20" aria-hidden="true"><path d="M1 10H25 M19 4L25 10L19 16" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+<span class="kf-operation">derivar</span>
+<svg class="kf-arrow" viewBox="0 0 28 20" aria-hidden="true"><path d="M1 10H25 M19 4L25 10L19 16" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+</div>
+<div class="kf-holder kf-public">
+<svg class="kf-key" viewBox="0 0 56 64" aria-hidden="true"><circle cx="28" cy="17" r="13"/><path d="M28 30V59H38 M28 49H36"/></svg>
+<span class="kf-label">Chave pública</span><span class="kf-note">Permite verificar.<br>Pode ser compartilhada.</span>
+</div>
+</div>
+<figcaption id="caption-aula-0-3-par">O procedimento do esquema obtém a parte pública a partir do material privado. Com parâmetros seguros, o caminho inverso deve ser computacionalmente impraticável.</figcaption>
+</figure>
+
+<h3 id="aula-0-3-s2">2. Gerar um segredo imprevisível</h3>
+<p>Nome, data ou frase comum oferecem possibilidades que um atacante pode testar. Calcular o hash desses dados não remove a previsibilidade: basta repetir a transformação em cada tentativa. O comprimento do resultado, por si só, não indica a dificuldade de adivinhar sua origem.</p>
+<p>A geração de chaves usa uma fonte de aleatoriedade apropriada para segurança. A incerteza sobre o valor gerado é descrita pela <strong>entropia</strong>. Em Python, o módulo <code>secrets</code> permite obter bytes dessa fonte.</p>
+<p>Execute o exemplo para gerar 32 bytes e vê-los em hexadecimal. O valor é exposto na saída e pode ficar salvo no navegador: use-o apenas para estudo, nunca como segredo de um sistema real.</p>
+<pre data-python-runner="true" data-exercise-id="random-secret-bytes"><code class="language-python">import secrets
+
+segredo = secrets.token_bytes(32)
+
+print(segredo.hex())
+print(len(segredo), "bytes")
+</code></pre>
+<p>A chamada <code>token_bytes(32)</code> retorna um objeto <code>bytes</code>. <code>len(segredo)</code> informa seu tamanho, enquanto <code>hex()</code> escreve cada byte com dois caracteres. Execute novamente: você verá uma nova amostra, também com 32 bytes. A aparência dos resultados não comprova a qualidade da fonte; a escolha de <code>secrets</code> é o que importa aqui.</p>
+<p>Esses bytes são material para estudar a geração de segredos, não uma chave pronta para qualquer algoritmo. Para gerar um par de chaves real, uma biblioteca criptográfica aplica os procedimentos e formatos do esquema escolhido.</p>
+
+<h3 id="aula-0-3-s3">3. A parte pública não é outra escrita do segredo</h3>
+<p>Obter a chave pública a partir do material privado é uma <strong>derivação</strong> definida pelo esquema. Não basta escolher dois números aleatórios e chamar um de privado e o outro de público: eles precisam ter a relação matemática que permite assinar e verificar.</p>
+<p>Essa derivação também não é uma conversão para hexadecimal ou base64. Essas representações preservam o valor e podem ser desfeitas. Se alguém receber a chave privada em hexadecimal, terá recebido a própria chave privada, não uma chave pública.</p>
+<p>A chave pública pode circular sem oferecer a capacidade de assinar, mas seu valor não informa sozinho a quem ela pertence. Para verificar uma assinatura de uma pessoa ou equipamento específico, é preciso confirmar essa associação, por exemplo em um cadastro confiável ou por outro canal já conhecido.</p>
+
+<h3 id="aula-0-3-s4">4. Proteger todas as cópias</h3>
+<p>Considere uma aplicação que assina mensagens e registra seu funcionamento em um <strong>log</strong>. Esse registro pode ser encaminhado a uma equipe de suporte. Se contiver a chave privada, levará junto uma cópia do segredo, mesmo que o arquivo original da chave tenha acesso restrito.</p>
+<p>O mesmo cuidado vale para configurações, cópias de segurança e conversas. Proteger o armazenamento e controlar quem acessa o material privado fazem parte da <strong>custódia</strong> da chave. O necessário para investigar uma falha de verificação são a mensagem, a assinatura e a chave pública usada, não a chave privada.</p>
+
+<h3 id="aula-0-3-s5">5. O efeito de uma cópia indevida</h3>
+<p>Suponha que outra pessoa tenha copiado a chave privada de um log. Ela passa a poder produzir assinaturas que serão verificadas com a mesma chave pública do emissor. O cálculo não distingue duas pessoas que usam o mesmo segredo.</p>
+<figure class="fig key-fig" id="fig-aula-0-3-copia" aria-labelledby="caption-aula-0-3-copia">
+<div class="kf-copy">
+<div class="kf-holder">
+<span class="kf-label">Emissor</span>
+<svg class="kf-key" viewBox="0 0 56 64" aria-hidden="true"><circle cx="28" cy="17" r="13"/><path d="M28 30V59H38 M28 49H36"/></svg>
+<span class="kf-note">Mantém a chave.<br>Pode assinar.</span>
+</div>
+<div class="kf-copy-route"><span class="kf-note">cópia</span><svg class="kf-arrow" viewBox="0 0 56 20" aria-hidden="true"><path d="M1 10H53 M47 4L53 10L47 16" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
+<div class="kf-holder">
+<span class="kf-label">Quem copiou</span>
+<svg class="kf-key" viewBox="0 0 56 64" aria-hidden="true"><circle cx="28" cy="17" r="13"/><path d="M28 30V59H38 M28 49H36"/></svg>
+<span class="kf-note">Tem o mesmo segredo.<br>Também pode assinar.</span>
+</div>
+</div>
+<figcaption id="caption-aula-0-3-copia">Copiar o segredo não o retira do emissor. Os dois passam a ter a capacidade de produzir assinaturas verificáveis com a mesma chave pública.</figcaption>
+</figure>
+<p>Apagar o log não desfaz cópias já obtidas. É preciso interromper o uso do par comprometido, gerar um substituto e atualizar as referências dos verificadores por um procedimento confiável. As assinaturas do período de exposição também precisam ser investigadas; o resultado da verificação, sozinho, não revela quem as produziu.</p>
+
+<div class="activity"><div class="box-label">Atividade 1: avalie a exposição</div>
+<p>Uma chave privada apareceu em hexadecimal num log compartilhado com a equipe de suporte. A equipe apagou o log e continuou usando o mesmo par de chaves.</p>
+<form class="activity-quiz" id="quiz-aula-0-3-a1" data-answer="answer-aula-0-3-a1">
+<fieldset class="quiz-question"><legend>Qual avaliação dessa decisão é correta?</legend><div class="quiz-options">
+<label class="quiz-option"><input name="aula-0-3-a1" type="radio" value="a"/><span class="quiz-option-text">A exclusão encerrou a exposição, pois a chave deixou de estar disponível naquele arquivo.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="aula-0-3-a1" type="radio" value="b" data-correct="true"/><span class="quiz-option-text">Quem copiou o valor ainda pode usá-lo para assinar, mesmo depois da exclusão do log.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="aula-0-3-a1" type="radio" value="c"/><span class="quiz-option-text">Só seria necessário trocar o par se as assinaturas produzidas com ele passassem a falhar.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="aula-0-3-a1" type="radio" value="d"/><span class="quiz-option-text">Converter a chave para base64 antes de continuar usando o par evitaria assinaturas indevidas.</span><span class="quiz-verdict"></span></label>
+</div><p class="quiz-question-feedback" aria-live="polite"></p></fieldset>
+<div class="quiz-actions"><button class="quiz-check" disabled="" type="submit">Conferir respostas</button><p class="quiz-status" aria-live="polite" tabindex="-1">0 de 1 pergunta respondida.</p></div>
+</form>
+<details class="answer" id="answer-aula-0-3-a1"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Conferir resposta</summary><div class="answer-body">
+<p>A alternativa B é a correta. Hexadecimal e base64 preservam o segredo em representações reversíveis. Apagar um arquivo não elimina cópias já obtidas, e assinaturas produzidas por quem copiou a chave podem continuar válidas. A exposição exige tratar a custódia e substituir o par, sem esperar uma falha de verificação.</p>
+</div></details>
+</div>
+
+<div class="activity" id="code-question-aula-0-3-c1" data-progress-id="secret-length-log-activity"><div class="box-label">Atividade 2: retire o segredo da saída</div>
+<p>O programa abaixo deveria registrar apenas o tamanho do material gerado, mas está expondo seu valor. Execute para observar a saída. Depois, altere a linha de <code>registro</code> para mostrar a quantidade de bytes, sem reduzir nem exibir o segredo. Use <strong>Validar solução</strong> para conferir.</p>
+<pre data-python-runner="true" data-exercise-id="secret-length-log" data-exercise-version="1" data-validator="secret-length-log-tests"><code class="language-python">import secrets
+
+segredo = secrets.token_bytes(32)
+registro = segredo.hex()
+
+print(registro, "bytes")
+</code></pre>
+<script type="application/json" id="secret-length-log-tests">
+{"version":1,"tests":[{"name":"Material preservado","code":"assert isinstance(segredo, bytes) and len(segredo) == 32, 'Preserve os 32 bytes do segredo; altere apenas o dado que será exibido.'"},{"name":"Registro sem o valor do segredo","code":"assert type(registro) is int and registro == len(segredo), 'O registro deve conter a quantidade de bytes, não o segredo em outra representação.'"}]}
+</script>
+<details class="answer" id="answer-aula-0-3-a2"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Conferir resposta</summary><div class="answer-body">
+<p>O tamanho é uma informação sobre o segredo, não uma escrita de seu valor. A função que conta os bytes permite obter essa quantidade sem converter nem expor o conteúdo. A saída deve mostrar <code>32 bytes</code>. Converter para base64 ou omitir apenas alguns caracteres não atende ao pedido de registrar somente o tamanho.</p>
+</div></details>
+</div>
+
+<div class="closing"><h3>O que aprendemos</h3><ul>
+<li>A chave privada permite assinar; a pública permite verificar. A relação entre elas é definida pelo esquema criptográfico.</li>
+<li>Segredos precisam de geração imprevisível. Um hash não acrescenta a entropia que falta a uma frase comum.</li>
+<li>Hexadecimal e base64 não protegem uma chave privada. Logs, configurações e backups podem expor cópias dela.</li>
+<li>A verificação não identifica quem usou uma cópia do segredo. A associação da chave pública ao emissor e a custódia precisam de cuidados próprios.</li>
+</ul></div>
+<div class="bridge"><h3>Próxima aula</h3><p>Você já distinguiu as capacidades de assinar e verificar. Na próxima aula, vamos acompanhar as duas operações sobre uma mensagem: produzir uma assinatura com a parte privada e conferi-la com a parte pública. Também veremos o efeito de alterar os bytes recebidos.</p></div>

@@ -1,0 +1,20 @@
+<nav aria-label="{{ i18n.contentsLabel }}" class="toc" id="toc">
+<a class="nav-top" href="#capa">{{ i18n.cover }}</a>
+<a class="nav-top" href="#sumario">{{ i18n.contents }}</a>
+{% for module in book.modules %}
+<div class="nav-mod"><a class="nav-mod-link mod-{{ module.id }}" href="#modulo-{{ module.id }}">{{ i18n.moduleLabel }} {{ module.id }}<span class="nav-mod-name">{{ module.title }}</span></a><div class="nav-mod-bar"><span id="modbar-{{ module.id }}"></span></div></div>
+{% for lesson in module.lessons %}
+<a class="nav-lesson" href="#{{ lesson.id }}"><span class="nav-num">{{ lesson.number }}</span>{{ lesson.short_title }}</a>
+{% endfor %}
+<a class="nav-lesson nav-reference" href="#referencias-modulo-{{ module.id }}">{{ i18n.moduleReferences }}</a>
+{% endfor %}
+<div class="toc-language">
+<div class="language-selector">
+<select id="book-language" name="language" aria-label="{{ i18n.languageSelector }}" autocomplete="off">
+{% for language in languages %}
+<option value="{{ language.language }}" lang="{{ language.language }}" aria-label="{{ language.name }}"{% if language.selected %} selected{% endif %}{% if language.output %} data-output="{{ language.output }}" data-anchors="{{ language.anchors | join(' ') }}"{% else %} disabled{% endif %}>{{ language.label }}{% if not language.output %} · {{ i18n.languageUnavailable }}{% endif %}</option>
+{% endfor %}
+</select>
+</div>
+</div>
+</nav>

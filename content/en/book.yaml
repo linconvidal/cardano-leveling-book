@@ -1,0 +1,13 @@
+language: en
+title: Cardano Technical Foundations
+output: index-en.html
+modules:
+- id: '0'
+  title: Bytes, hashes, keys, and signatures
+  summary: We will start with a file to understand which bytes a program receives and what changes when those bytes are rewritten. From there, we will calculate hashes and use keys to sign messages, distinguishing what each check establishes from what still requires other evidence.
+- id: '1'
+  title: The Cardano network and how it works
+  summary: We will follow an operation from the application that prepares it to the network that checks and records it. We will see how addresses and outputs identify value and authorization, how to build and inspect transactions, and how assets and scripts represent state changes without handing every responsibility to the blockchain.
+- id: '2'
+  title: Events, proofs, scaling, and privacy
+  summary: A system can keep its records off-chain and publish references that allow them to be checked later. We will build that path, from an event history to a proof for one item, and assess its cost, delay, and data exposure. We will also consider when interaction between participants warrants a Hydra Head.

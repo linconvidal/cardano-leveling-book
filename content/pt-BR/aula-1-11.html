@@ -1,0 +1,51 @@
+---
+title: 'Explorers: consultar uma transação'
+short_title: Explorers
+map_title: Explorers
+summary: Abrir uma transação real e localizar seu identificador, bloco, taxa e tamanho.
+---
+
+<div class="objectives"><div class="box-label">Objetivos</div><ol class="objective-list">
+<li>Encontrar uma transação pelo seu identificador.</li>
+<li>Localizar bloco, taxa e tamanho em um explorer.</li>
+<li>Conferir a mesma transação em dois sites.</li>
+</ol></div>
+<div class="prereq"><div class="box-label">Antes de começar</div><p>Um explorer é um site para consultar transações, endereços e blocos. Não é necessário conectar uma carteira para fazer uma consulta.</p><div class="guide-q"><span class="guide-q-label">Pergunta-guia</span><p>Onde posso conferir uma transação e quanto ela pagou de taxa?</p></div></div>
+
+<h3 id="aula-1-11-s1">1. Explorers que você pode usar</h3>
+<ul>
+<li><a href="https://cardanoscan.io/" target="_blank" rel="noopener noreferrer">Cardanoscan</a></li>
+<li><a href="https://adastat.net/" target="_blank" rel="noopener noreferrer">AdaStat</a></li>
+<li><a href="https://cexplorer.io/" target="_blank" rel="noopener noreferrer">Cexplorer</a></li>
+<li><a href="https://explorer.cardano.org/" target="_blank" rel="noopener noreferrer">explorer.cardano.org</a>, que redireciona para um explorer.</li>
+</ul>
+<p>As redes têm históricos separados. Uma transação de Preprod deve ser consultada na versão Preprod do explorer. Os links do exemplo abaixo já apontam para essa rede.</p>
+
+<h3 id="aula-1-11-s2">2. Abra esta transação de Preprod</h3>
+<p>Este é o identificador de uma transação real:</p>
+<p><code style="overflow-wrap:anywhere; white-space:normal">d9b7a0b3c9bdb62e5a76d9ab675342be002c335a05e1be5d7bc04872bf99865f</code></p>
+<p>Abra a mesma transação no <a href="https://preprod.cardanoscan.io/transaction/d9b7a0b3c9bdb62e5a76d9ab675342be002c335a05e1be5d7bc04872bf99865f" target="_blank" rel="noopener noreferrer">Cardanoscan</a>, no <a href="https://preprod.adastat.net/transactions/d9b7a0b3c9bdb62e5a76d9ab675342be002c335a05e1be5d7bc04872bf99865f" target="_blank" rel="noopener noreferrer">AdaStat</a> ou no <a href="https://preprod.cexplorer.io/tx/d9b7a0b3c9bdb62e5a76d9ab675342be002c335a05e1be5d7bc04872bf99865f" target="_blank" rel="noopener noreferrer">Cexplorer</a>.</p>
+<p>O identificador pode aparecer como <em>Transaction ID</em>, <em>Transaction Hash</em> ou <em>Tx Hash</em>. É ele que você copia para procurar a transação em outro site.</p>
+
+<h3 id="aula-1-11-s3">3. Localize os campos</h3>
+<ul>
+<li><strong>Bloco:</strong> indica onde a transação foi incluída. Neste exemplo, é o bloco 5114018.</li>
+<li><strong>Taxa:</strong> é o valor pago pelo processamento da transação. Neste exemplo, 600628 lovelace, equivalentes a 0,600628 ADA. Não confunda taxa com valor enviado.</li>
+<li><strong>Tamanho:</strong> é o tamanho serializado da transação. Neste exemplo, 1473 bytes.</li>
+</ul>
+<p>Esses valores foram consultados na <a href="https://preprod.koios.rest/api/v1/tx_info?_tx_hashes=%7Bd9b7a0b3c9bdb62e5a76d9ab675342be002c335a05e1be5d7bc04872bf99865f%7D" target="_blank" rel="noopener noreferrer">API Koios de Preprod</a> em 17/09/2026. Os explorers podem usar nomes e formatos diferentes para mostrar os mesmos dados.</p>
+<p>As listas de <em>inputs</em> e <em>outputs</em> mostram as entradas consumidas e as saídas criadas. Clique em um endereço de saída para abrir sua página no explorer e ver outras transações relacionadas a ele.</p>
+
+<h3 id="aula-1-11-s4">4. Confira em outro explorer</h3>
+<div class="activity" data-progress-id="explorer-compare-fee-activity"><div class="box-label">Atividade: encontre a taxa em dois explorers</div>
+<p>Abra os links de Cardanoscan e AdaStat acima. Localize o identificador e a taxa nos dois sites. Confirme que está olhando a mesma transação.</p>
+<p>Se um site mostrar ADA e o outro lovelace, use <code>1 ADA = 1000000 lovelace</code> para comparar.</p>
+<details class="answer"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Conferir resposta</summary><div class="answer-body"><p>A taxa é 600628 lovelace, ou 0,600628 ADA. O identificador deve ser o mesmo nas duas páginas. A comparação é entre os dados da transação, não entre a aparência das telas.</p></div></details>
+</div>
+
+<div class="closing"><h3>O que aprendemos</h3><ul>
+<li>Cardanoscan, AdaStat e Cexplorer permitem consultar transações; explorer.cardano.org oferece um redirecionamento.</li>
+<li>O identificador permite encontrar a mesma transação em outro explorer, na mesma rede.</li>
+<li>Bloco, taxa e tamanho são campos distintos. ADA e lovelace são unidades diferentes do mesmo valor.</li>
+</ul></div>
+<div class="bridge"><h3>Próxima aula</h3><p>Agora veremos como scripts Plutus expressam condições que uma transação precisa satisfazer.</p></div>

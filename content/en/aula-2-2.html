@@ -1,0 +1,175 @@
+---
+title: Merkle trees and inclusion proofs
+map_title: Merkle
+summary: Build a root and verify an item using sibling hashes in the correct order.
+---
+
+<div class="objectives"><div class="box-label">Objectives</div><ol class="objective-list">
+<li>Turn bytes into leaves and combine hashes up to a root.</li>
+<li>Build a minimal proof for one item among four.</li>
+<li>Fix a verifier that confuses left/right order.</li>
+</ol></div>
+<div class="prereq"><div class="box-label">Before you begin</div><p>You need to be able to calculate hashes of bytes and understand why the expected reference must come from outside the presented material. Review Lesson 2.1 for that second distinction.</p><div class="guide-q"><span class="guide-q-label">Guiding question</span><p>How can we check event B without also receiving files A, C and D?</p></div></div>
+
+<h3 id="aula-2-2-s1">1. Four files, one commitment</h3>
+<p>A service closes a batch containing four event files, called A, B, C and D. B's recipient wants to verify that they received the bytes included in that batch. Delivering all the files would work, but would increase traffic and provide access to content they did not request.</p>
+<p>A <strong>Merkle tree</strong> combines hashes in levels. Each file produces a leaf. Two adjacent hashes produce a parent hash, and the process continues until only the <strong>root</strong> remains, also called the <span lang="en">root hash</span>. A SHA-256 root has 32 bytes, even when it represents many files. This does not compress the files in a recoverable way: the root cannot reconstruct them.</p>
+<p>The order of the batch is part of the design. A occupies index 0; B, index 1; C, index 2; D, index 3. The service preserves this order and the calculation recipe alongside the files.</p>
+
+<h3 id="aula-2-2-s2">2. The recipe comes before the tree</h3>
+<p>The example uses four leaves. The files are exact texts encoded in UTF-8, with no trailing newline. <code>H</code> means SHA-256; <code>||</code> means concatenating bytes, not their hexadecimal representations.</p>
+<ul>
+<li>Leaf: <code>H(0x00 || data)</code>.</li>
+<li>Internal node: <code>H(0x01 || left_hash || right_hash)</code>.</li>
+</ul>
+<p>The prefixes <code>0x00</code> and <code>0x01</code> distinguish a leaf from an internal node. The leaf depends on the file's bytes. Its position is given by the path through the tree. Each internal node combines two 32-byte binary digests, preserving left/right order.</p>
+<p>Sorting the digests by value or concatenating their hexadecimal text would change the recipe. Whoever builds and whoever verifies the tree must use the same rules.</p>
+<!-- Workshop visual language f4536110de13ab69c1b42311b823f84afdc2b6f7.
+     Recomposition of scenes/merkle-proof-path.svg and merkle-recompute-root.svg:
+     blue target, orange supplied siblings, mint computed nodes, charcoal public reference.
+     Folded files reuse objects/document.svg. Leaves hash 0x00 followed by file bytes;
+     sibling E/D ordering determines the path in the lesson and code. -->
+<figure class="fig deck-figure m2-workshop merkle-tree" aria-labelledby="caption-merkle-path" data-visual-source="cardano-workshop-visual-language/assets/svg/scenes/merkle-proof-path.svg" data-visual-revision="f4536110de13ab69c1b42311b823f84afdc2b6f7">
+<p class="m2-stage" id="merkle-proof-heading">Start from B and reconstruct the root</p>
+<p class="m2-scroll-hint">Scroll across the diagram to follow both branches.</p>
+<div class="m2-scroll" tabindex="0" role="region" aria-labelledby="merkle-proof-heading">
+<svg class="m2-scene" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 530" role="img" aria-labelledby="merkle-proof-title merkle-proof-desc">
+<title id="merkle-proof-title">B and two sibling hashes are enough to recalculate the root.</title>
+<desc id="merkle-proof-desc">The tree has four leaves, ordered A, B, C, D. The verifier receives file B, its index 1, LA on the left and N(C,D) on the right. It calculates LB from B's bytes, then N(A,B) as node(LA,LB), then the root as node(N(A,B),N(C,D)). It compares this calculated root with the expected root obtained from the checked publication. A, C, D, LC and LD appear only to show the tree's structure and do not need to be received.</desc>
+<g aria-hidden="true">
+<path class="m2-wire" d="M166 178 L267 103 M558 178 L345 103 M74 307 L128 246 M252 307 L209 246 M450 307 L520 246 M632 307 L592 246 M74 410 V373 M252 410 V373 M450 410 V373 M632 410 V373"/>
+<rect class="m2-computed" x="206" y="36" width="200" height="66" rx="2"/>
+<text class="m2-bold m2-computed-text" x="306" y="65" text-anchor="middle">Calculated R</text>
+<text class="m2-small m2-computed-text" x="306" y="89" text-anchor="middle">node(N(A,B), N(C,D))</text>
+<text class="m2-small" x="462" y="50" text-anchor="middle">Compare</text>
+<text class="m2-letter" x="462" y="91" text-anchor="middle">=?</text>
+<rect class="m2-published" x="520" y="36" width="183" height="66" rx="2"/>
+<text class="m2-bold m2-published-text" x="611" y="65" text-anchor="middle">Expected R</text>
+<text class="m2-small m2-published-text" x="611" y="89" text-anchor="middle">from publication</text>
+<text class="m2-small" x="611" y="126" text-anchor="middle">checked separately</text>
+<rect class="m2-computed" x="68" y="178" width="196" height="68" rx="2"/>
+<text class="m2-mono m2-computed-text" x="166" y="207" text-anchor="middle">N(A,B)</text>
+<text class="m2-small m2-computed-text" x="166" y="231" text-anchor="middle">compute node(LA, LB)</text>
+<rect class="m2-supplied" x="470" y="178" width="176" height="68" rx="2"/>
+<text class="m2-mono m2-supplied-text" x="558" y="207" text-anchor="middle">N(C,D)</text>
+<text class="m2-small" x="558" y="231" text-anchor="middle">received hash</text>
+<text class="m2-mono m2-supplied-text" x="84" y="279">E</text>
+<text class="m2-mono m2-supplied-text" x="418" y="155">D</text>
+<rect class="m2-supplied" x="18" y="307" width="112" height="66" rx="2"/>
+<text class="m2-mono m2-supplied-text" x="74" y="336" text-anchor="middle">LA</text>
+<text class="m2-small" x="74" y="360" text-anchor="middle">received</text>
+<rect class="m2-target" x="196" y="307" width="112" height="66" rx="2"/>
+<text class="m2-mono m2-target-text" x="252" y="336" text-anchor="middle">LB</text>
+<text class="m2-small" x="252" y="360" text-anchor="middle">leaf(B)</text>
+<rect class="m2-context" x="394" y="307" width="112" height="66" rx="2"/>
+<text class="m2-mono" x="450" y="346" text-anchor="middle">LC</text>
+<rect class="m2-context" x="576" y="307" width="112" height="66" rx="2"/>
+<text class="m2-mono" x="632" y="346" text-anchor="middle">LD</text>
+<path class="obj-document" data-visual-asset="objects/document.svg" d="M72 32 H210 L250 72 V232 H72 Z M210 32 V72 H250" transform="translate(41 410) scale(.37) translate(-72 -32)"/>
+<text class="m2-letter" x="70" y="461" text-anchor="middle">A</text>
+<path class="obj-document" d="M72 32 H210 L250 72 V232 H72 Z M210 32 V72 H250" transform="translate(219 410) scale(.37) translate(-72 -32)" style="stroke:var(--deck-blue)"/>
+<text class="m2-letter m2-target-text" x="248" y="461" text-anchor="middle">B</text>
+<path class="obj-document" d="M72 32 H210 L250 72 V232 H72 Z M210 32 V72 H250" transform="translate(417 410) scale(.37) translate(-72 -32)"/>
+<text class="m2-letter" x="446" y="461" text-anchor="middle">C</text>
+<path class="obj-document" d="M72 32 H210 L250 72 V232 H72 Z M210 32 V72 H250" transform="translate(599 410) scale(.37) translate(-72 -32)"/>
+<text class="m2-letter" x="628" y="461" text-anchor="middle">D</text>
+<text class="m2-small" x="74" y="514" text-anchor="middle">index 0</text>
+<text class="m2-small m2-target-text" x="252" y="514" text-anchor="middle">index 1</text>
+<text class="m2-small" x="450" y="514" text-anchor="middle">index 2</text>
+<text class="m2-small" x="632" y="514" text-anchor="middle">index 3</text>
+</g></svg></div>
+<figcaption id="caption-merkle-path">Read from bottom to top. The verifier calculates LB from B. The two received siblings are orange: LA goes to the left of LB; N(C,D), to the right of the calculated parent. The green nodes are recalculated. The dark root comes from the checked publication, not from B's sender. A, C, D, LC and LD appear only as context.</figcaption>
+</figure>
+
+<h3 id="aula-2-2-s3">3. Calculate the root and open a path</h3>
+<p>Run the code. The functions return binary digests; <code>.hex()</code> is used only for display. B's proof contains two pairs: the sibling's side and its hash. The path is followed from bottom to top. The fixed proof codes <code>E</code> and <code>D</code> mean left and right, from Portuguese <em>esquerda</em> and <em>direita</em>. The file texts retain <code>criado</code> (created), <code>revisão</code> (review) and <code>correção</code> (correction) as exact hash inputs.</p>
+<pre data-python-runner="true" data-exercise-id="merkle-four-leaf-demo" data-exercise-version="2"><code class="language-python">import hashlib
+
+def leaf(data):
+    return hashlib.sha256(b"\x00" + data).digest()
+
+def node(left, right):
+    return hashlib.sha256(b"\x01" + left + right).digest()
+
+files = [text.encode("utf-8") for text in [
+    "T-0141|criado", "T-0142|revisão",
+    "T-0143|criado", "T-0144|correção",
+]]
+A, B, C, D = [leaf(data) for data in files]
+published_root = node(node(A, B), node(C, D))
+proof_B = [("E", A), ("D", node(C, D))]
+
+recalculated = leaf(files[1])
+for side, sibling in proof_B:
+    recalculated = (node(sibling, recalculated) if side == "E"
+                  else node(recalculated, sibling))
+print("root:", published_root.hex())
+print("inclusion:", recalculated == published_root)
+
+B_modified = leaf(files[1] + b"!")
+print("modified file:", node(node(A, B_modified), node(C, D))
+      == published_root)
+print("hash bytes in the proof:", sum(len(h) for _, h in proof_B))
+</code></pre>
+<p>The output shows inclusion <code>True</code>, modified file <code>False</code> and 64 bytes of hashes in the proof. The package still needs to carry file B, the sides and the root's location. If the query specifies an index, the path must also match that position. “64 bytes” is not the size of a transaction or of the whole package.</p>
+<p>Try changing the first side in the proof from <code>("E", A)</code> to <code>("D", A)</code>, keeping the published root. The comparison fails. If you also change the expected root, you will no longer be testing the previous commitment. In the application, obtain the root from the already checked publication, not from a replaceable field in the sender's package.</p>
+
+<p>See also the <a href="https://github.com/linconvidal/merkle-tree-cardano-demo" target="_blank" rel="noopener">Merkle demo on Cardano</a>.</p>
+
+<h3 id="aula-2-2-s4">4. Fix the orientation</h3>
+<div class="activity" data-progress-id="merkle-sibling-order-activity"><div class="box-label">Activity: the sibling may be on the left</div>
+<p>This verifier places the sibling on the right at every step. It works for A, but rejects B. Fix the calculation inside the loop to respect <code>E</code> and <code>D</code>. Keep the checks for the index, number of siblings and expected side. Run it to observe the failure, then use <strong>Validate solution</strong> to test other files, positions and tampering.</p>
+<p>The path check is already in place: at an even position, the sibling is on the right; at an odd position, on the left. Integer division by two finds the parent's position at the next level.</p>
+<pre data-python-runner="true" data-exercise-id="merkle-sibling-order" data-exercise-version="2" data-validator="merkle-sibling-order-tests"><code class="language-python">import hashlib
+
+def leaf(data):
+    return hashlib.sha256(b"\x00" + data).digest()
+
+def node(left, right):
+    return hashlib.sha256(b"\x01" + left + right).digest()
+
+def verify_inclusion(index, data, proof, root):
+    if not 0 &lt;= index &lt; 4 or len(proof) != 2:
+        return False
+    current = leaf(data)
+    position = index
+    for side, sibling in proof:
+        expected_side = "E" if position % 2 else "D"
+        if side != expected_side:
+            return False
+        current = node(current, sibling)
+        position //= 2
+    return current == root
+
+files = [b"A", b"B", b"C", b"D"]
+A, B, C, D = [leaf(d) for d in files]
+root = node(node(A, B), node(C, D))
+proof = [("E", A), ("D", node(C, D))]
+print("B included:", verify_inclusion(1, b"B", proof, root))
+</code></pre>
+<details class="answer" id="answer-merkle-sibling-order"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Check answer</summary><div class="answer-body"><p>For <code>E</code>, use <code>node(sibling, current)</code>; for <code>D</code>, use <code>node(current, sibling)</code>. B first needs LA on the left and then N(C,D) on the right. D requires siblings on the left at both levels. Testing only A would therefore hide the bug.</p><p>The verifier keeps the root fixed. If a comparison fails, obtain the original file and check the recipe, index and proof before attributing the mismatch to tampering.</p></div></details>
+</div>
+<script type="application/json" id="merkle-sibling-order-tests">
+{"version":1,"tests":[
+{"name":"Four positions and UTF-8 bytes","code":"import hashlib as ref_hash\ndef ref_f(d):\n    return ref_hash.sha256(b'\\x00' + d).digest()\ndef ref_n(a, b):\n    return ref_hash.sha256(b'\\x01' + a + b).digest()\nds = [b'primeiro', 'revisão'.encode('utf-8'), b'terceiro', b'quarto']\nfs = [ref_f(d) for d in ds]\nr = ref_n(ref_n(fs[0], fs[1]), ref_n(fs[2], fs[3]))\nps = [[('D', fs[1]), ('D', ref_n(fs[2], fs[3]))], [('E', fs[0]), ('D', ref_n(fs[2], fs[3]))], [('D', fs[3]), ('E', ref_n(fs[0], fs[1]))], [('E', fs[2]), ('E', ref_n(fs[0], fs[1]))]]\nfor i in range(4):\n    assert verify_inclusion(i, ds[i], ps[i], r) is True, f'Failed at index {i}: E places the sibling before the current hash; D places it after.'"},
+{"name":"Modified file or position","code":"assert verify_inclusion(1, ds[1] + b'!', ps[1], r) is False, 'Recalculate the leaf from the received bytes.'\nassert verify_inclusion(0, ds[1], ps[1], r) is False, 'The path must match the supplied index.'"},
+{"name":"Modified sibling and root","code":"assert verify_inclusion(1, ds[1], [('E', bytes(32)), ps[1][1]], r) is False, 'A different sibling must invalidate the proof against this root.'\nassert verify_inclusion(1, ds[1], ps[1], bytes(32)) is False, 'Compare with the received root, without replacing it with the calculated root.'"},
+{"name":"Invalid order and side","code":"assert verify_inclusion(1, ds[1], list(reversed(ps[1])), r) is False, 'Follow the proof from bottom to top.'\nassert verify_inclusion(1, ds[1], [('D', fs[0]), ps[1][1]], r) is False, 'Changing the side changes the commitment.'\nassert verify_inclusion(1, ds[1], [('X', fs[0]), ps[1][1]], r) is False, 'An unknown side is not D by default.'"},
+{"name":"Incomplete proof and index outside the batch","code":"assert verify_inclusion(1, ds[1], ps[1][:1], r) is False, 'This four-leaf tree requires two siblings.'\nassert verify_inclusion(4, ds[1], ps[1], r) is False, 'Valid indices range from 0 to 3.'\nassert verify_inclusion(-1, ds[1], ps[1], r) is False, 'Reject negative indices before following the path.'"},
+{"name":"Path and index with identical files","code":"identical = [ref_f(b'same')] * 4\npair = ref_n(identical[0], identical[1])\nidentical_root = ref_n(pair, pair)\nsides = [('D', 'D'), ('E', 'D'), ('D', 'E'), ('E', 'E')]\nfor i in range(4):\n    path = [(sides[i][0], identical[0]), (sides[i][1], pair)]\n    for j in range(4):\n        assert verify_inclusion(j, b'same', path, identical_root) == (i == j), 'Even with identical bytes, check the index against the sides at every level.'"}
+]}
+</script>
+
+
+<h3 id="aula-2-2-s5">5. What grows and what remains outside the proof</h3>
+<p>In a complete binary tree with 1,024 leaves, each path has ten levels. Ten siblings, or 320 bytes of SHA-256 hashes, are enough, instead of the other 1,023 files. The number of siblings grows logarithmically with the number of leaves, while building the tree still requires processing the batch.</p>
+<p>This lesson fixes four leaves to avoid hiding a format decision. For arbitrarily sized batches, the construction must define the tree's shape, how it handles levels with an odd number of nodes and how it commits to the count. Duplicating the last leaf and splitting into subtrees of different sizes are distinct conventions. An inclusion proof is also not proof that a new log preserved the whole old one. Growing logs can use specific consistency proofs; that requires a different recipe.</p>
+<p>Inclusion confirms that those bytes, at that position, reconstruct the expected root. It does not reveal files that went uncaptured or prove that B's result is true. Nor does it automatically provide confidentiality: sibling hashes of predictable data may allow guessing attempts. We will address this exposure in Lesson 2.4.</p>
+
+<div class="closing"><h3>What we learned</h3><ul>
+<li>Leaves and internal nodes use different recipes, with explicit bytes and ordering.</li>
+<li>B's proof contains LA and N(C,D), with their sides, without requiring the other files.</li>
+<li>Changing the file, position, sibling or orientation invalidates the comparison against the same root.</li>
+<li>The root commits to the batch; availability, completeness of capture and confidentiality require additional controls.</li>
+</ul></div>
+<div class="bridge"><h3>Next lesson</h3><p>In Lesson 2.3 we will calculate how many publications remain when events are batched, how much waiting this introduces and when interaction between participants may justify a Hydra Head.</p></div>

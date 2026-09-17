@@ -1,0 +1,198 @@
+---
+title: 'A transaction as a verifiable package: intent, bytes and rules'
+short_title: A transaction as a verifiable package
+map_title: Transaction
+summary: Relate the CBOR body, body hash and bytes signed by an Ed25519 witness.
+description: Understand how intent becomes a structure, CBOR bytes, an identifier, a signature and a package verifiable under network rules.
+---
+
+
+<div class="objectives"><div class="box-label">Objectives</div><p>By the end of this lesson, you will be able to:</p>
+<ol class="objective-list">
+<li>distinguish human intent from a technical transaction package;</li>
+<li>identify the body, witnesses, CBOR representation and bytes used in a transaction's identifier;</li>
+<li>explain how validation rules accept or reject a package;</li>
+
+
+</ol></div>
+<div class="prereq"><div class="box-label">Before you begin</div><p>You need to remember that bytes can represent text, numbers and structures; that hashes depend on the exact bytes; that digital signatures bind specific bytes to a key; and that wallet, address and network form part of the operational context.</p>
+
+<div class="guide-q"><span class="guide-q-label">Guiding question</span><p>How does a network go from a sentence such as "I want to record this commitment" to a package of bytes that shared rules can accept or reject?</p></div></div>
+<h3 id="aula-1-6-s1">1. Human intent and a technical package</h3>
+<p>“Send 5 units and record a document's hash” does not yet specify a transaction. The builder needs to define the network, asset, integer quantity, address, digest, authorization conditions and validity. These fields allow the operation to be verified without relying on the sentence that motivated it.</p>
+<p>For readability, this lesson uses illustrative JSON. Real Cardano transactions use CBOR. Section 4 examines this representation and separates the logical structure, binary bytes, transport hexadecimal and JSON view.</p>
+
+
+
+<h3 id="aula-1-6-s2">2. Fields, rules and validation</h3>
+<p>A field is a named or defined position within a structure. It has a value and usually an expected type. A quantity field should behave as an integer. A network field should indicate a recognized context. A digest field should have a format and size compatible with the declared algorithm.</p>
+<p>Rules are conditions the package must satisfy. Some rules check form: required field present, correct type, correct size, correct encoding. Other rules check state: resource available, credential or script condition satisfied, time validity, sufficient fee and no conflict with something already consumed.</p>
+
+
+
+
+
+
+<h3 id="aula-1-6-s3">3. Signatures within a transaction at a conceptual level</h3>
+<p>A digital signature has a role in the package: it allows the relationship between specific bytes, a signature and a public key to be verified according to a cryptographic scheme. The private key does not go inside the transaction. The package carries the signature and the information needed to check the expected key or credential.</p>
+<p>At a conceptual level, first think of two central components. The transaction body contains the fields that describe what the operation is trying to do. The witness set contains signatures, scripts and other data used to satisfy technical conditions defined by ledger rules. The complete serialization also includes the script validity indicator and, when present, auxiliary data. These elements are not part of the transaction body or the witness set.</p>
+<!-- Workshop objects/actor.svg and transaction-body.svg, revision f4536110de13ab69c1b42311b823f84afdc2b6f7. The ticket separates body and witnesses; acceptance here is validation, not inclusion. -->
+<figure class="fig deck-figure m1-icon-pass" data-visual-revision="f4536110de13ab69c1b42311b823f84afdc2b6f7"><div class="table-scroll" tabindex="0" role="region" aria-label="From human intent to byte validation"><svg style="width:100%;min-width:680px" aria-label="A person expresses intent. The builder prepares the package, with body and witnesses. Serialization produces bytes that the node validates according to the rules. Acceptance does not yet demonstrate inclusion." role="img" viewBox="0 0 720 280">
+<g data-visual-asset="objects/actor.svg" transform="translate(19 61) scale(.45) translate(-92 -46)"><circle class="obj-actor" cx="160" cy="78" r="32"/><path class="obj-actor" d="M92 190 C104 129 216 129 228 190 M160 110 V177" style="fill:none"/></g>
+<text x="50" y="163" text-anchor="middle">Human</text><text class="dim" x="50" y="186" text-anchor="middle">intent</text>
+<path d="M86 104 H133 M126 98 L134 104 L126 110" fill="none" stroke="var(--ink)" stroke-width="2"/><text class="dim" x="113" y="75" text-anchor="middle">builder</text>
+<path class="obj-transaction" data-visual-asset="objects/transaction-body.svg" d="M603 245 H802 L820 263 V337 C808 337 808 361 820 361 V427 L802 445 H603 L585 427 V361 C597 361 597 337 585 337 V263 Z" transform="translate(141 25) scale(.88 1.05) translate(-585 -245)"/>
+<text class="cap ticket-text" x="163" y="55">TRANSACTION</text><path class="ticket-rule" d="M162 69 H326 M162 142 H326"/>
+<text class="ticket-text" x="163" y="98">Body</text><text class="dim ticket-text" x="163" y="122">fields and values</text>
+<text class="ticket-text" x="163" y="171">Witnesses</text><text class="dim ticket-text" x="163" y="197">signatures and scripts</text>
+<path d="M352 120 H391 M384 114 L392 120 L384 126 M498 120 H546 M539 114 L547 120 L539 126" fill="none" stroke="var(--ink)" stroke-width="2"/>
+<text class="dim" x="444" y="76" text-anchor="middle">Serialize as CBOR</text>
+<rect x="399" y="96" width="95" height="49" rx="2" fill="var(--deck-neutral-fill)" stroke="var(--ink)"/><path d="M413 96 V105 M427 96 V105 M441 96 V105 M455 96 V105 M469 96 V105 M483 96 V105" stroke="var(--ink-dim)"/>
+<text class="mono" x="446" y="129" text-anchor="middle">bytes</text>
+<rect class="obj-system" x="555" y="27" width="153" height="204" rx="3"/><path d="M555 68 H708" fill="none" stroke="var(--ink)" stroke-width="2"/>
+<text class="cap" x="631" y="53" text-anchor="middle">NODE</text><text x="631" y="105" text-anchor="middle">Applies rules</text>
+<text class="pass-label" x="631" y="153" text-anchor="middle">Accepts</text><text class="dim" x="631" y="175" text-anchor="middle">or</text><text class="fail-label" x="631" y="199" text-anchor="middle">Rejects</text>
+<text class="dim" x="555" y="264">Acceptance ≠ inclusion.</text>
+</svg></div><figcaption>Intent becomes a package whose two central components are the body, which declares the operation, and the witnesses, which help satisfy conditions required by the rules. The complete serialization may also include the script validity indicator and auxiliary data. The network validates the final bytes, not the original sentence.</figcaption></figure>
+
+
+
+<p>Consuming an output controlled by a key credential requires the corresponding key witness. Without that valid witness, the transaction fails; attached public content does not need its own document signature.</p>
+
+
+<h3 id="aula-1-6-s4">4. CBOR: from structure to Cardano bytes</h3>
+<p>The fields you have seen so far are still a logical structure. To transmit, sign and validate a transaction, Cardano needs a defined binary representation. This representation uses CBOR, short for <code>Concise Binary Object Representation</code>.</p>
+<p><a href="https://www.rfc-editor.org/rfc/rfc8949" rel="noopener noreferrer" target="_blank">RFC 8949</a> defines how values such as integers, bytes, text, lists and maps can be encoded. CBOR does not define the meaning of a Cardano transaction. The ledger rules and era specification define which fields exist, their types and the accepted combinations.</p>
+<div class="table-scroll"><table><thead><tr><th>Layer</th><th>Example</th><th>Use</th></tr></thead><tbody>
+<tr><td>Application structure</td><td>Object produced by the builder</td><td>Facilitates construction and validation before serialization.</td></tr>
+<tr><td>CBOR bytes</td><td>Binary sequence</td><td>The representation processed by libraries and the protocol.</td></tr>
+<tr><td>Hexadecimal</td><td><code>a2647265...</code></td><td>A textual way to transport or inspect CBOR bytes.</td></tr>
+<tr><td>Explorer JSON</td><td>Readable fields on the page</td><td>A view reconstructed for reading; not the original CBOR.</td></tr>
+</tbody></table></div>
+
+
+<h4>A small CBOR map</h4>
+<p>Consider the teaching example <code>{"rede": "preprod", "quantidade": 5}</code>, where the fixed keys mean “network” and “quantity”. A deterministic encoding of this map produces 26 bytes. Written in hexadecimal, they look like this:</p>
+<pre><code class="language-text">a2                                      # map with 2 pairs
+  64 72656465                           # text "rede"
+  67 70726570726f64                     # text "preprod"
+  6a 7175616e746964616465               # text "quantidade"
+  05                                    # integer 5
+
+continuous hex:
+a264726564656770726570726f646a7175616e74696461646505
+</code></pre>
+
+<p>Real transactions contain larger structures and era-specific fields. Addresses, hashes and identifiers appear as bytes, not as the human-readable text displayed by the interface. Do not try to build this CBOR manually: use an era-compatible library and check the structure before signing.</p>
+
+<h4>From a Python object to CBOR</h4>
+<p>With PyCardano, fields are held in a <code>TransactionBody</code> object. This example has one input, one output of 100 ADA, a fee of 200000 lovelace and a validity limit at slot 1000. The input is fictitious: we are studying the body, not preparing a transfer for submission.</p>
+<p><code>inputs</code> identifies the resource being consumed; <code>outputs</code> describes the destination and value. <code>fee</code> holds the fee and <code>ttl</code> holds the upper validity bound. Run the code to see these fields serialized by <code>to_cbor_hex()</code>.</p>
+<!-- Body adapted from build_tx_body at https://github.com/linconvidal/pycardano-workshop. -->
+<pre data-python-runner="true" data-python-packages="pycardano-workshop-0.19.2-pyodide-314.0.7-v1" data-exercise-id="body-cbor-sdk-demo" data-exercise-version="1"><code class="language-python">from pycardano import (
+    Address, TransactionBody, TransactionId, TransactionInput,
+    TransactionOutput, Value,
+)
+
+destination = Address.from_primitive(
+    "addr_test1qz5p9x623ngvjtzf89gcz2pjhxcahq7rper4q534ejegyd406v8dc860wkryxpgsaeqzvwz7y2nmp7caz35yfpqsw7as9v22t0"
+)
+body = TransactionBody(
+    inputs=[TransactionInput(TransactionId(bytes(32)), 0)],
+    outputs=[TransactionOutput(destination, Value(100_000_000))],
+    fee=200_000,
+    ttl=1000,
+)
+print(body.to_cbor_hex())
+</code></pre>
+<p>The output is the CBOR body written in hexadecimal. <code>TransactionBody.from_cbor()</code> performs the reverse operation: it takes this representation and recovers the object's fields.</p>
+
+<h4>Body, identifier and witnesses</h4>
+<p>The transaction body is serialized before witnesses are collected. In Cardano, the transaction identifier is the Blake2b-256 digest of the transaction body's CBOR bytes according to the ledger era. Vkey witnesses sign this same body hash. The signature cannot be part of the bytes over which it is calculated; it goes into the transaction witness set attached to the body. The witness set can also carry scripts, datums and redeemers required by the transaction, depending on the era and script type.</p>
+<p>This scope must be explicit. The transaction ID and vkey witness do not directly cover the witness set or the <code>is_valid</code> indicator, which sits outside the body in the complete serialization. Auxiliary data also sit outside, but their bytes are indirectly committed to by the <code>auxiliary_data_hash</code> included in the body. The ledger validates the complete combination under the era's rules; a valid key witness does not mean that every byte outside the body was signed by that key.</p>
+<p>The transaction ID is an opaque digest, without a textual prefix identifying the network. The body may include the optional <code>network_id</code> field, and output addresses or reward accounts carry network context in their encodings. Even so, the wallet, node, API and parameters must be configured for the same environment. Record the network separately and do not use the transaction ID alone to distinguish Mainnet, Preprod or Preview.</p>
+
+<p>In interfaces such as CIP-30, CBOR bytes commonly cross the API written in hexadecimal. An argument named <code>cbor</code> or a string such as <code>84a4...</code> is not JSON, contract text or secret material. It is a textual representation of the serialized bytes.</p>
+
+<h4>Valid CBOR is not enough</h4>
+<p>CBOR allows more than one valid way to represent certain values. Cardano restricts the structure with its own rules and era-specific CDDL descriptions. A library must produce the form accepted by the ledger, not just any document a CBOR decoder can read.</p>
+
+
+
+
+<h3 id="aula-1-6-s5">5. Ed25519 and the message of a key witness</h3>
+<p>In Lesson 0.4, we used Ed25519 to sign the bytes of a message. Ed25519 is a real EdDSA signature scheme over the Edwards25519 curve, specified in RFC 8032. Curve, scheme, implementation and protocol usage are distinct layers: Cardano determines which message must be passed to the library.</p>
+<p>In the Ed25519 format, the public key is 32 bytes and the signature is 64 bytes. Signing takes private material and a message as bytes; verification takes the public key, the same message and the signature. Ed25519 uses SHA-512 internally and derives its ephemeral value deterministically; the application does not invent a nonce for the operation. Private key formats vary between a seed, an expanded key and an opaque object. Extended keys from a Cardano wallet are not interchangeable with just any file labeled “Ed25519”.</p>
+<p>For a <strong>Cardano vkey witness</strong>, the message is the 32-byte body hash, calculated with Blake2b-256. Signing this digest according to the protocol does not mean using the Ed25519ph variant. Nor does it mean signing its 64 hexadecimal characters: hex text and decoded bytes are different inputs. The witness contains a verification key and a signature. For key-controlled spending, the ledger verifies the signature and relates the verification key's hash to the required credential. There are also required signers and script conditions; verifying an isolated signature does not verify the entire transaction.</p>
+<h4>From the body to the message to be signed</h4>
+<p>Now recover the serialized body from the previous example and call <code>hash()</code>. Compare the 32-byte digest with the 64 characters in its hexadecimal representation. Signing takes the digest bytes.</p>
+<pre data-python-runner="true" data-python-packages="pycardano-workshop-0.19.2-pyodide-314.0.7-v1" data-exercise-id="body-hash-bytes-demo" data-exercise-version="2"><code class="language-python">from pycardano import TransactionBody
+
+body = TransactionBody.from_cbor(
+    "a400818258200000000000000000000000000000000000000000000000000000"
+    "00000000000000018182583900a8129b4a8cd0c92c493951812832b9b1db83c3"
+    "0e47505235ccb28236afd30edc1f4f7586430510ee4026385e22a7b0fb1d1468"
+    "44841077bb1a05f5e100021a00030d40031903e8"
+)
+digest = body.hash()
+print("digest:", len(digest), "bytes")
+print("hex:", digest.hex())
+print("hex as text:", len(digest.hex().encode("ascii")), "bytes")
+print("same input?", digest == digest.hex().encode("ascii"))
+</code></pre>
+<div class="activity" data-progress-id="body-hash-witness-message-activity"><div class="box-label">Activity: correct the fee, preserve the validity limit</div>
+<p>The fee needs to change from 200000 to 200001 lovelace, keeping the validity limit at 1000. The function below changes the wrong field. Correct only that assignment and use <strong>Validate solution</strong>.</p>
+<p>The body from the previous example is already in CBOR. The function must return the revised body and its corresponding hash: changing the fee also changes the message that will be signed.</p>
+<pre data-python-runner="true" data-python-packages="pycardano-workshop-0.19.2-pyodide-314.0.7-v1" data-exercise-id="body-hash-witness-message" data-exercise-version="3" data-validator="body-hash-witness-message-tests"><code class="language-python">from pycardano import TransactionBody
+
+example_body = TransactionBody.from_cbor(
+    "a400818258200000000000000000000000000000000000000000000000000000"
+    "00000000000000018182583900a8129b4a8cd0c92c493951812832b9b1db83c3"
+    "0e47505235ccb28236afd30edc1f4f7586430510ee4026385e22a7b0fb1d1468"
+    "44841077bb1a05f5e100021a00030d40031903e8"
+)
+
+def signer_message(body_cbor_hex, new_fee):
+    body = TransactionBody.from_cbor(body_cbor_hex)
+    body.ttl = new_fee
+    return body.to_cbor_hex(), body.hash()
+
+body_hex, message = signer_message(example_body.to_cbor_hex(), 200_001)
+revised = TransactionBody.from_cbor(body_hex)
+print("fee:", revised.fee, "validity limit:", revised.ttl)
+print("message:", message.hex())
+</code></pre>
+<details class="answer"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Check answer</summary><div class="answer-body"><p>Replace <code>body.ttl = new_fee</code> with <code>body.fee = new_fee</code>. The fee becomes 200001 lovelace and the validity limit remains 1000. The hash is calculated after the revision. If someone had already signed the previous body, that signature would not work for the body with the new fee.</p></div></details>
+</div>
+<script type="application/json" id="body-hash-witness-message-tests">
+{
+  "version": 1,
+  "tests": [
+    {
+      "name": "Changes fee, preserves all other fields",
+      "code": "for fee, validity_limit, value in ((200_001, 1000, 100_000_000), (350_000, 2000, 7_000_000)):\n    input_body = TransactionBody.from_cbor(example_body.to_cbor())\n    input_body.ttl = validity_limit\n    input_body.outputs[0].amount.coin = value\n    original = input_body.to_cbor_hex()\n    revised_hex, message = signer_message(original, fee)\n    assert isinstance(revised_hex, str), 'Return the revised body CBOR in hex.'\n    revised = TransactionBody.from_cbor(revised_hex)\n    assert revised.fee == fee, 'Change fee, not ttl: fee and validity limit are different fields.'\n    input_body.fee = fee\n    assert revised.to_cbor() == input_body.to_cbor(), 'Preserve inputs, outputs, ttl and all other fields.'"
+    },
+    {
+      "name": "Signer receives the binary hash of the revised body",
+      "code": "import hashlib as reference_hash\nfor fee in (200_000, 200_001, 350_000):\n    expected = TransactionBody.from_cbor(example_body.to_cbor())\n    expected.fee = fee\n    revised_hex, message = signer_message(example_body.to_cbor_hex(), fee)\n    assert isinstance(message, bytes) and len(message) == 32, 'The message must be 32 bytes, not hex text.'\n    assert message == expected.hash(), 'Calculate the body hash after revising the fee.'\n    assert message == reference_hash.blake2b(expected.to_cbor(), digest_size=32).digest(), 'Use the body bytes, not the envelope with witnesses.'"
+    },
+    {
+      "name": "Changing the fee changes the message; hex transport does not",
+      "code": "original = example_body.to_cbor_hex()\na = signer_message(original, 200_000)\nb = signer_message(original, 200_001)\nassert a[1] != b[1], 'Revising the fee must change the message.'\nassert signer_message(original.upper(), 200_001) == b, 'Uppercase hex transport does not change the bytes.'"
+    }
+  ]
+}
+</script>
+
+<p>A valid witness binds a key to a body. The record linking the key to a person, its period of validity and that person's authority to approve the document remain separate evidence. The signer should review the effects before signing, because a correct signature over the wrong body still authorizes the operation described by that body.</p>
+<div class="closing"><h3>What we learned</h3>
+<ul>
+<li>A transaction is a structured package describing an operation for the network to verify.</li>
+<li>Structure, CBOR representation, transaction body and witnesses have distinct roles. The identifier depends on the body bytes.</li>
+<li>A vkey witness uses Ed25519 over the binary Blake2b-256 body hash, not its hexadecimal text. Acceptance still depends on the other ledger rules.</li>
+</ul>
+
+
+</div>
+
+<div class="bridge"><h3>Next lesson</h3><p>If a transaction needs to point to available resources and produce new results, how does the network know exactly what is being consumed and what is being created?</p></div>

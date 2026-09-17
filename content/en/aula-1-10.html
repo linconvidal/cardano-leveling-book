@@ -1,0 +1,212 @@
+---
+title: 'Native assets and policies: identity, quantity and multisig'
+short_title: Native assets and policies
+map_title: Native assets
+summary: Identify assets, balance their quantities and build native policies with signature and time conditions.
+description: Understand that a native asset's technical identity combines policy ID and asset name, rather than just a readable label.
+---
+
+
+<div class="objectives"><div class="box-label">Objectives</div><p>By the end of this lesson, you will be able to:</p>
+<ol class="objective-list">
+<li>distinguish metadata attached to a transaction from a native asset represented by the ledger;</li>
+<li>explain why the policy ID is part of an asset's identity;</li>
+<li>interpret asset names as bytes and evaluate a native script with signature and time conditions;</li>
+<li>explain how minting, burning and transfers affect integer quantities under a minting policy.</li>
+
+</ol></div>
+<div class="prereq"><div class="box-label">Before you begin</div><p>Remember that a transaction consumes outputs and creates new ones, that fees depend on the package's final bytes, and that metadata is a structured attachment, not automatic proof of external truth.</p>
+
+<div class="guide-q"><span class="guide-q-label">Guiding question</span><p>If two assets appear with the same name in an interface, when does the network treat them as the same asset and when does it treat them as different assets?</p></div></div>
+<h3 id="aula-1-10-s1">1. The concept of a native asset</h3>
+<p>A native asset is an asset that the ledger can represent directly in an output's value. Instead of appearing only as text in metadata, it appears as a quantity in the transaction's accounting.</p>
+<p>Imagine an output with a value like this:</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>Value component</th>
+<th style="text-align: right;">Quantity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ada</td>
+<td style="text-align: right;">10</td>
+</tr>
+<tr>
+<td>asset defined by a policy and a name</td>
+<td style="text-align: right;">50</td>
+</tr>
+</tbody>
+</table></div>
+
+
+<p>Writing <code>name: TOKEN</code> in metadata does not create units in the ledger. A native asset appears in output values, but does not inherit ADA's role in fees, staking, deposits or governance.</p>
+<h3 id="aula-1-10-s2">2. Policy ID as part of identity</h3>
+<p>The policy ID is part of the asset's identity. On Cardano, it is the 28-byte hash of the minting policy, usually displayed as 56 hexadecimal characters. It is not a freely chosen label. The policy defines the technical conditions that allow positive or negative minting of that asset; institutional authority and purpose remain external.</p>
+
+<p>The example uses two policy IDs calculated from signature policies. <code>ScriptHash</code> holds the ID; <code>AssetName</code> holds the name bytes. <code>MultiAsset</code> organizes quantities first by policy and then by name.</p>
+<pre data-python-runner="true" data-python-packages="pycardano-workshop-0.19.2-pyodide-314.0.7-v1" data-exercise-id="multiasset-policy-identity" data-exercise-version="1"><code class="language-python">from pycardano import ScriptHash, AssetName, Asset, MultiAsset
+
+p1 = ScriptHash(bytes.fromhex("b42438993a121732d88cf0719ef8a895953e5cd686c48782bccec209"))
+p2 = ScriptHash(bytes.fromhex("d3b22f481e20b76f395e04df54fc7e480c385cdc83f9b99412d295dd"))
+name = AssetName(b"TOKEN")
+lowercase = AssetName(b"token")
+balance = MultiAsset({p1: Asset({name: 50, lowercase: 3}), p2: Asset({name: 7})})
+for policy, assets in balance.items():
+    for asset_name, quantity in assets.items():
+        print(policy.payload.hex(), asset_name.payload.hex(), quantity)
+print("CBOR:", balance.to_cbor_hex())
+</code></pre>
+<p>The output shows three distinct identities. There are 50 units of TOKEN and 3 of token under <code>b42438993a12…</code>, and 7 of TOKEN under <code>d3b22f481e20…</code>. Creating this Python object describes a value; issuing the units in the ledger requires a minting transaction authorized by the policy.</p>
+
+<p>Using only <code>TOKEN</code> as a database key can mix up balances of assets with different policies.</p>
+<!-- Workshop objects/native-asset.svg, revision f4536110de13ab69c1b42311b823f84afdc2b6f7. Reuse the asset silhouette; omit quantity because this comparison concerns identity. Use abbreviated policy IDs from the executable example, not symbolic aliases. -->
+<figure class="fig deck-figure m1-icon-pass" data-visual-revision="f4536110de13ab69c1b42311b823f84afdc2b6f7"><div class="table-scroll" tabindex="0" role="region" aria-label="Identity comparison by policy ID and name bytes"><svg style="width:100%;min-width:680px" aria-label="TOKEN and token belong to the policy whose ID starts with b42438993a12 but have different bytes. Another TOKEN has the same name under the policy whose ID starts with d3b22f481e20. All three identities are different; the comparison does not represent a transfer." role="img" viewBox="0 0 720 300">
+<rect x="12" y="14" width="298" height="275" fill="none" class="boundary-protocol"/><text class="cap" x="32" y="44">POLICY b42438993a12…</text>
+<rect x="410" y="14" width="298" height="153" fill="none" class="boundary-protocol"/><text class="cap" x="430" y="44">POLICY d3b22f481e20…</text>
+<path class="obj-native-asset" data-visual-asset="objects/native-asset.svg" d="M28 38 H246 L272 64 V132 H28 Z" transform="translate(32 65) scale(.78 .74) translate(-28 -38)"/>
+<text class="mono" x="122" y="94" text-anchor="middle">544f4b454e</text><text x="122" y="120" text-anchor="middle">TOKEN</text>
+<path class="obj-native-asset" d="M28 38 H246 L272 64 V132 H28 Z" transform="translate(32 201) scale(.78 .74) translate(-28 -38)"/>
+<text class="mono" x="122" y="230" text-anchor="middle">746f6b656e</text><text x="122" y="256" text-anchor="middle">token</text>
+<text class="dim" x="32" y="176">Same policy, different bytes.</text>
+<path class="obj-native-asset" d="M28 38 H246 L272 64 V132 H28 Z" transform="translate(430 65) scale(.78 .74) translate(-28 -38)"/>
+<text class="mono" x="520" y="94" text-anchor="middle">544f4b454e</text><text x="520" y="120" text-anchor="middle">TOKEN</text>
+<text x="360" y="111" text-anchor="middle" style="font-size:28px">≠</text><text class="dim" x="430" y="194">Same name, different policy.</text>
+<text class="mono" x="430" y="244">policy ID + asset name</text><text class="dim" x="430" y="270">form the asset's identity.</text>
+</svg></div><figcaption>All three assets have distinct identities: changing the name bytes or the policy ID changes the identity. Policy IDs are abbreviated; name bytes are shown in full.</figcaption></figure>
+
+
+
+<h3 id="aula-1-10-s3">3. Asset names as bytes</h3>
+<p>An asset name is not, conceptually, a word. It is a sequence of zero to 32 bytes. Those bytes are often chosen to form readable UTF-8 text, but that is a choice made during issuance and integration, not a universal guarantee.</p>
+<p>This is why tools often display asset names in hexadecimal. Hexadecimal is a stable way to write bytes. Each pair of hex characters represents one byte. For example, the text <code>TOKEN</code>, encoded as UTF-8, becomes the bytes:</p>
+<pre><code class="language-text">54 4f 4b 45 4e
+</code></pre>
+
+<pre><code class="language-text">544f4b454e
+</code></pre>
+
+<p>An empty asset name is also possible. In that case, the identity still needs to be read carefully: the asset name is a zero-length byte sequence, not text accidentally left out.</p>
+
+
+
+<h3 id="aula-1-10-s4">4. Integer quantities, minting, burning and transfers</h3>
+<p>The ledger accounts for each native asset in integer quantities. If an interface displays decimal places, that scale belongs to the application's schema and presentation; the on-chain value remains an integer. The smallest unit must therefore be defined before issuing or integrating the asset.</p>
+<p>For a specific <code>asset_id</code>, conservation can be expressed compactly as:</p>
+<pre><code class="language-text">quantity in inputs + quantity in mint = quantity in outputs
+</code></pre>
+<p>The <code>mint</code> field uses signed quantities. A positive value creates units; a negative value removes units that also enter through the inputs; zero means the transaction does not change that asset's total quantity. Both positive and negative minting require the corresponding minting policy to be executed and satisfied.</p>
+<div class="table-scroll"><table>
+<thead><tr><th>Operation</th><th>Asset inputs</th><th>Mint</th><th>Asset outputs</th><th>Interpretation</th></tr></thead>
+<tbody>
+<tr><td>Mint</td><td>0</td><td>+100</td><td>100</td><td>The total quantity increases by 100.</td></tr>
+<tr><td>Transfer</td><td>70</td><td>0</td><td>20 + 50</td><td>The same 70 units are redistributed among outputs.</td></tr>
+<tr><td>Burn</td><td>100</td><td>-25</td><td>75</td><td>Twenty-five units are removed from the accounting.</td></tr>
+</tbody>
+</table></div>
+<p>Transferring is not minting again. When <code>mint = 0</code> for the asset, its minting policy is not executed merely because of the transfer; the inputs' spending conditions are still checked. Minting and burning, however, use the <code>mint</code> field and must satisfy the policy whose hash forms the <code>policy_id</code>.</p>
+
+<div class="activity"><div class="box-label">Activity 1: check asset conservation</div>
+<p>Assume each line describes all the inputs, the <code>mint</code> field and all the outputs for the same <code>asset_id</code>. Classify each line as mint, transfer, burn or invalid, and justify your answer using <code>inputs + mint = outputs</code>.</p>
+<ul>
+<li>A: inputs <code>0</code>; mint <code>+60</code>; outputs <code>60</code>.</li>
+<li>B: inputs <code>60</code>; mint <code>0</code>; outputs <code>15 + 45</code>.</li>
+<li>C: inputs <code>60</code>; mint <code>-10</code>; outputs <code>50</code>.</li>
+<li>D: inputs <code>60</code>; mint <code>0</code>; outputs <code>55</code>.</li>
+</ul>
+<details class="answer"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Check answer</summary><div class="answer-body"><p>A is mint: <code>0 + 60 = 60</code>. B is a transfer: <code>60 + 0 = 15 + 45</code>, with no change in the total quantity. C is burn: <code>60 - 10 = 50</code>. D is invalid in this example, which lists all inputs and outputs, because <code>60 + 0</code> does not equal <code>55</code>. In A and C, the minting policy must be executed and satisfied; in B, it is not executed again merely because of the transfer.</p></div></details></div>
+
+<h3 id="aula-1-10-s5">5. Native scripts: which keys, in which interval?</h3>
+<p>A <strong>minting policy</strong> can be a native script, combining signature and time conditions. The same type of script can also serve as an output's spending credential. The control points are distinct: the policy checks minting or burning under its policy ID; the spending credential checks consumption of the eUTxO. Owning a token does not automatically grant the ability to issue more units.</p>
+<p>The native format provides <code>sig</code> to require a key, <code>all</code> and <code>any</code> to combine conditions, and <code>atLeast</code> to require a threshold. Timelocks use <code>after</code> and <code>before</code>. The rule compares the transaction's validity bounds: <code>after 100</code> requires a lower bound of at least 100; <code>before 200</code> requires an upper bound of at most 200. The ledger also checks that the processing slot falls within the interval. A signature created before the deadline does not authorize inclusion after it.</p>
+<p>In PyCardano, <code>ScriptNofK(2, ...)</code> requires two of the signature conditions. <code>ScriptAll</code> combines that threshold with both time conditions. The credentials below are hashes of three public keys used for study.</p>
+<pre data-python-runner="true" data-python-packages="pycardano-workshop-0.19.2-pyodide-314.0.7-v1" data-exercise-id="native-policy-cbor" data-exercise-version="1"><code class="language-python">from pycardano import (
+    VerificationKeyHash, ScriptPubkey, ScriptNofK, ScriptAll,
+    InvalidBefore, InvalidHereAfter,
+)
+
+keys = [
+    VerificationKeyHash(bytes.fromhex("70e402284201ec81d7aa495d17e52209c8bb47489395b16bcd7a2a67")),
+    VerificationKeyHash(bytes.fromhex("b44173e4bc81916bb53443b01ce8d8d635b618ca7fa197265a0cb2a2")),
+    VerificationKeyHash(bytes.fromhex("d5c6555b5a7c12cc53893955e9b779c9320afb2411994a5c70cee206")),
+]
+signatures = ScriptNofK(2, [ScriptPubkey(key) for key in keys])
+policy = ScriptAll([InvalidBefore(100), InvalidHereAfter(200), signatures])
+print("CBOR:", policy.to_cbor_hex())
+print("policy ID:", policy.hash().payload.hex())
+</code></pre>
+<p>Run the code, then change the bound from 200 to 201. The policy has changed, so its CBOR and policy ID change too. Restore 200. To satisfy the original policy, a transaction can use the interval <code>[120, 180)</code> and valid signatures from two of those keys. Serializing the script does not run ledger validation.</p>
+<p>The native script does not read the datum, redeemer or metadata, and does not inspect the asset name or minted quantity. Thus, “two signatures before the deadline” does not by itself enforce a maximum supply of 100 or one-time issuance.</p>
+<div class="activity" data-progress-id="native-multisig-window-activity"><div class="box-label">Activity 2: do not count the same key twice</div>
+<p>The function should build the same policy requiring two of three distinct keys, within the supplied window. But one credential appears twice. Fix the repeated reference without changing the threshold or the bounds, and use <strong>Validate solution</strong>.</p>
+<pre data-python-runner="true" data-python-packages="pycardano-workshop-0.19.2-pyodide-314.0.7-v1" data-exercise-id="native-multisig-window" data-exercise-version="2" data-validator="native-multisig-window-tests"><code class="language-python">from pycardano import (
+    VerificationKeyHash, ScriptPubkey, ScriptNofK, ScriptAll,
+    InvalidBefore, InvalidHereAfter,
+)
+
+def create_policy(keys, start, end):
+    signatures = ScriptNofK(2, [
+        ScriptPubkey(keys[0]), ScriptPubkey(keys[0]), ScriptPubkey(keys[2])
+    ])
+    return ScriptAll([InvalidBefore(start), InvalidHereAfter(end), signatures])
+
+keys = [
+    VerificationKeyHash(bytes.fromhex("70e402284201ec81d7aa495d17e52209c8bb47489395b16bcd7a2a67")),
+    VerificationKeyHash(bytes.fromhex("b44173e4bc81916bb53443b01ce8d8d635b618ca7fa197265a0cb2a2")),
+    VerificationKeyHash(bytes.fromhex("d5c6555b5a7c12cc53893955e9b779c9320afb2411994a5c70cee206")),
+]
+policy = create_policy(keys, 100, 200)
+print("CBOR:", policy.to_cbor_hex())
+print("policy ID:", policy.hash().payload.hex())
+</code></pre>
+<details class="answer"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Check answer</summary><div class="answer-body"><p>Replace the second occurrence of <code>keys[0]</code> with <code>keys[1]</code>. With A, A and C, the same signature from A can satisfy both repeated conditions. With A, B and C, the threshold requires two distinct credentials. PyCardano serializes both versions: producing CBOR does not guarantee that you wrote the intended policy. The tests check the constructed structure without simulating a transaction's acceptance by the ledger.</p></div></details>
+</div>
+<script type="application/json" id="native-multisig-window-tests">
+{
+  "version": 1,
+  "tests": [
+    {
+      "name": "CBOR policy with three credentials and a threshold of two",
+      "code": "from pycardano import NativeScript\nfor credentials, start, end in ((keys, 100, 200), (keys[::-1], 120, 240)):\n    actual = create_policy(credentials, start, end)\n    expected = ScriptAll([InvalidBefore(start), InvalidHereAfter(end), ScriptNofK(2, [ScriptPubkey(c) for c in credentials])])\n    assert isinstance(actual, ScriptAll), 'Build a native script, not a Boolean answer.'\n    assert NativeScript.from_cbor(actual.to_cbor()).to_cbor() == expected.to_cbor(), 'Preserve the three credentials, threshold and supplied window.'"
+    },
+    {
+      "name": "One credential must not occupy two conditions",
+      "code": "policy = create_policy(keys, 100, 200)\nthreshold = policy.native_scripts[2]\nassert isinstance(threshold, ScriptNofK) and threshold.n == 2, 'Keep the two-of-three requirement.'\nids = [s.key_hash.payload for s in threshold.native_scripts]\nassert len(ids) == 3 and len(set(ids)) == 3, 'Use three distinct credentials, not A, A and C.'\nassert ids == [c.payload for c in keys], 'Use the credentials supplied to the function.'"
+    },
+    {
+      "name": "Policy ID commits to the native policy",
+      "code": "import hashlib\np = create_policy(keys, 100, 200)\nassert p.hash().payload == hashlib.blake2b(b'\\x00' + p.to_cbor(), digest_size=28).digest()\nassert p.hash() != create_policy(keys, 100, 201).hash(), 'Changing the deadline changes the policy and its ID.'"
+    }
+  ]
+}
+</script>
+
+<p>Even a valid combination of two keys does not prove the involvement of two independent people or a valid decision-making process. The external process must link keys to responsible parties and roles. Also, if the policy stops accepting minting after a deadline, the same time restriction may prevent burning; removal from circulation must be planned before issuance.</p>
+
+<h3 id="aula-1-10-s6">6. A short EAC accounting example</h3>
+<p>An environmental attribute certificate (EAC) has a unit and criteria defined by an external methodology. In this example, an external decision authorizes 8,400 whole units of the asset with UTF-8 name <code>EAC-DEMO-VINTAGE-A</code>. Under the same policy ID and with no other issuance, minting <code>+8400</code> followed by retirements through burning <code>-1250</code> and <code>-700</code> leaves 6,450 units.</p>
+<pre data-python-runner="true" data-exercise-id="eac-supply-arithmetic"><code class="language-python">supply = 0
+for mint in (8400, -1250, -700):
+    supply += mint
+    print("mint:", mint, "supply:", supply)
+</code></pre>
+<p>The output is 8400, 7150 and 6450. To perform each burn, the transaction must bring in the units being removed through its inputs and satisfy the policy. A transfer does not change supply. Adding three operations demonstrates the global supply only if the minting and burning history is complete. The ledger does not measure the environmental benefit or prevent double counting in another system. This example uses burning for retirement; the institutional meaning of that operation is defined outside the protocol.</p>
+
+<h3 id="aula-1-10-s7">7. CIP-25 for describing media tokens</h3>
+<p>CIP-25 is a metadata convention for <em>media tokens</em> under label 721, associating policy ID and asset name with fields such as <code>name</code> and <code>image</code>. It is not a universal standard for every native asset and is not needed for EAC arithmetic. A name and image displayed by a wallet do not replace the technical identity.</p>
+<p>This metadata remains in the positive-minting transaction. Transferring the asset neither moves nor edits it. Under the standard, a later publication treated as an update also depends on positive minting under the corresponding policy; burning does not satisfy that rule. A policy that has already closed may prevent such an update. When an application needs replaceable reference state, CIP-68 offers a different design, which we will study after Plutus.</p>
+<div class="closing"><h3>What we learned</h3>
+<ul>
+<li>A native asset appears in the value accounted for by the ledger. Descriptive metadata alone does not create that asset.</li>
+<li>Technical identity combines policy ID and asset name. A visible name or label is not enough to identify the asset.</li>
+<li>Asset names are bytes; text and hexadecimal are ways to represent them.</li>
+<li>Minting and burning change supply under the policy; transfers only redistribute units. EAC arithmetic does not prove the external benefit.</li>
+<li>Native scripts combine keys and time in minting or spending roles. CIP-25 describes media tokens without enforcing rules on their content.</li>
+</ul>
+
+
+
+</div>
+
+<div class="bridge"><h3>Next lesson</h3><p>How can you locate a real transaction and check the published data? In the next lesson, we will open the same record in different explorers and compare what they show.</p></div>

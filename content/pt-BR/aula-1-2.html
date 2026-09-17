@@ -1,0 +1,40 @@
+---
+title: Arquitetura do node e eras
+map_title: Node e eras
+summary: Separar rede, consenso, ledger e indexação sob regras versionadas.
+description: Separar difusão, seleção de cadeia e validação do ledger, reconhecendo que as regras dependem da era.
+---
+
+<div class="objectives"><div class="box-label">Objetivos</div><p>Ao final desta aula, você será capaz de:</p><ol class="objective-list"><li>separar as funções de rede, consenso e ledger em um node Cardano;</li><li>explicar por que serialização, inclusão e validação dependem das regras da era;</li><li>diagnosticar em qual camada uma falha observada deve ser investigada.</li></ol></div>
+<div class="prereq"><div class="box-label">Antes de começar</div><p>Retome a Aula 1.1 e a diferença entre transportar uma proposta e aceitar uma transição.</p><div class="guide-q"><span class="guide-q-label">Pergunta-guia</span><p>Receber uma transação de outro nó significa que ela será aceita?</p></div></div>
+<h3 id="aula-1-2-s1">1. Rede transporta</h3>
+<p>A camada de rede mantém conexões com outros nós, chamados peers, e difunde blocos e transações. Receber um pacote significa apenas que os bytes chegaram por um caminho de rede. Ainda é necessário decodificar a estrutura, aplicar regras e decidir se o objeto participa da cadeia ou do estado local.</p>
+<p>Uma transação pode chegar ao node e ser recusada porque tenta gastar um recurso já utilizado, oferece uma taxa insuficiente ou não apresenta uma assinatura exigida. Um bloco pode ser recebido e não pertencer à cadeia selecionada. Por isso, “o node recebeu” e “o ledger aceitou” descrevem eventos diferentes.</p>
+<h3 id="aula-1-2-s2">2. Consenso seleciona uma história</h3>
+<p>O consenso organiza produção de blocos e seleção de cadeia. Ele trata concorrência entre histórias candidatas e fornece as regras pelas quais os participantes convergem. Essa camada não decide se um relatório externo é verdadeiro nem interpreta a finalidade comercial de uma transação.</p>
+<p>Uma cadeia observada em determinado instante pode mudar perto da ponta. Aplicações precisam distinguir recepção, inclusão observada e aceitação segundo sua política de confirmação. O próximo capítulo aprofunda slots, epochs, stake e produção de blocos.</p>
+<h3 id="aula-1-2-s3">3. Ledger valida transições</h3>
+<p>O ledger verifica se a operação pode mudar o estado atual. Os recursos que ela pretende gastar ainda estão disponíveis? As autorizações exigidas foram apresentadas? Os valores e a taxa fecham a conta? Essas verificações seguem as regras da era e os parâmetros vigentes. Nas próximas aulas, veremos os campos que permitem realizá-las.</p>
+<p>Indexadores e explorers formam outra camada. Eles organizam dados derivados para consulta. Um indexador atrasado pode omitir uma transação que já está na cadeia observada por um node; uma interface também pode truncar ou traduzir valores. A falha de consulta não deve ser atribuída automaticamente ao consenso.</p>
+<div class="table-scroll"><table><thead><tr><th>Camada</th><th>Pergunta principal</th><th>Exemplo de falha</th></tr></thead><tbody><tr><td>Rede</td><td>O objeto chegou e foi difundido?</td><td>Peer indisponível ou pacote não propagado.</td></tr><tr><td>Consenso</td><td>Qual cadeia candidata é selecionada?</td><td>Bloco observado perto da ponta deixa a cadeia selecionada.</td></tr><tr><td>Ledger</td><td>A transição respeita as regras da era?</td><td>Input gasto, valor não conservado ou witness inválida.</td></tr><tr><td>Indexação</td><td>Como dados aceitos são organizados para consulta?</td><td>Explorer atrasado ou campo apresentado de modo incompleto.</td></tr></tbody></table></div>
+<h3 id="aula-1-2-s4">4. Eras e evolução do protocolo</h3>
+<p>Cardano evolui por eras. Cada era introduz ou altera capacidades, formatos e regras. O hard fork combinator coordena a transição entre protocolos no mesmo histórico Cardano. Ferramentas precisam conhecer a era ativa e a representação aplicável.</p>
+<p>Conseguir ler os bytes de uma transação não basta para aceitá-la. Seus campos e efeitos também precisam respeitar as regras do ledger da era. Da mesma forma, uma biblioteca que reconhece um campo novo não garante que o node, a wallet e o indexador usados no ambiente ofereçam o mesmo suporte. Na Aula 1.6, veremos como os campos são representados em bytes.</p>
+<div class="sp-box note"><span class="sp-col-title">Contexto da verificação</span><p>Ao investigar uma falha, registre a rede, a era, a versão do node ou biblioteca e a fonte dos parâmetros. Esses dados permitem repetir a verificação nas mesmas condições e identificar incompatibilidades entre ferramentas.</p></div>
+<div class="activity"><div class="box-label">Atividade 1: localize a camada</div><p>Considere quatro observações: A recebe uma transação por um peer; B a rejeita porque um input já foi gasto; C não a encontra em seu indexador; D observa um bloco que depois deixa a cadeia selecionada. Classifique cada evento.</p><form class="activity-quiz" data-answer="answer-aula-1-2-a1" id="quiz-aula-1-2-a1"><fieldset class="quiz-question" data-kind="classify"><legend>Associe o principal ponto de investigação.</legend><div class="quiz-items">
+<label class="quiz-item"><span class="quiz-item-text">Recepção pelo peer</span><select class="quiz-select" data-correct="rede"><option value="">selecione</option><option value="rede">rede</option><option value="ledger">ledger</option><option value="consenso">consenso</option><option value="indexador">indexador</option></select><span class="quiz-verdict"></span></label>
+<label class="quiz-item"><span class="quiz-item-text">Input já gasto</span><select class="quiz-select" data-correct="ledger"><option value="">selecione</option><option value="rede">rede</option><option value="ledger">ledger</option><option value="consenso">consenso</option><option value="indexador">indexador</option></select><span class="quiz-verdict"></span></label>
+<label class="quiz-item"><span class="quiz-item-text">Bloco fora da cadeia selecionada</span><select class="quiz-select" data-correct="consenso"><option value="">selecione</option><option value="rede">rede</option><option value="ledger">ledger</option><option value="consenso">consenso</option><option value="indexador">indexador</option></select><span class="quiz-verdict"></span></label>
+<label class="quiz-item"><span class="quiz-item-text">Consulta derivada ausente</span><select class="quiz-select" data-correct="indexador"><option value="">selecione</option><option value="rede">rede</option><option value="ledger">ledger</option><option value="consenso">consenso</option><option value="indexador">indexador</option></select><span class="quiz-verdict"></span></label>
+</div><p aria-live="polite" class="quiz-question-feedback"></p></fieldset><div class="quiz-actions"><button class="quiz-check" disabled="" type="submit">Conferir respostas</button><p aria-live="polite" class="quiz-status" tabindex="-1">0 de 1 pergunta respondida.</p></div></form>
+<details class="answer" id="answer-aula-1-2-a1"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Conferir resposta</summary><div class="answer-body"><p>A recepção é rede; o input já gasto é ledger; a seleção da cadeia é consenso; a consulta derivada é indexador. A classificação não elimina causas combinadas, mas impede que transporte, validade, seleção e apresentação sejam tratados como o mesmo problema.</p></div></details>
+</div>
+<div class="closing"><h3>O que aprendemos</h3>
+<ul>
+<li>A camada de rede transporta informações entre participantes.</li>
+<li>O consenso seleciona a cadeia que o nó acompanha; o ledger valida transições de estado.</li>
+<li>As regras de validação dependem da era. Serializar uma transação não basta para torná-la válida.</li>
+<li>Indexadores produzem visões de consulta. Uma falha nessa visão precisa ser distinguida de uma falha de rede, consenso ou validação.</li>
+</ul></div>
+
+<div class="bridge"><h3>Próxima aula</h3><p>Como o consenso organiza oportunidades de produção de bloco e relaciona participação ao stake?</p></div>

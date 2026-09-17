@@ -1,0 +1,31 @@
+{% include 'intro.html' %}
+<section class="sumario" id="sumario">
+  <h2>{{ i18n.contents }}</h2>
+{% for module in book.modules %}
+<div class="sum-card mod-{{ module.id }}" id="sum-mod-{{ module.id }}"><div class="sum-head"><div class="sum-modnum">{{ module.id }}</div><div><h3>{{ module.title }}</h3><p>{{ module.summary }}</p><div class="sum-count">{{ module.lessons | length }} {{ i18n.lessonsOne if module.lessons | length == 1 else i18n.lessonsMany }}</div></div></div><ol class="sum-list">
+{% for lesson in module.lessons %}
+<li><a href="#{{ lesson.id }}"><span class="sum-num">{{ lesson.number }}</span><span class="sum-txt"><strong>{{ lesson.short_title }}</strong><small>{{ lesson.summary }}</small></span></a></li>
+{% endfor %}
+</ol></div>
+{% endfor %}
+</section>
+{% for module in book.modules %}
+<section class="module-divider mod-{{ module.id }}" id="modulo-{{ module.id }}">
+  <div class="module-divider-num">{{ i18n.moduleLabel }} {{ module.id }}</div>
+  <h2>{{ module.title }}</h2>
+  <p class="module-opening">{{ module.summary }}</p>
+
+<nav class="sp-pipeline">{% for lesson in module.lessons %}{% if not loop.first %}<span class="sp-arrow">→</span>{% endif %}<a href="#{{ lesson.id }}"><span class="sp-num">{{ lesson.number }}</span>{{ lesson.map_title }}</a>{% endfor %}</nav>
+</section>
+{% for lesson in module.lessons %}
+<article class="lesson" data-module="{{ module.id }}" id="{{ lesson.id }}">
+<header class="lesson-head">
+  <div class="lesson-kicker"><span class="mod-chip mod-{{ module.id }}">{{ i18n.moduleLabel }} {{ module.id }}</span> {{ i18n.lessonLabel }} {{ lesson.number }}</div>
+  <h2 class="lesson-title">{{ lesson.title }}</h2>
+{% if lesson.description %}
+  <p class="lesson-meta">{{ lesson.description }}</p>
+{% endif %}
+</header>{{ lesson.body | safe }}</article>
+{% endfor %}
+{{ module.references | safe }}
+{% endfor %}

@@ -1,0 +1,38 @@
+---
+title: Ouroboros, slots, epochs and stake
+map_title: Ouroboros
+summary: Reason about block production and confirmation policies.
+description: Understand the protocol's clock and draw appropriately qualified conclusions about production and confirmation.
+---
+
+<div class="objectives"><div class="box-label">Objectives</div><p>By the end of this lesson, you will be able to:</p><ol class="objective-list"><li>distinguish slots, blocks and epochs;</li><li>explain at a high level how stake contributes to leader selection;</li><li>formulate a confirmation policy without promising instant finality.</li></ol></div>
+<div class="prereq"><div class="box-label">Before you begin</div><p>Revisit the roles of consensus and the ledger in Lesson 1.2.</p><div class="guide-q"><span class="guide-q-label">Guiding question</span><p>Does every slot contain a block, and does an observed block make a transaction irreversible?</p></div></div>
+<h3 id="aula-1-3-s1">1. Slots, blocks and epochs</h3>
+<p>Slots are numbered time intervals used by the protocol. Epochs group slots and serve as a reference for parameters and activities that evolve in cycles. A slot may produce no block, and a block may contain several transactions. Thus, slots, blocks and transactions do not have a one-to-one relationship.</p>
+<p>Times displayed by an interface are conversions performed by tools. For a reproducible observation, preserve the network, slot, block, source and query time. A human-readable date without the network context does not replace the technical identifier.</p>
+<h3 id="aula-1-3-s2">2. Stake, pools and leadership</h3>
+<p>ADA holders can delegate the participation associated with that value, called <strong>stake</strong>, to a pool. The pool operator maintains the infrastructure for producing blocks. Delegation neither transfers ownership of the ADA nor hands over the payment key: the operator cannot spend the delegator's funds.</p>
+<p>In the Ouroboros family, the active stake associated with a pool influences its chance of producing blocks. A larger share increases that chance but does not guarantee a block in every interval. Selection follows verifiable protocol rules, without a central coordinator choosing the next producer.</p>
+<p>A block producer proposes an extension to the chain. Other nodes still verify the block and apply consensus and ledger rules. Producing a block does not confer authority to change the rules arbitrarily.</p>
+<h3 id="aula-1-3-s3">3. Observed inclusion and operational confidence</h3>
+<p>A transaction observed in a block is included in the chain seen by that source at that moment. Competing candidate chains may exist near the tip. Applications wait for additional depth or another operational condition according to value, risk and tolerance.</p>
+<p>The protocol provides probabilistic properties under security assumptions. The application needs to state its policy rather than simply label a transaction “final”. An interface can distinguish at least three states: submitted to the endpoint, included in the observed chain and accepted under the internal policy once the defined condition is met.</p>
+<div class="sp-box note"><span class="sp-col-title">An appropriately qualified conclusion</span><p>“Included in the observed block and accepted under the configured confirmation policy” is more precise than “irreversible”. The policy should record its source, condition and version.</p></div>
+<h3 id="aula-1-3-s4">4. What consensus does not prove</h3>
+<p>Consensus organizes a history of valid transactions. It does not automatically verify the legal identity of whoever controls a key, the institutional purpose of a transfer or the truth of a document referenced by hash. These questions reappear in the lessons on signatures, metadata and evidence.</p>
+<div class="activity"><div class="box-label">Activity 1: identify the transaction's state</div><p>An application submitted a transaction and later found its identifier in an explorer. The system should release the report only after meeting the confirmation policy defined by the team.</p><form class="activity-quiz" data-answer="answer-aula-1-3-a1" id="quiz-aula-1-3-a1"><fieldset class="quiz-question"><legend>Which wording avoids confusing an observation with an absolute guarantee?</legend><div class="quiz-options">
+<label class="quiz-option"><input data-correct="true" name="q-aula-1-3-a1" type="radio" value="a"/><span class="quiz-option-text">Included in the observed block; waiting for the condition defined by the internal policy before issuing the final report.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-3-a1" type="radio" value="b"/><span class="quiz-option-text">Received by the endpoint, therefore irreversible and correct in any external system.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-3-a1" type="radio" value="c"/><span class="quiz-option-text">Every slot produces a block, so waiting exactly one slot is enough.</span><span class="quiz-verdict"></span></label>
+</div><p aria-live="polite" class="quiz-question-feedback"></p></fieldset><div class="quiz-actions"><button class="quiz-check" disabled="" type="submit">Check answers</button><p aria-live="polite" class="quiz-status" tabindex="-1">0 of 1 question answered.</p></div></form>
+<details class="answer" id="answer-aula-1-3-a1"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Check answer</summary><div class="answer-body"><p>Submitted: the endpoint received the packet. Included: an identified source shows the tx id in a block and slot. Accepted internally: the depth, time or corroboration condition defined for the operation has been met. The first option records the state without going beyond the evidence.</p></div></details>
+</div>
+<div class="closing"><h3>What we learned</h3>
+<ul>
+<li>Slots organize block production opportunities; epochs group slots. A slot and a block are not the same thing.</li>
+<li>Stake contributes to leader selection and protocol security.</li>
+<li>Observing a transaction's inclusion and accepting it operationally are different decisions. The confirmation policy must be explicit.</li>
+<li>Consensus does not prove the truth of an external fact recorded in a transaction.</li>
+</ul></div>
+
+<div class="bridge"><h3>Next lesson</h3><p>Nodes apply the current network parameters, but these values can change. In the next lesson, we will see how technical proposals and governance decisions relate to changes that affect transaction construction.</p></div>

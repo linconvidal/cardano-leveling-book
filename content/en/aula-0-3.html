@@ -1,0 +1,175 @@
+---
+title: Private key and public key
+short_title: Private key and public key
+map_title: Keys
+summary: Separate the abilities to sign and verify and understand how to protect the secret.
+---
+
+<div class="objectives"><div class="box-label">Objectives</div>
+<ol class="objective-list">
+<li>Distinguish the roles of the private key and the public key in a signature.</li>
+<li>Generate random bytes for study and explain why a predictable phrase cannot replace them.</li>
+<li>Recognize when a secret is exposed, even in another representation.</li>
+</ol></div>
+<div class="prereq"><div class="box-label">Before you begin</div>
+<p>To follow this lesson, you need to recognize bytes and their hexadecimal representation and know that anyone with the same bytes can repeat a hash calculation.</p>
+<div class="guide-q"><span class="guide-q-label">Guiding question</span><p>How can we allow verification without sharing the ability to sign?</p></div>
+</div>
+
+<h3 id="aula-0-3-s1">1. Verifying without receiving the secret</h3>
+<p>When receiving a message, a program may need to check its connection to a known key. A hash calculated only from the message does not establish that connection: anyone with the bytes can repeat the calculation.</p>
+<p>A <strong>digital signature</strong> also depends on a secret. The challenge is to let others check it without giving them that secret and, with it, the ability to produce signatures.</p>
+<p>A <strong>key pair</strong> separates these roles. The <strong>private key</strong> allows signing and must be protected. The <strong>public key</strong>, mathematically related to the private key, allows verification and can be shared. In a secure scheme, knowing the public key does not make it feasible to recover the private key or forge signatures.</p>
+
+<style id="aula-0-3-key-figures-styles">
+/* Key symbol and custody boundary adapted from the workshop scene
+   assets/svg/scenes/who-holds-the-key.svg; calculation circle from
+   assets/svg/scenes/credential-hash.svg. No wallet or network semantics. */
+#aula-0-3 .key-fig { margin:28px 0 34px; width:100%; max-width:100%; break-inside:avoid; font-family:var(--font-sans); }
+#aula-0-3 .kf-derivation { display:grid; grid-template-columns:minmax(0,1fr) 140px minmax(0,1fr); align-items:center; gap:12px; }
+#aula-0-3 .kf-holder { min-width:0; padding:18px 10px; text-align:center; }
+#aula-0-3 .kf-private { border:1.5px dashed var(--sp-warning); border-radius:6px; }
+#aula-0-3 .kf-key { display:block; width:56px; height:64px; margin:0 auto 10px; fill:none; stroke:var(--sp-warning); stroke-width:3; stroke-linecap:round; stroke-linejoin:round; }
+#aula-0-3 .kf-public .kf-key { stroke:var(--sp-info); }
+#aula-0-3 .kf-label { display:block; color:var(--ink); font:600 16px/1.4 var(--font-sans); }
+#aula-0-3 .kf-note { display:block; margin-top:6px; color:var(--ink-dim); font:14px/1.5 var(--font-sans); }
+#aula-0-3 .kf-route { display:flex; align-items:center; justify-content:center; gap:4px; }
+#aula-0-3 .kf-operation { display:flex; align-items:center; justify-content:center; flex-shrink:0; width:76px; height:76px; border:2.5px solid var(--sp-info); border-radius:50%; color:var(--ink); font:600 14px var(--font-sans); }
+#aula-0-3 .kf-arrow { display:block; width:28px; height:20px; flex-shrink:0; color:var(--sp-info); }
+#aula-0-3 .kf-copy { display:grid; grid-template-columns:minmax(0,1fr) 88px minmax(0,1fr); align-items:start; gap:8px; }
+#aula-0-3 .kf-copy-route { padding-top:40px; text-align:center; }
+#aula-0-3 .kf-copy-route .kf-arrow { width:56px; margin:8px auto; }
+#aula-0-3 .kf-copy .kf-label { margin-bottom:14px; }
+#aula-0-3 .kf-copy .kf-note { color:var(--ink); }
+@media (max-width:600px) {
+  #aula-0-3 .kf-derivation { grid-template-columns:1fr; gap:4px; justify-items:center; }
+  #aula-0-3 .kf-derivation .kf-holder { width:100%; max-width:240px; box-sizing:border-box; }
+  #aula-0-3 .kf-route { flex-direction:column; gap:8px; padding:8px 0; }
+  #aula-0-3 .kf-route .kf-arrow { transform:rotate(90deg); }
+  #aula-0-3 .kf-copy { grid-template-columns:minmax(0,1fr) 56px minmax(0,1fr); gap:0; }
+  #aula-0-3 .kf-copy .kf-holder { padding:12px 2px; }
+  #aula-0-3 .kf-copy .kf-label { font-size:14px; }
+  #aula-0-3 .kf-copy .kf-note { font-size:13px; }
+  #aula-0-3 .kf-copy-route { padding-top:33px; }
+  #aula-0-3 .kf-copy-route .kf-arrow { width:40px; }
+}
+@media print {
+  #aula-0-3 .kf-derivation { grid-template-columns:minmax(0,1fr) 140px minmax(0,1fr); }
+  #aula-0-3 .kf-route { flex-direction:row; padding:0; gap:4px; }
+  #aula-0-3 .kf-route .kf-arrow { transform:none; }
+}
+</style>
+<figure class="fig key-fig" id="fig-aula-0-3-par" aria-labelledby="caption-aula-0-3-par">
+<div class="kf-derivation">
+<div class="kf-holder kf-private">
+<svg class="kf-key" viewBox="0 0 56 64" aria-hidden="true"><circle cx="28" cy="17" r="13"/><path d="M28 30V59H38 M28 49H36"/></svg>
+<span class="kf-label">Private key</span><span class="kf-note">Allows signing.<br>Kept in secure custody.</span>
+</div>
+<div class="kf-route">
+<svg class="kf-arrow" viewBox="0 0 28 20" aria-hidden="true"><path d="M1 10H25 M19 4L25 10L19 16" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+<span class="kf-operation">derive</span>
+<svg class="kf-arrow" viewBox="0 0 28 20" aria-hidden="true"><path d="M1 10H25 M19 4L25 10L19 16" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+</div>
+<div class="kf-holder kf-public">
+<svg class="kf-key" viewBox="0 0 56 64" aria-hidden="true"><circle cx="28" cy="17" r="13"/><path d="M28 30V59H38 M28 49H36"/></svg>
+<span class="kf-label">Public key</span><span class="kf-note">Allows verification.<br>Can be shared.</span>
+</div>
+</div>
+<figcaption id="caption-aula-0-3-par">The procedure defined by the scheme derives the public part from the private material. With secure parameters, reversing this process should be computationally impractical.</figcaption>
+</figure>
+
+<h3 id="aula-0-3-s2">2. Generating an unpredictable secret</h3>
+<p>A name, date or common phrase offers possibilities an attacker can test. Hashing this data does not remove its predictability: the attacker only needs to repeat the transformation for each guess. The length of the result alone does not indicate how difficult it is to guess its source.</p>
+<p>Key generation uses a source of randomness suitable for security. The uncertainty about the generated value is described by <strong>entropy</strong>. In Python, the <code>secrets</code> module lets us obtain bytes from such a source.</p>
+<p>Run the example to generate 32 bytes and view them in hexadecimal. The value is exposed in the output and may be saved in the browser: use it only for study, never as a secret in a real system.</p>
+<pre data-python-runner="true" data-exercise-id="random-secret-bytes"><code class="language-python">import secrets
+
+secret = secrets.token_bytes(32)
+
+print(secret.hex())
+print(len(secret), "bytes")
+</code></pre>
+<p>The call <code>token_bytes(32)</code> returns a <code>bytes</code> object. <code>len(secret)</code> reports its size, while <code>hex()</code> writes each byte as two characters. Run it again: you will see a new sample, also 32 bytes long. The appearance of the results does not prove the quality of the source; the choice of <code>secrets</code> is what matters here.</p>
+<p>These bytes are material for studying secret generation, not a ready-to-use key for any algorithm. To generate a real key pair, a cryptographic library applies the procedures and formats of the chosen scheme.</p>
+
+<h3 id="aula-0-3-s3">3. The public part is not another representation of the secret</h3>
+<p>Obtaining the public key from the private material is a <strong>derivation</strong> defined by the scheme. Choosing two random numbers and calling one private and the other public is not enough: they must have the mathematical relationship that enables signing and verification.</p>
+<p>This derivation is not a conversion to hexadecimal or base64 either. Those representations preserve the value and can be reversed. If someone receives the private key in hexadecimal, they have received the private key itself, not a public key.</p>
+<p>The public key can be shared without granting the ability to sign, but its value alone does not tell us who it belongs to. To verify a signature from a specific person or device, we need to confirm that association, for example through a trusted registry or another established channel.</p>
+
+<h3 id="aula-0-3-s4">4. Protecting every copy</h3>
+<p>Consider an application that signs messages and records its operation in a <strong>log</strong>. This log may be sent to a support team. If it contains the private key, it will include a copy of the secret, even if access to the original key file is restricted.</p>
+<p>The same care applies to configuration files, backups and conversations. Protecting storage and controlling who can access the private material are part of key <strong>custody</strong>. Investigating a verification failure requires the message, the signature and the public key used, not the private key.</p>
+
+<h3 id="aula-0-3-s5">5. The effect of an unauthorized copy</h3>
+<p>Suppose someone else copied the private key from a log. They can now produce signatures that will verify with the same public key as the sender’s. The calculation does not distinguish between two people using the same secret.</p>
+<figure class="fig key-fig" id="fig-aula-0-3-copia" aria-labelledby="caption-aula-0-3-copia">
+<div class="kf-copy">
+<div class="kf-holder">
+<span class="kf-label">Sender</span>
+<svg class="kf-key" viewBox="0 0 56 64" aria-hidden="true"><circle cx="28" cy="17" r="13"/><path d="M28 30V59H38 M28 49H36"/></svg>
+<span class="kf-note">Still has the key.<br>Can sign.</span>
+</div>
+<div class="kf-copy-route"><span class="kf-note">copy</span><svg class="kf-arrow" viewBox="0 0 56 20" aria-hidden="true"><path d="M1 10H53 M47 4L53 10L47 16" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
+<div class="kf-holder">
+<span class="kf-label">Who copied it</span>
+<svg class="kf-key" viewBox="0 0 56 64" aria-hidden="true"><circle cx="28" cy="17" r="13"/><path d="M28 30V59H38 M28 49H36"/></svg>
+<span class="kf-note">Has the same secret.<br>Can also sign.</span>
+</div>
+</div>
+<figcaption id="caption-aula-0-3-copia">Copying the secret does not take it away from the sender. Both can now produce signatures verifiable with the same public key.</figcaption>
+</figure>
+<p>Deleting the log does not undo copies already obtained. The compromised pair must no longer be used; a replacement must be generated, and verifiers’ references must be updated through a trusted procedure. Signatures from the period of exposure also need to be investigated; the verification result alone does not reveal who produced them.</p>
+
+<div class="activity"><div class="box-label">Activity 1: assess the exposure</div>
+<p>A private key appeared in hexadecimal in a log shared with the support team. The team deleted the log and continued using the same key pair.</p>
+<form class="activity-quiz" id="quiz-aula-0-3-a1" data-answer="answer-aula-0-3-a1">
+<fieldset class="quiz-question"><legend>Which assessment of this decision is correct?</legend><div class="quiz-options">
+<label class="quiz-option"><input name="aula-0-3-a1" type="radio" value="a"/><span class="quiz-option-text">Deleting the log ended the exposure because the key was no longer available in that file.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="aula-0-3-a1" type="radio" value="b" data-correct="true"/><span class="quiz-option-text">Anyone who copied the value can still use it to sign, even after the log is deleted.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="aula-0-3-a1" type="radio" value="c"/><span class="quiz-option-text">The pair would only need to be replaced if signatures produced with it started failing verification.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="aula-0-3-a1" type="radio" value="d"/><span class="quiz-option-text">Converting the key to base64 before continuing to use the pair would prevent unauthorized signatures.</span><span class="quiz-verdict"></span></label>
+</div><p class="quiz-question-feedback" aria-live="polite"></p></fieldset>
+<div class="quiz-actions"><button class="quiz-check" disabled="" type="submit">Check answers</button><p class="quiz-status" aria-live="polite" tabindex="-1">0 of 1 questions answered.</p></div>
+</form>
+<details class="answer" id="answer-aula-0-3-a1"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Check answer</summary><div class="answer-body">
+<p>Option B is correct. Hexadecimal and base64 preserve the secret in reversible representations. Deleting a file does not eliminate copies already obtained, and signatures produced by someone who copied the key may remain valid. The exposure requires addressing custody and replacing the pair, without waiting for verification to fail.</p>
+</div></details>
+</div>
+
+<div class="activity" id="code-question-aula-0-3-c1" data-progress-id="secret-length-log-activity"><div class="box-label">Activity 2: remove the secret from the output</div>
+<p>The program below should log only the size of the generated material, but it is exposing its value. Run it to observe the output. Then change the <code>log_entry</code> line to show the number of bytes without reducing or displaying the secret. Use <strong>Validate solution</strong> to check.</p>
+<pre data-python-runner="true" data-exercise-id="secret-length-log" data-exercise-version="1" data-validator="secret-length-log-tests"><code class="language-python">import secrets
+
+secret = secrets.token_bytes(32)
+log_entry = secret.hex()
+
+print(log_entry, "bytes")
+</code></pre>
+<script type="application/json" id="secret-length-log-tests">
+{
+  "version": 1,
+  "tests": [
+    {
+      "name": "Material preserved",
+      "code": "assert isinstance(secret, bytes) and len(secret) == 32, 'Preserve the 32 bytes of the secret; change only what will be displayed.'"
+    },
+    {
+      "name": "Log entry without the secret value",
+      "code": "assert type(log_entry) is int and log_entry == len(secret), 'The log entry must contain the number of bytes, not the secret in another representation.'"
+    }
+  ]
+}
+</script>
+<details class="answer" id="answer-aula-0-3-a2"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Check answer</summary><div class="answer-body">
+<p>The size is information about the secret, not a representation of its value. The function that counts bytes gives us this quantity without converting or exposing the content. The output should show <code>32 bytes</code>. Converting to base64 or omitting just a few characters does not meet the requirement to log only the size.</p>
+</div></details>
+</div>
+
+<div class="closing"><h3>What we learned</h3><ul>
+<li>The private key allows signing; the public key allows verification. The relationship between them is defined by the cryptographic scheme.</li>
+<li>Secrets require unpredictable generation. A hash does not add the entropy missing from a common phrase.</li>
+<li>Hexadecimal and base64 do not protect a private key. Logs, configuration files and backups can expose copies of it.</li>
+<li>Verification does not identify who used a copy of the secret. The association between the public key and the sender, and key custody, each need their own safeguards.</li>
+</ul></div>
+<div class="bridge"><h3>Next lesson</h3><p>You have distinguished the abilities to sign and verify. In the next lesson, we will follow both operations on a message: producing a signature with the private part and checking it with the public part. We will also see the effect of changing the received bytes.</p></div>

@@ -1,0 +1,133 @@
+---
+title: A rede Cardano e as aplicações
+map_title: Rede Cardano
+summary: Entender a rede e distinguir aplicação, serviço de acesso e protocolo.
+description: Uma infraestrutura pública, operada por participantes diferentes, que aplicações independentes podem usar.
+---
+
+<div class="objectives"><div class="box-label">Objetivos</div><ol class="objective-list">
+<li>Distinguir a aplicação, os serviços de acesso e os nós da rede.</li>
+<li>Diferenciar uma consulta, a submissão de uma transação e sua inclusão no histórico.</li>
+<li>Explicar por que mudar uma interface não altera as regras da rede nem apaga os registros publicados.</li>
+</ol></div>
+<div class="prereq"><div class="box-label">Antes de começar</div>
+<p>Os conceitos de hash e assinatura do Módulo 0 ajudam a acompanhar esta aula. Você não precisa conhecer blockchain nem instalar uma carteira.</p>
+<div class="guide-q"><span class="guide-q-label">Pergunta-guia</span><p>O que uma aplicação faz por conta própria e para quais operações recorre à rede Cardano?</p></div></div>
+<h3 id="aula-1-1-s1">1. A aplicação e a infraestrutura que ela usa</h3>
+<p>Uma aplicação web costuma ter uma interface, serviços que recebem solicitações e algum lugar para guardar dados. Quando alguém envia um formulário, por exemplo, a aplicação verifica os dados recebidos e decide o que registrar. Quem desenvolve esse sistema pode mudar suas regras, reorganizar o armazenamento ou trocar a interface conforme o produto evolui.</p>
+<p>Quando essa aplicação usa Cardano, ela se conecta a uma rede que já existe e que outras aplicações também utilizam. Algumas solicitações buscam informações já registradas; outras propõem novas operações. Consultar esses dados e pedir a inclusão de uma operação são dois usos diferentes da rede.</p>
+<p>Cardano é uma rede pública de computadores conectados pela internet e operados por pessoas e organizações diferentes. Esses computadores são os <strong>nós</strong>. Eles trocam informações sobre as operações e conferem o que recebem antes de aceitar uma mudança no registro que mantêm. O conjunto comum de regras que orienta essa comunicação e essas verificações é o <strong>protocolo</strong>.</p>
+<!-- Visual source: cardano-workshop-visual-language/assets/svg/objects/network.svg. Geometry retained; labels localized. -->
+<figure class="fig" style="width:100%">
+<div style="max-width:400px;margin:0 auto;background:transparent;border-radius:8px;padding:8px">
+<svg aria-label="Representação esquemática da rede Cardano: quatro nós conectados entre si" role="img" viewBox="0 0 360 280" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:auto" preserveAspectRatio="xMidYMid meet">
+<path d="M62 135 L180 58 L298 135 L180 212 Z M62 135 H298 M180 58 V212" style="fill:none;stroke:var(--deck-blue);stroke-width:4;stroke-linecap:round;stroke-linejoin:round"></path>
+<circle cx="62" cy="135" r="30" style="fill:var(--paper);stroke:var(--deck-blue);stroke-width:3"></circle><circle cx="180" cy="58" r="30" style="fill:var(--paper);stroke:var(--deck-blue);stroke-width:3"></circle><circle cx="298" cy="135" r="30" style="fill:var(--paper);stroke:var(--deck-blue);stroke-width:3"></circle><circle cx="180" cy="212" r="30" style="fill:var(--paper);stroke:var(--deck-blue);stroke-width:3"></circle>
+<text x="62" y="141" text-anchor="middle" style="fill:var(--ink);font-family:Switzer,Arial,sans-serif;font-size:17px;font-weight:700">NÓ</text><text x="180" y="64" text-anchor="middle" style="fill:var(--ink);font-family:Switzer,Arial,sans-serif;font-size:17px;font-weight:700">NÓ</text><text x="298" y="141" text-anchor="middle" style="fill:var(--ink);font-family:Switzer,Arial,sans-serif;font-size:17px;font-weight:700">NÓ</text><text x="180" y="218" text-anchor="middle" style="fill:var(--ink);font-family:Switzer,Arial,sans-serif;font-size:17px;font-weight:700">NÓ</text>
+<text x="180" y="271" text-anchor="middle" style="fill:var(--ink);font-family:Switzer,Arial,sans-serif;font-size:17px;font-weight:700">REDE CARDANO</text>
+</svg>
+</div>
+<figcaption>Os círculos representam nós; as linhas, conexões para troca de informações. O desenho é esquemático: a rede real tem muitos nós, e cada um se conecta a uma parte deles.</figcaption>
+</figure>
+<h4 id="aula-1-1-s2">Uma rede pública</h4>
+<p>Quem desenvolve uma aplicação pode consultar os dados públicos da Cardano e construir serviços que os utilizem. Também é possível operar um nó, assumindo o trabalho de manter esse software conectado e atualizado. A participação na rede não depende de pertencer à organização que criou uma aplicação específica.</p>
+<p>Os operadores dos nós podem ser pessoas ou organizações diferentes. Isso importa porque distribuir servidores por vários lugares não é suficiente para distribuir o controle: uma empresa pode manter todos eles e decidir sozinha quais operações aceita.</p>
+<p>Na Cardano, cada nó verifica as operações que recebe. Se um operador modificar o software do seu nó para aceitar uma operação sem a assinatura exigida, os outros nós que seguem o protocolo vão rejeitá-la por falta dessa assinatura.</p>
+<h4 id="aula-1-1-implementacoes">Implementações de nó</h4>
+<p>O programa que um operador instala é uma <strong>implementação</strong> do nó. O <a href="https://github.com/IntersectMBO/cardano-node"><code>cardano-node</code></a> é a implementação de referência em Haskell, desenvolvida originalmente pela Input Output Global (IOG). Outros projetos desenvolvem implementações próprias, em diferentes linguagens:</p>
+<ul>
+<li><a href="https://github.com/pragma-org/amaru">Amaru</a>, em Rust, da PRAGMA.</li>
+<li><a href="https://github.com/blinklabs-io/dingo">Dingo</a>, em Go, da Blink Labs.</li>
+</ul>
+<p>Esses programas podem organizar o código de formas diferentes, mas, para participar da mesma rede Cardano, precisam ser compatíveis na comunicação e aplicar as mesmas regras de verificação. A assinatura exigida no exemplo anterior precisa ser conferida independentemente da linguagem em que o nó foi escrito.</p>
+<p>Os projetos têm estágios e limitações diferentes. Antes de usar uma versão para operar um nó, confira no respectivo repositório quais funções e redes ela suporta e se os mantenedores recomendam seu uso em produção. Para conhecer outros projetos, consulte o <a href="https://developers.cardano.org/tools/?tags=node">catálogo de nós da Cardano</a> no Cardano Developer Portal.</p>
+<h3 id="aula-1-1-s3">2. Como a aplicação consulta a rede</h3>
+<p>A aplicação pode consultar os dados da Cardano por uma <strong>API</strong>, uma interface de comunicação entre programas. Ela envia uma solicitação a um serviço conectado à rede e recebe uma resposta com as informações pedidas.</p>
+<h4 id="aula-1-1-consultas">Do registro à resposta da consulta</h4>
+<p>O nó acompanha os registros da rede, mas uma aplicação pode precisar pesquisar essas informações de várias formas. Para atender a consultas por período ou por identificador, por exemplo, um serviço pode usar um <strong>indexador</strong>: um software que lê os dados do nó e os organiza em um banco de dados para consulta. A API pode buscar a resposta nesse banco, sem percorrer o histórico inteiro a cada solicitação. Você pode conhecer exemplos no <a href="https://developers.cardano.org/tools/?tags=indexer">catálogo de indexadores</a>.</p>
+<p>Serviços como o <a href="https://blockfrost.io/">Blockfrost</a> e o <a href="https://www.koios.rest/">Koios</a> oferecem APIs para consultar dados da Cardano. Quem desenvolve a aplicação pode usar esses serviços ou operar um nó com seus próprios serviços de consulta. Nesse segundo caso, também será necessário cuidar da atualização dos dados e manter o acesso disponível. Outras opções de acesso estão no <a href="https://developers.cardano.org/tools/?tags=api">catálogo de provedores de API</a>.</p>
+<!-- Visual sources: cardano-workshop-visual-language/assets/svg/objects/system.svg and objects/network.svg; simplified access scene from scenes/cardano-as-infrastructure.svg. -->
+<figure class="fig" style="width:100%">
+<div role="region" tabindex="0" aria-label="Diagrama da aplicação, do serviço de acesso e da rede Cardano; permite rolagem horizontal em telas estreitas" style="max-width:100%;overflow-x:auto;background:transparent;border-radius:8px">
+<svg aria-label="Uma aplicação se conecta à rede Cardano por uma API de acesso. O serviço e a aplicação são distintos da rede." role="img" viewBox="0 0 780 300" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;min-width:650px;height:auto" preserveAspectRatio="xMidYMid meet">
+<path d="M220 144 H310 M490 144 H557" style="fill:none;stroke:var(--deck-blue);stroke-width:3;stroke-dasharray:9 8;stroke-linecap:round"></path>
+<g transform="translate(10 35) scale(.75)" aria-hidden="true">
+<rect height="180" rx="9" style="fill:var(--paper);stroke:var(--ink);stroke-width:4" width="240" x="40" y="43"></rect><line style="stroke:var(--ink);stroke-width:4" x1="40" x2="280" y1="87" y2="87"></line><circle cx="65" cy="65" r="6" style="fill:var(--deck-blue)"></circle>
+<text x="66" y="128" style="font-family:Switzer,Arial,sans-serif;fill:var(--ink);font-size:24px;font-weight:700">Aplicação</text><text x="66" y="165" style="font-family:Switzer,Arial,sans-serif;fill:var(--ink-dim);font-size:18px">interface e serviços</text><text x="66" y="195" style="font-family:Switzer,Arial,sans-serif;fill:var(--ink-dim);font-size:18px">consultas e envios</text>
+</g>
+<g transform="translate(280 35) scale(.75)" aria-hidden="true">
+<rect height="180" rx="9" style="fill:var(--paper);stroke:var(--ink);stroke-width:4" width="240" x="40" y="43"></rect><line style="stroke:var(--ink);stroke-width:4" x1="40" x2="280" y1="87" y2="87"></line><circle cx="65" cy="65" r="6" style="fill:var(--deck-blue)"></circle>
+<text x="66" y="128" style="font-family:Switzer,Arial,sans-serif;fill:var(--ink);font-size:24px;font-weight:700">Acesso</text><text x="66" y="165" style="font-family:Switzer,Arial,sans-serif;fill:var(--ink-dim);font-size:18px">API de um provedor</text><text x="66" y="195" style="font-family:Switzer,Arial,sans-serif;fill:var(--ink-dim);font-size:18px">de infraestrutura</text>
+</g>
+<g transform="translate(535 50) scale(.65)" aria-hidden="true">
+<path d="M62 135 L180 58 L298 135 L180 212 Z M62 135 H298 M180 58 V212" style="fill:none;stroke:var(--deck-blue);stroke-width:4;stroke-linecap:round;stroke-linejoin:round"></path><circle cx="62" cy="135" r="30" style="fill:var(--paper);stroke:var(--deck-blue);stroke-width:3"></circle><circle cx="180" cy="58" r="30" style="fill:var(--paper);stroke:var(--deck-blue);stroke-width:3"></circle><circle cx="298" cy="135" r="30" style="fill:var(--paper);stroke:var(--deck-blue);stroke-width:3"></circle><circle cx="180" cy="212" r="30" style="fill:var(--paper);stroke:var(--deck-blue);stroke-width:3"></circle><text x="180" y="271" text-anchor="middle" style="fill:var(--ink);font-family:Switzer,Arial,sans-serif;font-size:25px;font-weight:700">REDE CARDANO</text>
+</g>
+<text x="255" y="245" text-anchor="middle" style="fill:var(--ink-dim);font-family:Switzer,Arial,sans-serif;font-size:18px">rota de acesso</text><text x="390" y="282" text-anchor="middle" style="fill:var(--ink);font-family:Switzer,Arial,sans-serif;font-size:19px">O serviço de acesso conecta a aplicação à rede.</text>
+</svg>
+</div>
+<figcaption>Neste caminho, a aplicação usa a API de um provedor para consultar dados e enviar operações. O provedor mantém a conexão com a rede e os serviços que atendem à aplicação.</figcaption>
+</figure>
+<p>Um provedor pode exigir cadastro, limitar consultas ou cobrar pelo acesso. Essas condições pertencem ao serviço oferecido. Trocar de provedor pode exigir novas credenciais, outras chamadas de API e adaptações aos formatos de resposta, embora a aplicação continue consultando a mesma rede.</p>
+<p>Se a API parar de responder, a aplicação pode ficar sem os dados que precisa mostrar. O erro indica uma falha naquele caminho de consulta; ele não informa, por si só, se os nós continuam aceitando operações. Também é possível receber uma resposta com dados atrasados, caso o serviço ainda não tenha acompanhado os registros mais recentes.</p>
+<h3 id="aula-1-1-transacoes">3. Como uma operação entra no registro</h3>
+<p>Consultar um dado já publicado não acrescenta uma operação ao histórico. Para propor uma mudança, a aplicação precisa preparar uma <strong>transação</strong>. Ela descreve o que se pretende fazer e reúne as autorizações exigidas, em um formato que os nós conseguem verificar.</p>
+<p>Uma transferência de ADA, a moeda da Cardano, é um exemplo: a transação informa quais fundos serão usados e para onde vão. Os nós conferem as autorizações, como as assinaturas estudadas no Módulo 0, e verificam se esses fundos ainda estão disponíveis. Uma transação também pode publicar dados ou criar outros ativos digitais, desde que cumpra as regras correspondentes.</p>
+<h4>Enviar e acompanhar o resultado</h4>
+<p>A transação preparada precisa chegar a um nó. A aplicação pode enviá-la por um serviço de submissão, que recebe os dados e os encaminha à rede. Esse serviço pode estar disponível na mesma API usada para consultas. A mensagem de que o serviço recebeu o envio confirma essa etapa; ainda é necessário acompanhar o resultado para saber se a operação entrou no histórico.</p>
+<p>As verificações feitas pelos nós podem impedir a aceitação da transação. Se faltar uma assinatura exigida, por exemplo, reenviar os mesmos dados por outro provedor não supre essa falta. As credenciais usadas para acessar a API autorizam o uso do serviço; elas não substituem as autorizações exigidas na transação. A operação também precisa cobrir as taxas da rede, que são distintas de uma eventual cobrança do provedor.</p>
+<h4>O histórico e o estado atual</h4>
+<p>Os nós que produzem <strong>blocos</strong> reúnem transações e propõem sua inclusão no histórico. Os demais nós verificam os blocos recebidos. Cada bloco traz uma referência ao anterior por meio de um hash; essas ligações formam a <strong>blockchain</strong>, ou cadeia de blocos. A escolha de qual cadeia acompanhar segue as regras de <strong>consenso</strong> do protocolo.</p>
+<p>A verificação de uma nova transação depende do resultado das anteriores. O <strong>ledger</strong> reúne o estado atual da rede, como os recursos disponíveis para movimentação, e as regras usadas para atualizá-lo. Cada nó aplica essas regras às transações dos blocos que aceita. Esse estado pode ser reconstruído a partir do histórico da blockchain.</p>
+<p>Depois do envio, a aplicação pode consultar uma fonte que indique a inclusão da transação em um bloco. Essa observação é diferente da resposta inicial do serviço de submissão. Conforme o uso e o risco, a aplicação pode aguardar mais blocos antes de tratar a operação como concluída. Esse é um exemplo de <strong>política de confirmação</strong>, que será discutida na <a href="#aula-1-3">Aula 1.3</a>.</p>
+<h3 id="aula-1-1-s4">4. O que continua na aplicação</h3>
+<h4 id="aula-1-1-regras">As regras da interface e as regras da rede</h4>
+<p>Desabilitar um botão de envio pode evitar um engano na interface, mas alguém ainda pode tentar construir a transação por outro programa. Quando uma autorização é exigida pelo protocolo, os nós a verificam independentemente da interface usada. Por isso, quem desenvolve a aplicação precisa saber quais restrições existem apenas em seu software e quais também serão verificadas pela rede.</p>
+<h4>Outras aplicações podem consultar os mesmos registros</h4>
+<p>Uma <strong>carteira</strong> consulta ativos e organiza o uso de chaves para autorizar movimentações. Um sistema de relatórios pode usar os mesmos registros para apresentar um histórico de operações. Cada aplicação organiza a informação conforme sua finalidade; a que criou uma transação não precisa ser a única capaz de consultá-la.</p>
+<h4 id="aula-1-1-publicacao">Escolher o que será publicado</h4>
+<p>A aplicação pode precisar guardar dados pessoais dos usuários e documentos que não devem se tornar públicos. Esses dados precisam de armazenamento e controles de acesso próprios. Usar Cardano não exige publicar todo o conteúdo do sistema; é necessário escolher quais informações podem fazer parte de uma transação pública.</p>
+<p>Depois de publicada, uma informação pode ser copiada e consultada fora da aplicação. Retirá-la de uma tela muda a apresentação, mas não apaga a publicação da blockchain. Isso precisa ser considerado antes do envio, quando ainda é possível decidir o que divulgar.</p>
+<p>A interface, os documentos e os serviços privados também continuam precisando de hospedagem e manutenção. Quem opera a aplicação cuida desse funcionamento e das informações que ela mostra ao usuário. A rede verifica as operações recebidas segundo o protocolo, sem assumir a operação desses outros serviços.</p>
+<div class="activity"><div class="box-label">Atividade 1: acompanhe a consulta e o envio</div>
+<p>Uma aplicação usa a API de um provedor para consultar registros e enviar transações a Cardano. Em cada situação abaixo, escolha a conclusão sustentada pelo que foi observado.</p>
+<form class="activity-quiz" data-answer="answer-aula-1-1-a1" id="quiz-aula-1-1-a1">
+<fieldset class="quiz-question"><legend>1. Ao consultar um histórico, a aplicação recebe da API a mensagem “serviço indisponível”. Nenhum dado é devolvido. Qual mensagem a aplicação pode mostrar ao usuário?</legend><div class="quiz-options">
+<label class="quiz-option"><input data-correct="true" name="q-aula-1-1-a1" type="radio" value="a"/><span class="quiz-option-text">Não foi possível consultar o histórico por este serviço.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-1-a1" type="radio" value="b"/><span class="quiz-option-text">A rede Cardano está temporariamente sem produzir blocos.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-1-a1" type="radio" value="c"/><span class="quiz-option-text">O histórico está vazio; nenhuma operação foi registrada.</span><span class="quiz-verdict"></span></label>
+</div><p aria-live="polite" class="quiz-question-feedback"></p></fieldset>
+<fieldset class="quiz-question"><legend>2. Ao enviar uma transação, a aplicação recebe a resposta “recebida para encaminhamento”. Essa resposta não informa um bloco. O que ela confirma?</legend><div class="quiz-options">
+<label class="quiz-option"><input name="q-aula-1-1-a2" type="radio" value="a"/><span class="quiz-option-text">A transação foi incluída no histórico; só falta a consulta atualizar.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input data-correct="true" name="q-aula-1-1-a2" type="radio" value="b"/><span class="quiz-option-text">O serviço recebeu o envio; ainda é preciso acompanhar o resultado e verificar a inclusão.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-1-a2" type="radio" value="c"/><span class="quiz-option-text">A transação foi recusada, pois a resposta ainda não identifica um bloco.</span><span class="quiz-verdict"></span></label>
+</div><p aria-live="polite" class="quiz-question-feedback"></p></fieldset>
+<fieldset class="quiz-question"><legend>3. Um nó rejeita uma transação porque falta uma assinatura exigida. A aplicação reenvia os mesmos dados por outro provedor, sem acrescentar a assinatura. O que muda?</legend><div class="quiz-options">
+<label class="quiz-option"><input name="q-aula-1-1-a3" type="radio" value="a"/><span class="quiz-option-text">A permissão de envio na nova API pode autorizar o gasto que ficou sem assinatura.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-1-a3" type="radio" value="b"/><span class="quiz-option-text">O novo provedor pode registrar a operação primeiro e solicitar a assinatura depois.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input data-correct="true" name="q-aula-1-1-a3" type="radio" value="c"/><span class="quiz-option-text">Muda o caminho de envio, mas a condição continua não satisfeita: a transação precisa da assinatura.</span><span class="quiz-verdict"></span></label>
+</div><p aria-live="polite" class="quiz-question-feedback"></p></fieldset>
+<fieldset class="quiz-question"><legend>4. Um site passa a ocultar um registro já publicado, mudando apenas o filtro de exibição da página. Qual é o alcance dessa alteração?</legend><div class="quiz-options">
+<label class="quiz-option"><input data-correct="true" name="q-aula-1-1-a4" type="radio" value="a"/><span class="quiz-option-text">O registro deixa de aparecer nessa página, mas continua publicado e pode ser consultado por outros sistemas.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-1-a4" type="radio" value="b"/><span class="quiz-option-text">O registro deixa de aparecer também nas consultas de outras aplicações que usam o mesmo provedor.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-1-a4" type="radio" value="c"/><span class="quiz-option-text">A alteração será refletida na rede quando os indexadores sincronizarem a remoção.</span><span class="quiz-verdict"></span></label>
+</div><p aria-live="polite" class="quiz-question-feedback"></p></fieldset>
+<div class="quiz-actions"><button class="quiz-check" disabled="" type="submit">Conferir respostas</button><p aria-live="polite" class="quiz-status" tabindex="-1">0 de 4 perguntas respondidas.</p></div>
+</form>
+<details class="answer" id="answer-aula-1-1-a1"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Conferir resposta</summary><div class="answer-body">
+<ol>
+<li>A primeira alternativa descreve o que foi observado: a consulta falhou naquele serviço. Uma falha ao obter dados não demonstra que o histórico está vazio nem que a produção de blocos parou. Retome <a href="#aula-1-1-consultas">o caminho da consulta</a> se você atribuiu o erro diretamente à rede.</li>
+<li>A segunda alternativa distingue o recebimento pelo serviço da inclusão no histórico. A ausência de um bloco nessa resposta também não demonstra rejeição. É preciso acompanhar o resultado do envio, como descrito em <a href="#aula-1-1-transacoes">Como uma operação entra no registro</a>.</li>
+<li>A terceira alternativa mantém a exigência da assinatura. Credenciais da API permitem usar o serviço de acesso, mas não autorizam o gasto dos fundos. O novo provedor pode receber o envio; os mesmos dados continuam sem atender à condição exigida pelos nós.</li>
+<li>A primeira alternativa limita a mudança à página em que o filtro foi aplicado. O site não apagou o registro da rede nem alterou o serviço consultado por outras aplicações. O indexador acompanha dados da rede, não as decisões de exibição de cada site. Retome <a href="#aula-1-1-publicacao">a escolha do que publicar</a> para rever essa diferença.</li>
+</ol>
+</div></details>
+</div>
+<div class="closing"><h3>O que aprendemos</h3>
+<ul>
+<li>A aplicação consulta dados por serviços de acesso, que podem usar indexadores para organizar informações da rede. Uma falha nesse caminho não demonstra, sozinha, uma falha da rede inteira.</li>
+<li>Uma transação propõe uma operação. O recebimento pelo serviço de submissão e a inclusão em um bloco são etapas distintas, que a aplicação precisa acompanhar.</li>
+<li>Os nós verificam transações e blocos segundo o protocolo. O histórico da blockchain permite reconstruir o estado do ledger.</li>
+<li>A interface e os dados privados continuam precisando de serviços próprios. Uma mudança na tela não dispensa autorizações da rede nem apaga registros já publicados.</li>
+</ul></div>
+
+<div class="bridge"><h3>Próxima aula</h3><p>Uma operação pode chegar a um nó e ainda assim ser recusada. Na próxima aula, veremos como o software separa a comunicação com outros nós, a escolha da cadeia e a verificação das mudanças no ledger. Isso permite investigar essas etapas sem confundir um problema de consulta com uma falha na aceitação das operações.</p></div>

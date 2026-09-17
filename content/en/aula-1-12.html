@@ -1,0 +1,150 @@
+---
+title: 'Plutus: validate the effects of a state change'
+short_title: Plutus and transitions
+map_title: Plutus
+summary: Compare datum, redeemer and context; distinguish validation phases and plan migration.
+---
+
+<div class="objectives"><div class="box-label">Objectives</div><ol class="objective-list">
+<li>Locate the state, requested action and observable effects in a spending attempt.</li>
+<li>Test a state-continuation rule without relying solely on the redeemer.</li>
+<li>Distinguish phase-1 and phase-2 failures and migration between script versions.</li>
+</ol></div>
+<div class="prereq"><div class="box-label">Before you begin</div><p>Review eUTxO in Lesson 1.7, fees and validity in Lesson 1.8 and native scripts in Lesson 1.10. You already know that a transaction proposes consuming outputs and creating others; now we will examine the rule that accepts or rejects that proposal.</p><div class="guide-q"><span class="guide-q-label">Guiding question</span><p>The redeemer requests an “increment”. How can we prevent the transaction from creating a different version from the one requested?</p></div></div>
+
+<h3 id="aula-1-12-s1">1. A rule that needs to see the outputs</h3>
+<p>A record is at version 3 and must advance to exactly 4. Requiring two signatures before a deadline would fit a native script. Requiring the new output to preserve the record and contain the correct version needs access to the transaction's data and effects. This is one use of <strong>Plutus</strong>.</p>
+<p>A Plutus spending validator runs when a transaction attempts to consume an output protected by its script credential. It is neither a continuously running service nor a function that changes the ledger from within. The builder proposes inputs and outputs; the script decides whether the attempt satisfies its conditions. The ledger applies the transition only under the relevant validation and inclusion rules.</p>
+<p>Native scripts and Plutus are alternatives chosen according to the information needed. Plutus adds expressiveness and execution costs; it is not a mandatory step in every issuance or transfer. Languages such as Aiken, OpShin and plu-ts let you write these rules. Their compilers produce UPLC (Untyped Plutus Core) code, which the network evaluates. The program written by the developer and the code executed by the ledger are different representations; compiling without errors does not demonstrate that the rule is correct.</p>
+
+<h3 id="aula-1-12-s2">2. Datum, redeemer and context</h3>
+<p>The <strong>datum</strong> is the data associated with the protected state. It can appear directly in the output as an inline datum under CIP-32, or be committed to by a datum hash and supplied when needed. The <strong>redeemer</strong> is supplied in the candidate transaction: it states which action is being requested. The <strong>ScriptContext</strong> is built by the ledger and exposes transaction information relevant to the script's purpose.</p>
+<p>Inputs, outputs, mint, the validity interval, signatories and reference inputs can inform the decision depending on the Plutus version and purpose. The exact form of the arguments varies between versions; separating state, request and context remains useful. The signatories visible to the script are not an arbitrary list of all witnesses: the builder must declare the relevant required signers in the body, and the ledger requires their signatures.</p>
+<!-- Reuse the banknote symbol introduced in Lesson 1.7 (u7-note) within the complete book.
+     Workshop objects/utxo-active.svg, datum-compact.svg and transaction-body.svg.
+     Preserve note and ticket proportions. Both outputs show 2 ADA, matching valor: 2
+     in the exercise; only the datum version changes. This is a proposal, not an accepted spend. -->
+<style id="aula-1-12-objects-styles">
+#aula-1-12 .u12-figure { width:100%; max-width:100%; margin:30px 0; font-family:var(--font-sans); }
+#aula-1-12 .u12-flow { display:grid; grid-template-columns:minmax(0,1fr) 24px 140px 24px minmax(0,1fr); gap:8px; align-items:center; }
+#aula-1-12 .u12-flow > * { min-width:0; }
+#aula-1-12 .u12-figure svg { display:block; width:100%; height:auto; }
+#aula-1-12 .u12-label { display:block; margin-bottom:8px; font-size:14px; color:var(--ink-dim); }
+#aula-1-12 .u12-arrow { color:var(--deck-blue); font-size:28px; }
+#aula-1-12 .u12-kind { fill:#176c64; font:600 22px var(--font-sans); }
+#aula-1-12 .u12-value { fill:#176c64; font:600 32px var(--font-mono); text-anchor:end; }
+#aula-1-12 .u12-serial { fill:#272727; font:600 30px var(--font-mono); }
+#aula-1-12 .u12-address { fill:#404040; font:22px var(--font-sans); }
+#aula-1-12 .u12-datum-title { fill:#176c64; font:600 22px var(--font-sans); text-anchor:middle; }
+#aula-1-12 .u12-version { fill:#272727; font:24px var(--font-sans); text-anchor:middle; }
+#aula-1-12 .u12-ticket-title { fill:#2f6787; font:600 28px var(--font-sans); text-anchor:middle; }
+#aula-1-12 .u12-action { fill:#272727; font:27px var(--font-mono); text-anchor:middle; }
+#aula-1-12 .u12-rule { margin:20px 0 12px; font-size:16px; }
+@media(max-width:620px) {
+  #aula-1-12 .u12-flow { grid-template-columns:1fr; gap:12px; }
+  #aula-1-12 .u12-state { width:280px; max-width:100%; margin:auto; }
+  #aula-1-12 .u12-ticket { width:160px; max-width:100%; margin:auto; }
+  #aula-1-12 .u12-arrow { transform:rotate(90deg); }
+}
+@media print { #aula-1-12 .u12-figure { break-inside:avoid; } }
+</style>
+<figure class="fig u12-figure" id="fig-aula-1-12-proposta" aria-labelledby="caption-aula-1-12-proposta" data-visual-revision="f4536110de13ab69c1b42311b823f84afdc2b6f7">
+<div class="u12-flow">
+<div class="u12-state"><span class="u12-label">Current output</span>
+<svg viewBox="20 20 355 282" role="img" aria-label="Output from the transaction whose hash starts with a61f8e4c2d90, index zero: 2 ADA at the contador script, with the datum for record REC-0042 at version 3">
+<use href="#u7-note" width="390" height="230" data-visual-asset="objects/utxo-active.svg"/>
+<text class="u12-kind" x="48" y="61">UTxO</text><text class="u12-value" x="340" y="63">2 ₳</text>
+<text class="u12-serial" x="48" y="108">a61f8e4c2d90…#0</text><text class="u12-address" x="48" y="160">Script: contador</text>
+<path d="M252 197 C256 210 263 215 275 222" fill="none" stroke="#176c64" stroke-width="2.5" stroke-linecap="round"/>
+<g transform="rotate(-2 275 250)" data-visual-asset="objects/datum-compact.svg">
+<rect x="179" y="218" width="192" height="60" rx="7" fill="#dff5e9" stroke="#247d72" stroke-width="3" style="filter:drop-shadow(2px 3px 0 rgba(39,39,39,.13))"/>
+<circle cx="275" cy="224" r="5" fill="#c8eadc" stroke="#176c64" stroke-width="2.5"/>
+<text class="u12-datum-title" x="275" y="249">Datum · REC-0042</text><text class="u12-version" x="275" y="271">version = 3</text>
+</g></svg></div>
+<span class="u12-arrow" aria-hidden="true">→</span>
+<div class="u12-ticket"><span class="u12-label">Candidate transaction</span>
+<svg viewBox="0 0 270 230" role="img" aria-label="The candidate transaction requests Incrementar through the redeemer">
+<g transform="translate(-570 -235)">
+<path data-visual-asset="objects/transaction-body.svg" d="M603 245 H802 L820 263 V337 C808 337 808 361 820 361 V427 L802 445 H603 L585 427 V361 C597 361 597 337 585 337 V263 Z" fill="#fff7e3" stroke="#2f6787" stroke-width="3" stroke-linejoin="round" style="filter:drop-shadow(2px 3px 0 rgba(39,39,39,.14))"/>
+<text class="u12-ticket-title" x="702" y="287">Redeemer</text>
+<path d="M610 307 H795 M610 405 H795" fill="none" stroke="#2f6787" stroke-width="2" stroke-dasharray="5 6"/>
+<text class="u12-action" x="702" y="363">Incrementar</text>
+</g></svg></div>
+<span class="u12-arrow" aria-hidden="true">→</span>
+<div class="u12-state"><span class="u12-label">Proposed output</span>
+<svg viewBox="20 20 355 282" role="img" aria-label="Proposed output from the transaction whose hash starts with c8b03a7d19e2, index zero: the same 2 ADA at the contador script, with the datum for record REC-0042 at version 4">
+<use href="#u7-note" width="390" height="230" data-visual-asset="objects/utxo-active.svg"/>
+<text class="u12-kind" x="48" y="61">UTxO</text><text class="u12-value" x="340" y="63">2 ₳</text>
+<text class="u12-serial" x="48" y="108">c8b03a7d19e2…#0</text><text class="u12-address" x="48" y="160">Script: contador</text>
+<path d="M252 197 C256 210 263 215 275 222" fill="none" stroke="#176c64" stroke-width="2.5" stroke-linecap="round"/>
+<g transform="rotate(-2 275 250)" data-visual-asset="objects/datum-compact.svg">
+<rect x="179" y="218" width="192" height="60" rx="7" fill="#dff5e9" stroke="#247d72" stroke-width="3" style="filter:drop-shadow(2px 3px 0 rgba(39,39,39,.13))"/>
+<circle cx="275" cy="224" r="5" fill="#c8eadc" stroke="#176c64" stroke-width="2.5"/>
+<text class="u12-datum-title" x="275" y="249">Datum · REC-0042</text><text class="u12-version" x="275" y="271">version = 4</text>
+</g></svg></div>
+</div>
+<p class="u12-rule">The contador script requires exactly one successor, locked by the same script, with the same value and the previous version plus one.</p>
+<figcaption id="caption-aula-1-12-proposta">Requesting “Incrementar” (“Increment”) does not authorize a jump to version 7. The proposed output is created only if the transaction is validated and included. Illustrative, abbreviated hashes; fees and other inputs and outputs omitted.</figcaption>
+</figure>
+<p>Transaction metadata is auxiliary data and does not appear in the ScriptContext. Putting <code>approved: true</code> in metadata does not give the validator a verifiable condition. Information needed by the rule must arrive through visible structures such as the datum, redeemer or outputs. The script also does not download a report from its URL; it checks the supplied data and the commitments defined in the application.</p>
+
+<h3 id="aula-1-12-s3">3. Check the output, not just the request</h3>
+<p>The example follows the continuation of a single record. The <code>successors</code> list contains all candidate outputs for that record. The rule requires exactly one, locked by the same script, with the same value and the previous version plus one. In a real application, the state must be identified unambiguously, for example by a unique token whose policy guarantees that uniqueness. Merely finding an output with the same name or datum does not authenticate the state's origin.</p>
+<div class="activity" data-progress-id="plutus-successor-effects-activity"><div class="box-label">Activity 1: validate the continuation</div>
+<p>The initial code checks only the redeemer. Fix <code>continues</code> to also check the number of successors, the script, the value and the version actually proposed. Keep the test data: the function must accept the correct update and reject the others. This is instructional Python, not a compilable validator or a complete transaction. The fixed data uses <code>contador</code> (“counter”), <code>valor</code> (“value”) and <code>versao</code> (“version”); the actions <code>Incrementar</code> and <code>Encerrar</code> mean “Increment” and “Close”.</p>
+<pre data-python-runner="true" data-exercise-id="plutus-successor-effects" data-exercise-version="1" data-validator="plutus-successor-effects-tests"><code class="language-python">def continues(previous, redeemer, successors):
+    return redeemer == "Incrementar"
+
+previous = {"script": "contador", "valor": 2, "versao": 3}
+correct = {"script": "contador", "valor": 2, "versao": 4}
+jump = {"script": "contador", "valor": 2, "versao": 7}
+print("increment:", continues(previous, "Incrementar", [correct]))
+print("jump:", continues(previous, "Incrementar", [jump]))
+</code></pre>
+<details class="answer"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Check answer</summary><div class="answer-body"><p>First reject a redeemer other than <code>Incrementar</code> or a list whose length is not 1. Then compare the single successor: the script and value must match the previous ones, and <code>versao == previous["versao"] + 1</code>. The correct attempt passes; the jump to 7 fails. Preserving two fields does not compensate for violating the third. The builder must still satisfy the fee, accounting, state identification and other rules outside this example.</p></div></details>
+</div>
+<script type="application/json" id="plutus-successor-effects-tests">
+{
+  "version": 1,
+  "tests": [
+    {
+      "name": "Correct continuation",
+      "code": "a = {'script': 'contador', 'valor': 2, 'versao': 3}\nb = {'script': 'contador', 'valor': 2, 'versao': 4}\nassert continues(a, 'Incrementar', [b]) is True, 'Accept the single successor that preserves script and value and increments the version.'\nassert continues({**a, 'versao': 8}, 'Incrementar', [{**b, 'versao': 9}]) is True, 'Calculate the increment from the supplied state.'"
+    },
+    {
+      "name": "The request does not replace the effects",
+      "code": "for field, value in [('versao', 7), ('script', 'chave-do-atacante'), ('valor', 1)]:\n    assert continues(a, 'Incrementar', [{**b, field: value}]) is False, 'Check the version, script and value in the output, not just the redeemer.'\nassert continues(a, 'Encerrar', [b]) is False, 'This rule accepts only Incrementar.'"
+    },
+    {
+      "name": "Exactly one successor",
+      "code": "assert continues(a, 'Incrementar', []) is False, 'The rule does not allow the state to be removed.'\nassert continues(a, 'Incrementar', [b, b]) is False, 'Do not accept two successors for the same state.'"
+    }
+  ]
+}
+</script>
+
+
+<h3 id="aula-1-12-s4">4. Phase-1 failure, phase-2 failure and collateral</h3>
+<p>Phase 1 checks conditions such as structure, available inputs, value conservation, key witnesses, native scripts and time validity. A failure in this phase rejects the transaction without executing the collection path for a Plutus failure. In phase 2, Plutus scripts are evaluated with CPU and memory budgets. A logically correct rule can still fail because of insufficient resources or incorrect assembly.</p>
+<p>If Plutus evaluation succeeds and the transaction is included through the normal path, normal inputs are consumed and the proposed outputs are created. Collateral is not collected on that path. If a transaction passes phase 1 and is included marked as invalid in phase 2, the normal transition does not occur: the record's eUTxO remains available and normal outputs are not created. The ledger applies the collateral path separately.</p>
+<p><strong>Collateral inputs</strong> are explicit references to suitable UTxOs, not an abstract wallet balance. The net amount collectible must meet the current rules and parameters. Under rules with collateral return, the excess can return in its own output; any tokens present must be returned, since the net collection is in ADA. A simple selection uses ADA-only collateral. <code>total_collateral</code>, when present, must match the applicable difference. A failed local simulation does not automatically collect collateral: evaluation, submission and inclusion must be distinguished.</p>
+<p>Outputs' minimum ADA depends on their size and the era's parameters; it is not universally 1 ADA. Use a compatible library and evaluate scripts before requesting a signature.</p>
+<div class="activity" data-progress-id="plutus-failure-path-activity"><div class="box-label">Activity 2: follow the invalid attempt</div><p>The transaction proposing version 7 passes phase 1, fails phase 2 and is included marked as invalid. Which state remains?</p><form class="activity-quiz" data-progress-id="plutus-failure-path-quiz" data-answer="answer-plutus-failure-path" id="quiz-plutus-failure-path"><fieldset class="quiz-question"><legend>Which outcome corresponds to the phase-2-invalid path?</legend><div class="quiz-options">
+<label class="quiz-option"><input name="plutus-failure-path" type="radio" value="a"/><span class="quiz-option-text">The record becomes version 7, but the additional fee signals that the update was incorrect.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="plutus-failure-path" type="radio" value="b" data-correct="true"/><span class="quiz-option-text">The record remains at version 3; there is no normal successor. The collateral path applies according to the fields and rules.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="plutus-failure-path" type="radio" value="c"/><span class="quiz-option-text">The previous record is consumed with no successor; collateral replaces the value of the lost record.</span><span class="quiz-verdict"></span></label>
+</div><p aria-live="polite" class="quiz-question-feedback"></p></fieldset><div class="quiz-actions"><button class="quiz-check" disabled="" type="submit">Check answers</button><p aria-live="polite" class="quiz-status" tabindex="-1">0 of 1 questions answered.</p></div></form>
+<details class="answer" id="answer-plutus-failure-path"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Check answer</summary><div class="answer-body"><p>The second option preserves the normal inputs and separates collateral collection. The rejected increment is not partially applied. Version 3 remains in the script output.</p></div></details>
+</div>
+
+<h3 id="aula-1-12-s5">5. A new code version does not move the state</h3>
+<p>Changing the script's bytes changes its hash and the address credential. Publishing V2 or pointing the interface to another address does not transfer the outputs protected by V1. A migration must consume the old state through a transaction accepted by V1's rules and create state compatible with V2.</p>
+<p>Plan this exit before locking value: the permitted destination, authorization, new datum format and asset preservation. Test the normal path, invalid attempts and migration, with auditing and monitoring proportionate to the risk. If V1 does not allow a suitable exit, that permission cannot be added retroactively just by publishing another script; the state may become locked in place.</p>
+
+<div class="closing"><h3>What we learned</h3><ul>
+<li>Plutus checks a candidate transaction using state, request and context.</li>
+<li>The redeemer does not replace checking the effects in the outputs.</li>
+<li>An invalid phase 2 does not apply the normal transition; collateral has a separate path.</li>
+<li>Migrating state requires a transaction accepted by the script currently protecting it.</li>
+</ul></div>
+<div class="bridge"><h3>Next lesson</h3><p>We will use this continuation rule to understand CIP-68: one token can circulate with the user while another identifies the output containing the updatable reference state.</p></div>

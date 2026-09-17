@@ -1,0 +1,15 @@
+<section class="module-references" id="referencias-modulo-2">
+<h2>Referências do Módulo 2</h2>
+<p>Os perfis <code>guia.eventos.v1</code> e <code>guia.abertura.v1</code> são receitas didáticas definidas nas aulas, não padrões de Cardano. Consulte as especificações e registre a revisão usada antes de implementar uma integração.</p>
+<ul class="sources-list">
+<li><a href="https://csrc.nist.gov/pubs/fips/180-4/upd1/final" rel="noopener" target="_blank">NIST FIPS 180-4</a>: definição de SHA-256, usado nos exemplos de eventos, Merkle e abertura.</li>
+<li><a href="https://www.rfc-editor.org/rfc/rfc8785" rel="noopener" target="_blank">RFC 8785</a>: JSON Canonicalization Scheme. A serialização limitada da Aula 2.1 não implementa todo esse esquema.</li>
+<li><a href="https://www.rfc-editor.org/rfc/rfc9162" rel="noopener" target="_blank">RFC 9162, seção 2</a>: árvores Merkle, provas de inclusão e provas de consistência no protocolo Certificate Transparency. A Aula 2.2 usa os mesmos prefixos para folhas e nós internos em um exemplo de quatro arquivos; não implementa o protocolo completo.</li>
+<li><a href="https://developers.cardano.org/docs/developers/curriculum/fundamentals/core-concepts/fees/" rel="noopener" target="_blank">Cardano Developer Portal: taxas</a>: componentes das taxas e parâmetros. A Aula 2.3 combina um fluxo hipotético de eventos com a medição de transação e os parâmetros consultados na Aula 1.8.</li>
+<li><a href="https://github.com/IntersectMBO/cardano-ledger" rel="noopener" target="_blank">Cardano Ledger</a>: implementação e especificações para conferir as regras da era usada no cálculo de transações.</li>
+<li><a href="https://hydra.family/head-protocol/docs/protocol-overview" rel="noopener" target="_blank">Hydra Head protocol</a>: participantes, commits, estado aberto, snapshots, fechamento, contestação e fanout.</li>
+<li><a href="https://docs.python.org/3/library/secrets.html" rel="noopener" target="_blank">Python: secrets</a>: fonte de aleatoriedade usada para o nonce descartável da Aula 2.4.</li>
+<li><a href="https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm" rel="noopener" target="_blank">LGPD</a> e <a href="https://eur-lex.europa.eu/eli/reg/2016/679/oj" rel="noopener" target="_blank">GDPR</a>: fontes oficiais para finalidade, minimização e proteção de dados pessoais. Um mecanismo criptográfico, sozinho, não estabelece conformidade.</li>
+</ul>
+<p class="disclaimer">Este material orienta aprendizagem técnica. Não substitui especificações vigentes, parecer jurídico ou avaliação de conformidade.</p>
+</section>

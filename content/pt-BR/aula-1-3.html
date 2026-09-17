@@ -1,0 +1,38 @@
+---
+title: Ouroboros, slots, epochs e stake
+map_title: Ouroboros
+summary: Raciocinar sobre produção de blocos e políticas de confirmação.
+description: Entender o relógio do protocolo e formular conclusões proporcionais sobre produção e confirmação.
+---
+
+<div class="objectives"><div class="box-label">Objetivos</div><p>Ao final desta aula, você será capaz de:</p><ol class="objective-list"><li>distinguir slot, bloco e epoch;</li><li>explicar em alto nível como stake participa da seleção de líderes;</li><li>formular uma política de confirmação sem prometer finalização instantânea.</li></ol></div>
+<div class="prereq"><div class="box-label">Antes de começar</div><p>Retome as funções de consenso e ledger na Aula 1.2.</p><div class="guide-q"><span class="guide-q-label">Pergunta-guia</span><p>Todo slot contém um bloco, e um bloco observado torna uma transação irreversível?</p></div></div>
+<h3 id="aula-1-3-s1">1. Slots, blocos e epochs</h3>
+<p>Slots são intervalos numerados usados pelo protocolo. Epochs agrupam slots e servem de referência para parâmetros e atividades que evoluem em ciclos. Um slot pode não produzir bloco, e um bloco pode conter várias transações. Portanto, slot, bloco e transação não formam uma relação de um para um.</p>
+<p>Horários exibidos por uma interface são conversões feitas por ferramentas. Para uma observação reproduzível, preserve rede, slot, bloco, fonte e horário da consulta. Uma data amigável sem o contexto da rede não substitui o identificador técnico.</p>
+<h3 id="aula-1-3-s2">2. Stake, pools e liderança</h3>
+<p>Quem possui ADA pode delegar a participação associada a esse valor, chamada <strong>stake</strong>, a um pool. O operador do pool mantém a infraestrutura para produzir blocos. A delegação não transfere a propriedade do ADA nem entrega a chave de pagamento: o operador não pode gastar os valores do delegador.</p>
+<p>Na família Ouroboros, o stake ativo associado ao pool influencia sua chance de produzir blocos. Uma parcela maior aumenta essa chance, mas não garante um bloco em cada intervalo. A seleção segue regras verificáveis do protocolo, sem um coordenador central escolhendo o próximo produtor.</p>
+<p>O produtor de um bloco propõe uma extensão da cadeia. Os demais nós ainda verificam o bloco e aplicam as regras de consenso e ledger. Produzir não significa ter autoridade para alterar arbitrariamente as regras.</p>
+<h3 id="aula-1-3-s3">3. Inclusão observada e confiança operacional</h3>
+<p>Uma transação observada em um bloco está incluída na cadeia vista por aquela fonte naquele momento. Perto da ponta podem existir cadeias candidatas concorrentes. Aplicações aguardam profundidade adicional ou outra condição operacional conforme valor, risco e tolerância.</p>
+<p>O protocolo oferece propriedades probabilísticas sob premissas de segurança. A aplicação precisa declarar sua política, em vez de escrever apenas “final”. Uma interface pode distinguir pelo menos três estados: submetida ao endpoint, incluída na cadeia observada e aceita pela política interna após a condição definida.</p>
+<div class="sp-box note"><span class="sp-col-title">Conclusão proporcional</span><p>“Incluída no bloco observado e aceita após a política de confirmação configurada” é mais precisa que “irreversível”. A política deve registrar sua fonte, condição e versão.</p></div>
+<h3 id="aula-1-3-s4">4. O que consenso não prova</h3>
+<p>Consenso organiza uma história de transações válidas. Ele não verifica automaticamente a identidade jurídica de quem controla uma chave, a finalidade institucional de uma transferência nem a verdade de um documento citado por hash. Essas perguntas reaparecem nas aulas sobre assinaturas, metadata e evidência.</p>
+<div class="activity"><div class="box-label">Atividade 1: reconheça o estado da transação</div><p>Uma aplicação submeteu uma transação e depois encontrou seu identificador em um explorer. O sistema só deve liberar o relatório após cumprir a política de confirmação definida pela equipe.</p><form class="activity-quiz" data-answer="answer-aula-1-3-a1" id="quiz-aula-1-3-a1"><fieldset class="quiz-question"><legend>Qual texto evita confundir observação com garantia absoluta?</legend><div class="quiz-options">
+<label class="quiz-option"><input data-correct="true" name="q-aula-1-3-a1" type="radio" value="a"/><span class="quiz-option-text">Incluída no bloco observado; aguardando a condição definida pela política interna antes do relatório final.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-3-a1" type="radio" value="b"/><span class="quiz-option-text">Recebida pelo endpoint, portanto irreversível e correta em qualquer sistema externo.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-3-a1" type="radio" value="c"/><span class="quiz-option-text">Todo slot produz um bloco, portanto basta aguardar exatamente um slot.</span><span class="quiz-verdict"></span></label>
+</div><p aria-live="polite" class="quiz-question-feedback"></p></fieldset><div class="quiz-actions"><button class="quiz-check" disabled="" type="submit">Conferir respostas</button><p aria-live="polite" class="quiz-status" tabindex="-1">0 de 1 pergunta respondida.</p></div></form>
+<details class="answer" id="answer-aula-1-3-a1"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Conferir resposta</summary><div class="answer-body"><p>Submetida: o endpoint recebeu o pacote. Incluída: uma fonte identificada mostra o tx id em um bloco e slot. Aceita internamente: a condição de profundidade, tempo ou corroboração definida pela operação foi atendida. A primeira alternativa registra o estado sem extrapolar a evidência.</p></div></details>
+</div>
+<div class="closing"><h3>O que aprendemos</h3>
+<ul>
+<li>Slots organizam oportunidades de produção de blocos; epochs agrupam slots. Slot e bloco não são a mesma coisa.</li>
+<li>Stake participa da seleção de líderes e da segurança do protocolo.</li>
+<li>Observar a inclusão de uma transação e aceitá-la operacionalmente são decisões diferentes. A política de confirmação precisa ser explícita.</li>
+<li>O consenso não comprova a verdade de um fato externo registrado na transação.</li>
+</ul></div>
+
+<div class="bridge"><h3>Próxima aula</h3><p>Os nós aplicam os parâmetros vigentes da rede, mas esses valores podem mudar. Na próxima aula, veremos como propostas técnicas e decisões de governança se relacionam com mudanças que afetam a construção de transações.</p></div>

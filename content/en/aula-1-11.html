@@ -1,0 +1,51 @@
+---
+title: 'Explorers: look up a transaction'
+short_title: Explorers
+map_title: Explorers
+summary: Open a real transaction and locate its identifier, block, fee and size.
+---
+
+<div class="objectives"><div class="box-label">Objectives</div><ol class="objective-list">
+<li>Find a transaction by its identifier.</li>
+<li>Locate the block, fee and size in an explorer.</li>
+<li>Check the same transaction on two sites.</li>
+</ol></div>
+<div class="prereq"><div class="box-label">Before you begin</div><p>An explorer is a website for looking up transactions, addresses and blocks. You do not need to connect a wallet to perform a lookup.</p><div class="guide-q"><span class="guide-q-label">Guiding question</span><p>Where can I check a transaction and how much it paid in fees?</p></div></div>
+
+<h3 id="aula-1-11-s1">1. Explorers you can use</h3>
+<ul>
+<li><a href="https://cardanoscan.io/" target="_blank" rel="noopener noreferrer">Cardanoscan</a></li>
+<li><a href="https://adastat.net/" target="_blank" rel="noopener noreferrer">AdaStat</a></li>
+<li><a href="https://cexplorer.io/" target="_blank" rel="noopener noreferrer">Cexplorer</a></li>
+<li><a href="https://explorer.cardano.org/" target="_blank" rel="noopener noreferrer">explorer.cardano.org</a>, which redirects to an explorer.</li>
+</ul>
+<p>Networks have separate histories. A Preprod transaction must be looked up in the Preprod version of the explorer. The links in the example below already point to that network.</p>
+
+<h3 id="aula-1-11-s2">2. Open this Preprod transaction</h3>
+<p>This is the identifier of a real transaction:</p>
+<p><code style="overflow-wrap:anywhere; white-space:normal">d9b7a0b3c9bdb62e5a76d9ab675342be002c335a05e1be5d7bc04872bf99865f</code></p>
+<p>Open the same transaction on <a href="https://preprod.cardanoscan.io/transaction/d9b7a0b3c9bdb62e5a76d9ab675342be002c335a05e1be5d7bc04872bf99865f" target="_blank" rel="noopener noreferrer">Cardanoscan</a>, on <a href="https://preprod.adastat.net/transactions/d9b7a0b3c9bdb62e5a76d9ab675342be002c335a05e1be5d7bc04872bf99865f" target="_blank" rel="noopener noreferrer">AdaStat</a> or on <a href="https://preprod.cexplorer.io/tx/d9b7a0b3c9bdb62e5a76d9ab675342be002c335a05e1be5d7bc04872bf99865f" target="_blank" rel="noopener noreferrer">Cexplorer</a>.</p>
+<p>The identifier may appear as <em>Transaction ID</em>, <em>Transaction Hash</em> or <em>Tx Hash</em>. Copy it to look up the transaction on another site.</p>
+
+<h3 id="aula-1-11-s3">3. Locate the fields</h3>
+<ul>
+<li><strong>Block:</strong> indicates where the transaction was included. In this example, it is block 5114018.</li>
+<li><strong>Fee:</strong> the amount paid for processing the transaction. In this example, 600628 lovelace, equivalent to 0.600628 ADA. Do not confuse the fee with the amount sent.</li>
+<li><strong>Size:</strong> the serialized size of the transaction. In this example, 1473 bytes.</li>
+</ul>
+<p>These values were queried through the <a href="https://preprod.koios.rest/api/v1/tx_info?_tx_hashes=%7Bd9b7a0b3c9bdb62e5a76d9ab675342be002c335a05e1be5d7bc04872bf99865f%7D" target="_blank" rel="noopener noreferrer">Preprod Koios API</a> on 17 September 2026. Explorers may use different names and formats to display the same data.</p>
+<p>The <em>inputs</em> and <em>outputs</em> lists show the inputs consumed and the outputs created. Click an output address to open its page in the explorer and see other transactions associated with it.</p>
+
+<h3 id="aula-1-11-s4">4. Check another explorer</h3>
+<div class="activity" data-progress-id="explorer-compare-fee-activity"><div class="box-label">Activity: find the fee in two explorers</div>
+<p>Open the Cardanoscan and AdaStat links above. Locate the identifier and fee on both sites. Confirm that you are looking at the same transaction.</p>
+<p>If one site shows ADA and the other lovelace, use <code>1 ADA = 1000000 lovelace</code> to compare them.</p>
+<details class="answer"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Check answer</summary><div class="answer-body"><p>The fee is 600628 lovelace, or 0.600628 ADA. The identifier should be the same on both pages. Compare the transaction data, not the appearance of the screens.</p></div></details>
+</div>
+
+<div class="closing"><h3>What we learned</h3><ul>
+<li>Cardanoscan, AdaStat and Cexplorer let you look up transactions; explorer.cardano.org provides a redirect.</li>
+<li>The identifier lets you find the same transaction in another explorer on the same network.</li>
+<li>Block, fee and size are distinct fields. ADA and lovelace express the same value in different units.</li>
+</ul></div>
+<div class="bridge"><h3>Next lesson</h3><p>Next, we will see how Plutus scripts express conditions that a transaction must satisfy.</p></div>

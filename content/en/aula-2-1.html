@@ -1,0 +1,200 @@
+---
+title: Events, hash chains and checkpoints
+map_title: Events and checkpoints
+summary: Link changes, detect rewrites and append corrections without erasing history.
+---
+
+<div class="objectives"><div class="box-label">Objectives</div><ol class="objective-list">
+<li>Build three hash-linked events and locate a broken link.</li>
+<li>Compare a sequence with a checkpoint obtained from an independent source.</li>
+<li>Append a correction and distinguish the history from the current view.</li>
+</ol></div>
+<div class="prereq"><div class="box-label">Before you begin</div><p>Review bytes and hashes in Module 0, metadata in Lesson 1.9 and transaction queries in Lesson 1.11. The examples use only the Python available in this booklet, with no wallet or network submission.</p><div class="guide-q"><span class="guide-q-label">Guiding question</span><p>If someone can recalculate all the hashes, what prevents them from presenting a different history?</p></div></div>
+
+<h3 id="aula-2-1-s1">1. The result changed, but the notification has already gone out</h3>
+<p>A system tracks test <code>T-0142</code>. It first creates the record as pending. It then records a passing result. Finally, it records that it sent a notification to the portal. The screen shows only <code>aprovado</code> (passed), but that word does not explain how the record got there.</p>
+<p>An <strong>event</strong> records a declared change or action. The <strong>current view</strong> is calculated from events according to an application rule. In this example, creation, result and correction events can determine the displayed result; a notification does not change it. The three events are kept in an external file. We are not creating three Cardano transactions.</p>
+<p>The <code>seq</code> field determines the order in which events are appended. The <code>prev</code> field contains the previous event's hash; the first uses <code>null</code>. An event's hash includes all its fields, including <code>prev</code>, but does not contain the hash itself.</p>
+<!-- Workshop visual language f4536110de13ab69c1b42311b823f84afdc2b6f7.
+     Objects/document.svg and anchor.svg; independent reference route adapted from
+     scenes/persona-2-event-log-r-d.svg. These are external event records, not transactions.
+     No workshop personas, event signatures or Merkle roots are imported. -->
+<figure class="fig deck-figure m2-workshop event-chain" aria-labelledby="caption-event-chain" data-visual-source="cardano-workshop-visual-language/assets/svg/scenes/persona-2-event-log-r-d.svg" data-visual-revision="f4536110de13ab69c1b42311b823f84afdc2b6f7">
+<p class="m2-stage" id="event-edit-heading">Changing event 2 breaks the reference in event 3</p>
+<p class="m2-scroll-hint">Scroll across the diagram to follow the three events.</p>
+<div class="m2-scroll" tabindex="0" role="region" aria-labelledby="event-edit-heading">
+<svg class="m2-scene" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 320" role="img" aria-labelledby="event-edit-title event-edit-desc">
+<title id="event-edit-title">The result changes from passed to failed, but the next event still references H2.</title>
+<desc id="event-edit-desc">Three records belong to the same external file. Event 1 was created as pending, prev is null and its hash is H1. Event 2 references H1, but its result has been edited; its hash changes from H2 to H2′. Event 3 still declares a notification to the portal and prev equal to H2. The link between H2′ and that prev field fails; the point of divergence appears in red.</desc>
+<defs>
+<marker id="event-link-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path class="m2-arrow" d="M0 0 L10 5 L0 10 Z"/></marker>
+<marker id="event-break-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path fill="var(--deck-red)" d="M0 0 L10 5 L0 10 Z"/></marker>
+</defs>
+<g aria-hidden="true">
+<path class="m2-line" d="M169 251 H231 V123 H273" marker-end="url(#event-link-arrow)"/>
+<path class="m2-break" d="M429 251 H491 V123 H533" marker-end="url(#event-break-arrow)"/>
+<path class="m2-wire" d="M105 205 V228 M365 205 V228 M625 205 V228"/>
+<path class="obj-document" data-visual-asset="objects/document.svg" d="M72 32 H210 L250 72 V232 H72 Z M210 32 V72 H250" transform="translate(16 35) scale(1 .85) translate(-72 -32)"/>
+<text class="m2-bold" x="32" y="82">1. Created</text>
+<text class="m2-mono" x="32" y="129">prev = null</text>
+<text x="32" y="180">pending</text>
+<path class="obj-document" d="M72 32 H210 L250 72 V232 H72 Z M210 32 V72 H250" transform="translate(276 35) scale(1 .85) translate(-72 -32)"/>
+<text class="m2-bold" x="292" y="82">2. Result</text>
+<text class="m2-mono" x="292" y="129">prev = H1</text>
+<text class="m2-small" x="292" y="160" style="text-decoration:line-through">passed</text>
+<text class="m2-error" x="292" y="188">failed</text>
+<path class="obj-document" d="M72 32 H210 L250 72 V232 H72 Z M210 32 V72 H250" transform="translate(536 35) scale(1 .85) translate(-72 -32)"/>
+<text class="m2-bold" x="552" y="82">3. Notified</text>
+<text class="m2-mono" x="552" y="129">prev = H2</text>
+<path class="m2-break" d="M552 137 H652 M483 190 L499 206 M499 190 L483 206"/>
+<text x="552" y="180">channel: portal</text>
+<rect class="obj-anchor" data-visual-asset="objects/anchor.svg" x="41" y="228" width="128" height="46" rx="23"/>
+<text class="m2-mono" x="105" y="258" text-anchor="middle">H1</text>
+<rect class="obj-anchor" x="301" y="228" width="128" height="46" rx="23"/>
+<text class="m2-mono" x="365" y="258" text-anchor="middle">H2′</text>
+<rect class="obj-anchor" x="561" y="228" width="128" height="46" rx="23"/>
+<text class="m2-mono" x="625" y="258" text-anchor="middle">H3</text>
+<text class="m2-mono m2-error" x="491" y="307" text-anchor="middle">H2′ ≠ H2</text>
+</g></svg></div>
+<p class="m2-stage" id="event-rewrite-heading">What if all the hashes are recalculated?</p>
+<div class="m2-scroll" tabindex="0" role="region" aria-labelledby="event-rewrite-heading">
+<svg class="m2-scene" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 345" role="img" aria-labelledby="event-rewrite-title event-rewrite-desc">
+<title id="event-rewrite-title">A consistent rewrite produces H3′, but does not replace the independent checkpoint H3.</title>
+<desc id="event-rewrite-desc">The rewritten file has consistent links: event 3 now points to H2′ and its head becomes H3′. Across the boundary, the independent copy obtained before the edit remains, with count 3 and head H3. The internal links match, but H3′ differs from H3. The rewrite therefore fails the comparison with this checkpoint.</desc>
+<g aria-hidden="true">
+<path class="boundary-protocol" d="M382 10 V226"/>
+<path class="m2-wire" d="M568 220 V257 M229 280 H329 M502 280 H436"/>
+<path class="obj-document" d="M72 32 H210 L250 72 V232 H72 Z M210 32 V72 H250" transform="translate(20 15) scale(1.55 1.025) translate(-72 -32)"/>
+<text class="m2-bold" x="41" y="67">Rewritten file</text>
+<text x="41" y="109">1. pending</text>
+<text x="41" y="142">2. failed</text>
+<text x="41" y="175">3. notified</text>
+<text class="m2-mono" x="64" y="205">prev = H2′</text>
+<text class="m2-small m2-success" x="159" y="244" text-anchor="middle">Internal links match.</text>
+<path class="obj-document" d="M72 32 H210 L250 72 V232 H72 Z M210 32 V72 H250" transform="translate(443 15) scale(1.43 1.025) translate(-72 -32)"/>
+<text class="m2-bold" x="465" y="67">Independent copy</text>
+<text class="m2-small" x="465" y="109">obtained before the edit</text>
+<text class="m2-mono" x="465" y="159">count = 3</text>
+<text class="m2-mono" x="465" y="194">head = H3</text>
+<rect class="obj-anchor" x="89" y="257" width="140" height="46" rx="23"/>
+<text class="m2-mono" x="159" y="287" text-anchor="middle">H3′</text>
+<rect class="obj-anchor" x="502" y="257" width="132" height="46" rx="23"/>
+<text class="m2-mono" x="568" y="287" text-anchor="middle">H3</text>
+<text class="m2-letter m2-error" x="382" y="290" text-anchor="middle">≠</text>
+<text class="m2-small m2-error" x="382" y="332" text-anchor="middle">The head differs from the saved reference.</text>
+</g></svg></div>
+<figcaption id="caption-event-chain">The sheets represent external records, not Cardano transactions. H1, H2 and H3 abbreviate hashes. Recalculating the third event as well repairs the internal links, but produces a different head. The independent checkpoint still commits to the earlier sequence.</figcaption>
+</figure>
+
+<h3 id="aula-2-1-s2">2. Experiment: break and rewrite</h3>
+<p>We will fix a local recipe called <code>guia.eventos.v1</code>: JSON in UTF-8, sorted ASCII keys, no optional spaces, only the strings, integers and <code>null</code> used in this example, with no Unicode normalization. We prepend the ASCII prefix <code>GUIA-EVENTO:v1</code> and a zero byte to the data bytes. We calculate SHA-256 over this sequence. The prefix identifies the use and version.</p>
+<p>This limited recipe makes the demonstration reproducible; <code>json.dumps</code> with these options does not implement the full JCS from RFC 8785. An integration must specify an interoperable profile and test its edge cases, rather than copy the example for arbitrary JSON.</p>
+<p>Run the code. The first comparison accepts the chain. The second detects the isolated edit. The third accepts the links in a complete rewrite, but the fourth rejects its head against the checkpoint saved beforehand. The Portuguese record keys and values are fixed hash inputs: <code>tipo</code> means type, <code>registro</code> record, <code>resultado</code> result and <code>canal</code> channel; <code>criado</code>, <code>notificado</code>, <code>pendente</code>, <code>aprovado</code> and <code>reprovado</code> mean created, notified, pending, passed and failed.</p>
+<pre data-python-runner="true" data-exercise-id="event-chain-rewrite-demo" data-exercise-version="1"><code class="language-python">import hashlib
+import json
+from copy import deepcopy
+
+def hash_event(event):
+    data = json.dumps(event, sort_keys=True,
+        ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(b"GUIA-EVENTO:v1\x00" + data).hexdigest()
+
+def append_event(chain, fields):
+    event = dict(fields, seq=len(chain) + 1,
+        prev=hash_event(chain[-1]) if chain else None)
+    return chain + [event]
+
+def links_match(chain):
+    previous = None
+    for seq, event in enumerate(chain, 1):
+        if event["seq"] != seq or event["prev"] != previous:
+            return False
+        previous = hash_event(event)
+    return True
+
+chain = []
+for fields in [
+    {"tipo": "criado", "registro": "T-0142", "resultado": "pendente"},
+    {"tipo": "resultado", "resultado": "aprovado"},
+    {"tipo": "notificado", "canal": "portal"},
+]:
+    chain = append_event(chain, fields)
+checkpoint = (len(chain), hash_event(chain[-1]))
+print("original:", links_match(chain))
+
+edited = deepcopy(chain)
+edited[1]["resultado"] = "reprovado"
+print("isolated edit:", links_match(edited))
+rewritten = []
+for event in edited:
+    rewritten = append_event(rewritten, event)
+print("consistent rewrite:", links_match(rewritten))
+print("same head:", hash_event(rewritten[-1]) == checkpoint[1])
+</code></pre>
+<p>Also change the result of the first event and run it again. The effect propagates through subsequent hashes. Removing the last event, however, leaves the remaining links consistent: without knowing which head to expect, the verifier may receive only an old prefix.</p>
+
+<h3 id="aula-2-1-s3">3. The checkpoint stays outside the presented history</h3>
+<p>A <strong>checkpoint</strong> associates a position with a head hash. In the experiment, we saved the pair before the edit. In a real system, it must arrive through a source that the chain's presenter cannot replace along with the events: a previously checked copy, a checkpoint signed by a trusted key or a publication located on the expected network.</p>
+<p>Publishing the pair in a transaction lets us return to the observed commitment. We must check the expected publisher and inclusion; accepting any transaction with a different hash would allow the reference to be replaced. The network preserves the publication, but does not assess the test result.</p>
+<p>A three-event checkpoint commits to that prefix. A chain with four events can preserve it. This does not show that the fourth is the latest, that no event went uncaptured or that all results are correct. To assess freshness, also obtain the latest head through the route defined for the record.</p>
+
+<h3 id="aula-2-1-s4">4. Correct by appending</h3>
+<p>Reviewing the source file reveals that the result should have been failed. The system appends event 4 with type <code>correcao</code> (correction), result <code>reprovado</code> (failed), a reason and two different links: <code>prev</code> points to event 3, while <code>alvo</code> (target) points to the hash of event 2. The first continues the chain; the second identifies the statement being corrected.</p>
+<p>The view now shows failed and should allow the correction to be opened. The history still shows that there was a passing result and a notification. Appending a correction does not undo the notification or remove the need to inform its recipient.</p>
+<p>If the correction declares <code>ocorrido_em = 2026-09-10T10:00:00Z</code> (occurred at) and its checkpoint was observed at 11:30, these times describe different things. The first was declared by the issuer; the second records when the publication was queried. Block and slot locate inclusion. None of them proves that the test took place at 10:00. Do not reorder the chain by the declared time to “fix” this difference.</p>
+
+<div class="activity" data-progress-id="event-checkpoint-prefix-activity">
+<div class="box-label">Activity: accept the correction, reject the rewrite</div>
+<p>The verifier below already checks the links, but forgets the checkpoint and ends with <code>True</code>. Fix its final check: reject a chain shorter than <code>count</code> and compare the hash at the committed position with <code>head</code>. Do not require the chain to end at that position, since corrections may have been appended. The contract accepts checkpoints with a positive count. In the fixed record data, <code>motivo</code> means reason and <code>erro de leitura</code> means reading error.</p>
+<pre data-python-runner="true" data-exercise-id="event-checkpoint-prefix" data-exercise-version="1" data-validator="event-checkpoint-prefix-tests"><code class="language-python">import hashlib
+import json
+
+def hash_event(event):
+    data = json.dumps(event, sort_keys=True,
+        ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(b"GUIA-EVENTO:v1\x00" + data).hexdigest()
+
+def append_event(chain, fields):
+    return chain + [dict(fields, seq=len(chain) + 1,
+        prev=hash_event(chain[-1]) if chain else None)]
+
+def verify(chain, count, head):
+    previous = None
+    for seq, event in enumerate(chain, 1):
+        if event["seq"] != seq or event["prev"] != previous:
+            return False
+        previous = hash_event(event)
+    return True
+
+chain = []
+for event_type in ["criado", "resultado", "notificado"]:
+    chain = append_event(chain, {"tipo": event_type})
+head = hash_event(chain[-1])
+corrected = append_event(chain, {
+    "tipo": "correcao", "alvo": hash_event(chain[1]),
+    "resultado": "reprovado", "motivo": "erro de leitura",
+})
+print("prefix preserved:", verify(corrected, 3, head))
+print("tail omitted:", verify(chain[:2], 3, head))
+</code></pre>
+<details class="answer" id="answer-event-checkpoint"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Check answer</summary><div class="answer-body"><p>Before the comparison, test <code>len(chain) &lt; count</code> and return <code>False</code> in that case. Otherwise, the final check is <code>hash_event(chain[count - 1]) == head</code>. The subtraction converts the position counted from 1 into a Python index. The correct output is <code>True</code> for the appended correction and <code>False</code> for the omitted tail.</p><p>Comparing only the last hash would reject a legitimate extension. Accepting only the links would allow a consistent rewrite. We need both checks.</p></div></details>
+</div>
+<script type="application/json" id="event-checkpoint-prefix-tests">
+{"version":1,"tests":[
+{"name":"Original head","code":"assert verify(chain, 3, head) is True, 'An intact chain must match the checkpoint.'"},
+{"name":"Correction after the checkpoint","code":"assert len(corrected) == 4 and corrected[:3] == chain, 'Preserve the supplied events and append the correction.'\nassert verify(corrected, 3, head) is True, 'Compare at the checkpoint position, not necessarily at the last event received.'"},
+{"name":"Truncation and empty chain","code":"assert verify(chain[:2], 3, head) is False, 'There are not enough events to reach the checkpoint; do not accept a shorter prefix.'\nassert verify([], 3, head) is False, 'An empty list does not reach the checkpoint.'"},
+{"name":"Internally consistent rewrite","code":"other = []\nfor event in chain:\n    other = append_event(other, dict(event, tipo='reescrito'))\nassert verify(other, 3, head) is False, 'Consistent links are not enough: compare the head with the independent reference.'"},
+{"name":"Different position and incorrect head","code":"assert verify(corrected, 1, hash_event(chain[0])) is True, 'Use the supplied count rather than hard-coding position 3.'\nassert verify(chain, 3, '00' * 32) is False, 'Do not ignore the expected hash.'"},
+{"name":"Broken link after the checkpoint","code":"from copy import deepcopy\nbroken = deepcopy(corrected)\nbroken[-1]['prev'] = hash_event(chain[0])\nassert verify(broken, 3, head) is False, 'Keep checking all links, including those after the checkpoint.'"}
+]}
+</script>
+
+
+<div class="closing"><h3>What we learned</h3><ul>
+<li>The current view applies rules to events; it does not replace the history.</li>
+<li>Links detect local inconsistencies. An independent checkpoint lets us compare the history with a known prefix.</li>
+<li>A correction points to the previous head and separately identifies the corrected event.</li>
+<li>The declared time, inclusion and observation of the publication are not the same instant.</li>
+</ul></div>
+<div class="bridge"><h3>Next lesson</h3><p>In Lesson 2.2 we will build a Merkle tree. It will let us check an item in a batch with just a few hashes, without receiving the entire chain or batch.</p></div>

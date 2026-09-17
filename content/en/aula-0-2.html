@@ -1,0 +1,194 @@
+---
+title: From bytes to hashes
+short_title: From bytes to hashes
+map_title: Hash
+summary: Use hashes to check bytes and understand the limits of this comparison.
+---
+
+
+<div class="objectives"><div class="box-label">Objectives</div>
+<ol class="objective-list">
+<li>Calculate the SHA-256 of a UTF-8 encoded message.</li>
+<li>Compare hashes and explain the effect of changing a message.</li>
+<li>Recognize the limits of this comparison, including collisions and the source of the reference.</li>
+</ol></div>
+<div class="prereq"><div class="box-label">Before you begin</div>
+<p>To follow this lesson, you need to know how to convert text to UTF-8 bytes and recognize hexadecimal notation, as we did in Lesson 0.1.</p>
+<div class="guide-q"><span class="guide-q-label">Guiding question</span><p>What can we conclude about data by comparing hashes?</p></div>
+</div>
+<h3 id="aula-0-2-s1">1. Content-based references</h3>
+<p>Programs may need to recognize duplicate content or detect changes to data. One way to support these tasks is to calculate a reference from the content bytes themselves, rather than relying only on names or assigned identifiers.</p>
+<p>A <strong>hash function</strong> performs this calculation. It transforms a sequence of bytes into a fixed-size value called a <strong>hash</strong>.</p>
+<p>We will use <strong>SHA-256</strong>, a cryptographic hash function. Its hash is 256 bits, or 32 bytes, which can be written as 64 hexadecimal characters.</p>
+<style id="aula-0-2-hash-figures-styles">
+/* Geometry adapted from cardano-workshop-visual-language:
+   assets/svg/scenes/credential-hash.svg and assets/svg/objects/anchor.svg.
+   Lesson-specific compositions; no Cardano credential or publication semantics. */
+#aula-0-2 .hash-fig { width:100%; max-width:100%; margin:28px 0 34px; break-inside:avoid; font-family:var(--font-sans); }
+#aula-0-2 .hf-flow { display:grid; grid-template-columns:minmax(0,1fr) 128px minmax(0,1fr); gap:12px; align-items:center; padding:8px 0; }
+#aula-0-2 .hf-input { min-width:0; text-align:center; }
+#aula-0-2 .hf-input code { padding:0; background:none; color:var(--ink); font:16px/1.6 var(--font-mono); overflow-wrap:normal; }
+#aula-0-2 .hf-count { display:block; margin-top:6px; color:var(--ink-dim); font:14px/1.4 var(--font-sans); }
+#aula-0-2 .hf-operation { display:block; width:128px; height:auto; }
+#aula-0-2 .hf-wire { fill:none; stroke:var(--sp-info); stroke-width:2.5; stroke-linecap:round; }
+#aula-0-2 .hf-arrowhead { fill:var(--sp-info); }
+#aula-0-2 .hf-function { fill:var(--paper); stroke:var(--sp-info); stroke-width:3; }
+#aula-0-2 svg text.hf-function-label { font:600 26px var(--font-sans); fill:var(--ink); }
+#aula-0-2 .hf-output { min-width:0; text-align:center; }
+#aula-0-2 .hf-flow .hf-input, #aula-0-2 .hf-flow .hf-output { position:relative; min-height:66px; display:flex; align-items:center; justify-content:center; }
+#aula-0-2 .hf-flow .hf-chip { box-sizing:border-box; width:100%; font-size:16px; line-height:1.5; }
+#aula-0-2 .hf-flow .hf-count { position:absolute; top:100%; left:0; right:0; margin-top:2px; }
+#aula-0-2 .hf-chip { border:2px solid var(--sp-warning); border-radius:999px; background:color-mix(in srgb,var(--sp-warning) 7%,var(--paper)); padding:15px 20px; }
+#aula-0-2 .hf-short { color:var(--ink); font:16px/1.5 var(--font-mono); white-space:nowrap; }
+#aula-0-2 .hf-diff { display:grid; gap:20px; padding:12px 0; }
+#aula-0-2 .hf-diff-row { display:grid; grid-template-columns:minmax(0,1fr) 24px minmax(310px,1.5fr); gap:12px; align-items:center; }
+#aula-0-2 .hf-diff-row .hf-input { text-align:left; }
+#aula-0-2 .hf-small-arrow { width:24px; height:20px; }
+#aula-0-2 .hf-digest { padding:0; background:none; color:var(--ink); font:14px/1.9 var(--font-mono); letter-spacing:0; }
+#aula-0-2 .hf-digest-line { display:block; white-space:nowrap; }
+#aula-0-2 .hf-mark { color:var(--ink); padding:0; background:color-mix(in srgb,var(--sp-info) 16%,var(--paper)); text-decoration:underline; text-decoration-color:var(--sp-info); text-underline-offset:3px; text-decoration-thickness:1.5px; }
+#aula-0-2 .hf-collision { display:block; width:100%; max-width:540px; margin:0 auto; }
+#aula-0-2 svg text.hf-input-label { font:26px var(--font-sans); fill:var(--ink); }
+#aula-0-2 svg text.hf-relation-label { font:24px var(--font-sans); fill:var(--ink-dim); }
+#aula-0-2 svg text.hf-result-label { font:600 40px var(--font-mono); fill:var(--ink); }
+#aula-0-2 .hf-collision .hf-pill { fill:color-mix(in srgb,var(--sp-warning) 7%,var(--paper)); stroke:var(--sp-warning); stroke-width:3; }
+@media (max-width:600px) {
+  #aula-0-2 .hf-flow { grid-template-columns:minmax(0,1fr) 82px minmax(0,1.1fr); gap:4px; padding-bottom:20px; }
+  #aula-0-2 .hf-flow .hf-chip { font-size:12px; }
+  #aula-0-2 .hf-operation { width:82px; }
+  #aula-0-2 .hf-input code { font-size:13px; }
+  #aula-0-2 .hf-chip { padding:12px 8px; }
+  #aula-0-2 .hf-short { font-size:12px; }
+  #aula-0-2 .hf-count { font-size:13px; }
+  #aula-0-2 .hf-diff { gap:24px; }
+  #aula-0-2 .hf-diff-row { grid-template-columns:minmax(0,1fr); gap:6px; justify-items:center; }
+  #aula-0-2 .hf-diff-row .hf-input { text-align:center; }
+  #aula-0-2 .hf-diff-row .hf-input code { font-size:15px; }
+  #aula-0-2 .hf-small-arrow { transform:rotate(90deg); }
+  #aula-0-2 .hf-diff-row .hf-chip { box-sizing:border-box; width:100%; max-width:360px; padding:14px 22px; }
+  #aula-0-2 .hf-digest { font-size:13px; }
+}
+@media (max-width:360px) {
+  #aula-0-2 .hf-digest { font-size:12px; }
+}
+@media print {
+  #aula-0-2 .hash-fig { width:100%; break-inside:avoid; }
+  #aula-0-2 .hf-mark { text-decoration:underline; }
+}
+</style>
+<figure class="fig hash-fig" id="fig-aula-0-2-tamanho" aria-labelledby="caption-aula-0-2-tamanho">
+<div class="hf-flow">
+<div class="hf-input"><code>café</code><span class="hf-count">5 bytes</span></div>
+<svg class="hf-operation" viewBox="0 0 176 144" role="img" aria-label="Calculate SHA-256" xmlns="http://www.w3.org/2000/svg">
+<path class="hf-wire" d="M1 72H30 M145 72H173"/><path class="hf-arrowhead" d="M24 67L31 72L24 77Z M167 67L174 72L167 77Z"/>
+<circle class="hf-function" cx="88" cy="72" r="52"/><text class="hf-function-label" x="88" y="80" text-anchor="middle">SHA-256</text>
+</svg>
+<div class="hf-output"><div class="hf-chip" data-digest="850f7dc43910ff890f8879c0ed26fe697c93a067ad93a7d50f466a7028a9bf4e"><span class="hf-short">850f…bf4e</span></div><span class="hf-count">32 bytes</span></div>
+</div>
+<div class="hf-flow">
+<div class="hf-input"><code>falha de comunicação</code><span class="hf-count">22 bytes</span></div>
+<svg class="hf-operation" viewBox="0 0 176 144" role="img" aria-label="Calculate SHA-256" xmlns="http://www.w3.org/2000/svg">
+<path class="hf-wire" d="M1 72H30 M145 72H173"/><path class="hf-arrowhead" d="M24 67L31 72L24 77Z M167 67L174 72L167 77Z"/>
+<circle class="hf-function" cx="88" cy="72" r="52"/><text class="hf-function-label" x="88" y="80" text-anchor="middle">SHA-256</text>
+</svg>
+<div class="hf-output"><div class="hf-chip" data-digest="d3b2d6009b1e4b0a06d8c7f213afcacce38aec7d16a8cc6866100b4c92457a67"><span class="hf-short">d3b2…7a67</span></div><span class="hf-count">32 bytes</span></div>
+</div>
+<figcaption id="caption-aula-0-2-tamanho">UTF-8 messages of different sizes produce 32-byte hashes. The hashes are abbreviated in the figure.</figcaption>
+</figure>
+<p>To observe the calculation, use the message <code>falha de comunicação</code> (“communication failure”). The example changes only <code>f</code> to <code>F</code> and shows each message alongside its hash. The Portuguese text is kept unchanged because its exact bytes determine the hashes shown.</p>
+<pre data-python-runner="true" data-exercise-id="sha256-message-comparison"><code class="language-python">import hashlib
+
+original_message = "falha de comunicação"
+modified_message = "Falha de comunicação"
+
+original_message_bytes = original_message.encode("utf-8")
+modified_message_bytes = modified_message.encode("utf-8")
+original_hash = hashlib.sha256(original_message_bytes).hexdigest()
+modified_hash = hashlib.sha256(modified_message_bytes).hexdigest()
+
+print(original_message, original_hash, sep="\t")
+print(modified_message, modified_hash, sep="\t")
+</code></pre>
+<p>The <code>hashlib.sha256</code> function calculates the hash of the bytes, and <code>hexdigest()</code> writes the result in hexadecimal. The output shows two different hashes, each with 64 characters. Try another change to <code>modified_message</code> and run it again.</p>
+<figure class="fig hash-fig" id="fig-aula-0-2-alteracao" aria-labelledby="caption-aula-0-2-alteracao">
+<div class="hf-diff">
+<div class="hf-diff-row">
+<div class="hf-input"><code><mark class="hf-mark">f</mark>alha de comunicação</code></div>
+<svg class="hf-small-arrow" viewBox="0 0 24 20" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path class="hf-wire" d="M1 10H21"/><path class="hf-arrowhead" d="M16 5L23 10L16 15Z"/></svg>
+<div class="hf-chip" data-digest="d3b2d6009b1e4b0a06d8c7f213afcacce38aec7d16a8cc6866100b4c92457a67"><code class="hf-digest"><span class="hf-digest-line"><mark class="hf-mark">d3b</mark>2<mark class="hf-mark">d6009b1e4b0a06d8c7f213afcacc</mark></span><span class="hf-digest-line"><mark class="hf-mark">e38aec7d16a8cc68661</mark>00<mark class="hf-mark">b4c92457a67</mark></span></code></div>
+</div>
+<div class="hf-diff-row">
+<div class="hf-input"><code><mark class="hf-mark">F</mark>alha de comunicação</code></div>
+<svg class="hf-small-arrow" viewBox="0 0 24 20" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path class="hf-wire" d="M1 10H21"/><path class="hf-arrowhead" d="M16 5L23 10L16 15Z"/></svg>
+<div class="hf-chip" data-digest="a7c21cccec0718c76999e1e77093840bb67b4d3ebcb28bf670a00eab3890448d"><code class="hf-digest"><span class="hf-digest-line"><mark class="hf-mark">a7c</mark>2<mark class="hf-mark">1cccec0718c76999e1e77093840b</mark></span><span class="hf-digest-line"><mark class="hf-mark">b67b4d3ebcb28bf670a</mark>00<mark class="hf-mark">eab3890448d</mark></span></code></div>
+</div>
+</div>
+<figcaption id="caption-aula-0-2-alteracao">The differences are underlined. In this pair, one letter changed in the message and 61 of the 64 hexadecimal positions changed in the hash. Both hashes are still 32 bytes long.</figcaption>
+</figure>
+<p>If you repeat the calculation without changing the messages, the hashes will repeat. With the same bytes and the same algorithm, the result is always the same. This property is called <strong>determinism</strong>.</p>
+<p>In the pair we observed, a small change to the input changed much of the hash. This behavior is called the <strong>avalanche effect</strong>.</p>
+
+<h3 id="aula-0-2-s2">2. What the comparison tells us</h3>
+<p>When using the same algorithm, different hashes demonstrate that the bytes are different. The hash does not identify the changed character, measure how similar the contents are or tell us whether the change was authorized. To locate a difference, we need to compare the contents.</p>
+<h4 id="aula-0-2-colisoes">When hashes match</h4>
+<p>Two different inputs can produce the same hash. This is called a <strong>collision</strong>. Matching hashes are therefore not a mathematical guarantee of matching bytes.</p>
+<figure class="fig hash-fig" id="fig-aula-0-2-colisao" aria-labelledby="caption-aula-0-2-colisao">
+<!-- Conceptual collision, not a claimed SHA-256 collision for concrete messages.
+     Separate function circles avoid implying concatenation of the two inputs. -->
+<svg class="hf-collision" viewBox="0 0 600 280" role="img" aria-label="Collision diagram: distinct inputs A and B pass separately through the same algorithm and produce the same hash H." xmlns="http://www.w3.org/2000/svg">
+<defs><marker id="hf-colisao-seta" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path class="hf-arrowhead" d="M0 0L8 4L0 8Z"/></marker></defs>
+<text class="hf-input-label" x="75" y="73" text-anchor="middle">Input A</text>
+<text class="hf-input-label" x="75" y="223" text-anchor="middle">Input B</text>
+<text class="hf-relation-label" x="75" y="148" text-anchor="middle">A ≠ B</text>
+<path class="hf-wire" d="M148 65H196" marker-end="url(#hf-colisao-seta)"/>
+<path class="hf-wire" d="M148 215H196" marker-end="url(#hf-colisao-seta)"/>
+<circle class="hf-function" cx="260" cy="65" r="55"/><circle class="hf-function" cx="260" cy="215" r="55"/>
+<text class="hf-function-label" x="260" y="73" text-anchor="middle">SHA-256</text>
+<text class="hf-function-label" x="260" y="223" text-anchor="middle">SHA-256</text>
+<path class="hf-wire" d="M318 65C375 65 375 121 424 132" marker-end="url(#hf-colisao-seta)"/>
+<path class="hf-wire" d="M318 215C375 215 375 159 424 148" marker-end="url(#hf-colisao-seta)"/>
+<rect class="hf-pill" x="435" y="100" width="160" height="80" rx="40"/>
+<text class="hf-relation-label" x="515" y="86" text-anchor="middle">same hash</text>
+<text class="hf-result-label" x="515" y="153" text-anchor="middle">H</text>
+</svg>
+<figcaption id="caption-aula-0-2-colisao">Diagram of a collision: each input is processed separately by the same algorithm, and the results match.</figcaption>
+</figure>
+<p>Collisions exist because there are more possible inputs than 256-bit hashes. A secure cryptographic hash function, such as SHA-256, is designed to make finding them impractical. In practice, matching hashes are treated as strong evidence of matching bytes.</p>
+
+<h3 id="aula-0-2-s3">3. Which bytes does the reference correspond to?</h3>
+<p>A hash is a reference to the bytes used in the calculation. If the goal is to check an exact copy, preserving only the fields and values of a file is not enough.</p>
+<h4 id="aula-0-2-exemplo-registro">Checking a test record</h4>
+<p>Consider a device that generates a JSON file containing a test result. Before being used as evidence in an audit, this file passes through an application that imports and re-exports its data.</p>
+<p>The device calculates the SHA-256 of the original file before re-export. The auditor calculates the SHA-256 of the received version and compares the results. A new representation can preserve the fields and values and still produce a different hash because the bytes have changed. This checks whether the bytes have been preserved, not just the data read from them. It is an <strong>integrity</strong> check.</p>
+
+<h3 id="aula-0-2-s4">4. Preserving the reference</h3>
+<p>To detect changes from an earlier version, we need a preserved reference from that version. If someone replaces both the content and the stored hash, the comparison may show a match without revealing the substitution.</p>
+<p>That is why it matters where the reference hash came from and how it was protected. The calculation alone does not identify who produced the content: anyone with the bytes can calculate the same hash.</p>
+
+<h3 id="aula-0-2-s5">5. A hash does not provide secrecy</h3>
+<p>A hash is not a reversible encoding like base64. There is no decoding operation that recovers the original content from it. This does not, however, prevent testing possible inputs.</p>
+<p>If you know that a text is one of the two messages in the example, you can calculate both hashes and find out which one matches the observed hash. There is no need to reverse the calculation, only to compare results. Publishing a hash can therefore reveal information about predictable content.</p>
+
+<div class="activity" id="atividade-aula-0-2-a2"><div class="box-label">Activity: compare before discarding</div>
+<p>A program has found two files with the same SHA-256 and intends to keep only one copy. The rule is not to discard any file whose bytes differ from those that will be kept.</p>
+<form class="activity-quiz" id="quiz-aula-0-2-a2" data-answer="answer-aula-0-2-a2">
+<fieldset class="quiz-question"><legend>Which check meets this rule?</legend><div class="quiz-options">
+<label class="quiz-option"><input name="aula-0-2-a2" type="radio" value="a"/><span class="quiz-option-text">Check whether the two files are also the same size.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="aula-0-2-a2" type="radio" value="b"/><span class="quiz-option-text">Repeat the SHA-256 calculation for both files.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="aula-0-2-a2" type="radio" value="c" data-correct="true"/><span class="quiz-option-text">Compare the bytes of the two files directly.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="aula-0-2-a2" type="radio" value="d"/><span class="quiz-option-text">Also calculate a hash using another algorithm.</span><span class="quiz-verdict"></span></label>
+</div><p class="quiz-question-feedback" aria-live="polite"></p></fieldset>
+<div class="quiz-actions"><button class="quiz-check" disabled="" type="submit">Check answers</button><p class="quiz-status" aria-live="polite" tabindex="-1">0 of 1 questions answered.</p></div>
+</form>
+<details class="answer" id="answer-aula-0-2-a2"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Check answer</summary><div class="answer-body">
+<p>Option C is correct. The hash helps find possible copies; direct comparison confirms whether all the bytes match before discarding one of them. Different files can have the same size. Repeating SHA-256 reproduces the result. Another secure cryptographic hash can reduce the risk of a coincidental match, but it does not replace the exact comparison required here.</p>
+</div></details>
+</div>
+
+<div class="closing"><h3>What we learned</h3><ul>
+<li>A hash is calculated from bytes. With the same input and the same algorithm, the result repeats.</li>
+<li>Different hashes indicate different bytes. Matching hashes are strong evidence of equality, but collisions are possible.</li>
+<li>An integrity check depends on knowing which bytes were used and preserving the reference.</li>
+<li>A hash does not identify the author or protect predictable content from guessing attempts.</li>
+</ul></div>
+<div class="bridge"><h3>Next lesson</h3><p>Anyone with the bytes can calculate a hash. In the next lesson, we will see how a key pair separates the ability to sign from the ability to verify, without sharing the secret used for signing.</p></div>

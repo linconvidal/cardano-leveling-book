@@ -1,0 +1,15 @@
+<section class="module-references" id="referencias-modulo-2">
+<h2>Module 2 references</h2>
+<p>The profiles <code>guia.eventos.v1</code> and <code>guia.abertura.v1</code> are teaching recipes defined in the lessons, not Cardano standards. Consult the specifications and record the revision used before implementing an integration.</p>
+<ul class="sources-list">
+<li><a href="https://csrc.nist.gov/pubs/fips/180-4/upd1/final" rel="noopener" target="_blank">NIST FIPS 180-4</a>: definition of SHA-256, used in the event, Merkle and opening examples.</li>
+<li><a href="https://www.rfc-editor.org/rfc/rfc8785" rel="noopener" target="_blank">RFC 8785</a>: JSON Canonicalization Scheme. The limited serialization in Lesson 2.1 does not implement this entire scheme.</li>
+<li><a href="https://www.rfc-editor.org/rfc/rfc9162" rel="noopener" target="_blank">RFC 9162, section 2</a>: Merkle trees, inclusion proofs and consistency proofs in the Certificate Transparency protocol. Lesson 2.2 uses the same prefixes for leaves and internal nodes in a four-file example; it does not implement the full protocol.</li>
+<li><a href="https://developers.cardano.org/docs/developers/curriculum/fundamentals/core-concepts/fees/" rel="noopener" target="_blank">Cardano Developer Portal: fees</a>: fee components and parameters. Lesson 2.3 combines a hypothetical event stream with the transaction measurement and parameters queried in Lesson 1.8.</li>
+<li><a href="https://github.com/IntersectMBO/cardano-ledger" rel="noopener" target="_blank">Cardano Ledger</a>: implementation and specifications for checking the rules of the era used in transaction calculations.</li>
+<li><a href="https://hydra.family/head-protocol/docs/protocol-overview" rel="noopener" target="_blank">Hydra Head protocol</a>: participants, commits, open state, snapshots, close, contestation and fanout.</li>
+<li><a href="https://docs.python.org/3/library/secrets.html" rel="noopener" target="_blank">Python: secrets</a>: source of randomness used for the single-use nonce in Lesson 2.4.</li>
+<li><a href="https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm" rel="noopener" target="_blank">LGPD</a> and <a href="https://eur-lex.europa.eu/eli/reg/2016/679/oj" rel="noopener" target="_blank">GDPR</a>: official sources on purpose, minimization and protection of personal data. A cryptographic mechanism alone does not establish compliance.</li>
+</ul>
+<p class="disclaimer">This material supports technical learning. It does not replace current specifications, legal advice or a compliance assessment.</p>
+</section>

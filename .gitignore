@@ -1,1 +1,5 @@
 .DS_Store
+__pycache__/
+.before-refactor-20260916.zip
+.before-curriculum-revision-*.zip
+_site/

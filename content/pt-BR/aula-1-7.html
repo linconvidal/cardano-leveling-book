@@ -1,0 +1,197 @@
+---
+title: 'UTxO e eUTxO: saídas, gasto e troco'
+short_title: UTxO e eUTxO
+map_title: eUTxO
+summary: Entender o saldo mostrado pela carteira, acompanhar o consumo de saídas e reconhecer o papel do datum.
+---
+
+<div class="objectives"><div class="box-label">Objetivos</div><ol class="objective-list">
+<li>Relacionar o saldo da carteira às saídas não gastas que ela consulta.</li>
+<li>Identificar uma saída e acompanhar seu consumo, o pagamento e o troco.</li>
+<li>Distinguir os dados associados a uma saída da regra que autoriza seu gasto.</li>
+</ol></div>
+<div class="prereq"><div class="box-label">Antes de começar</div><p>Na Aula 1.5, o endereço identificava as condições de gasto. Na 1.6, vimos entradas e saídas no corpo da transação. Agora veremos o que essas entradas apontam e o que acontece com os valores quando a transação é aceita.</p>
+<div class="guide-q"><span class="guide-q-label">Pergunta-guia</span><p>Se você usa uma saída de 7 ADA para pagar 5 ADA, onde fica o restante?</p></div></div>
+
+<style id="aula-1-7-objects-styles">
+/* Geometry adapted from cardano-workshop-visual-language/assets/svg/objects/:
+   utxo-active.svg, utxo-consumed.svg, wallet.svg, transaction-body.svg and datum-compact.svg.
+   Labels and quantities follow this lesson; the source library is unchanged. */
+#aula-1-7 .u7-defs { position:absolute; width:0; height:0; overflow:hidden; }
+#aula-1-7 .u7-figure { width:100%; max-width:100%; margin:26px 0 30px; font-family:var(--font-sans); }
+#aula-1-7 .u7-figure svg { display:block; width:100%; height:auto; overflow:visible; }
+#aula-1-7 .u7-figure .u7-label { display:block; font-size:14px; color:var(--ink-dim); margin-bottom:7px; }
+#aula-1-7 .u7-figure .u7-reference { display:block; color:var(--ink); font-size:14px; margin-top:3px; }
+#aula-1-7 .u7-denomination { fill:var(--u7-note-ink,#176c64); font:600 32px var(--font-mono); text-anchor:end; }
+#aula-1-7 .u7-kind { fill:var(--u7-note-ink,#176c64); font:600 18px var(--font-sans); }
+#aula-1-7 .u7-serial { fill:#272727; font:600 27px var(--font-mono); }
+#aula-1-7 .u7-address { fill:#404040; font:400 21px var(--font-sans); }
+#aula-1-7 .u7-spent { --u7-note-paper:#f2efe8; --u7-note-ink:#6e6e68; }
+#aula-1-7 .u7-cancellation { fill:#493b70; stroke:#493b70; opacity:.7; }
+#aula-1-7 .u7-cancellation text { fill:#493b70; stroke:none; font:700 24px var(--font-sans); letter-spacing:.1em; text-anchor:middle; }
+#aula-1-7 .u7-notes { display:grid; grid-template-columns:1fr 24px 1fr; align-items:center; }
+#aula-1-7 .u7-sum { font-size:23px; color:var(--ink-dim); }
+#aula-1-7 .u7-balance { display:grid; grid-template-columns:minmax(0,1fr) 56px 215px; align-items:center; gap:12px; }
+#aula-1-7 .u7-arrow { color:var(--deck-blue); font-size:30px; text-align:center; line-height:1.2; }
+#aula-1-7 .u7-arrow small { display:block; color:var(--ink-dim); font-size:12px; margin-bottom:4px; }
+#aula-1-7 .u7-wallet { width:215px; max-width:100%; margin:auto; }
+#aula-1-7 .u7-anatomy { display:grid; grid-template-columns:220px minmax(0,1fr); align-items:center; gap:28px; text-align:left; }
+#aula-1-7 .u7-anatomy > * { min-width:0; }
+#aula-1-7 .u7-anatomy p { margin:0 0 12px; font-family:var(--font-body); }
+#aula-1-7 .u7-anatomy p:last-child { margin-bottom:0; }
+#aula-1-7 .u7-anatomy .u7-reference { text-align:center; }
+#aula-1-7 .u7-transfer { display:grid; grid-template-columns:minmax(0,1fr) 28px minmax(0,1fr) 28px minmax(0,1fr); align-items:center; gap:8px; }
+#aula-1-7 .u7-outputs { display:grid; gap:16px; }
+#aula-1-7 .u7-consumed { display:block; color:var(--ink-dim); font-size:14px; margin-top:5px; }
+#aula-1-7 .u7-untouched { display:flex; align-items:center; justify-content:center; gap:12px; margin-top:22px; padding-top:12px; border-top:1px solid var(--rule); }
+#aula-1-7 .u7-untouched svg { width:200px; max-width:100%; flex-shrink:0; }
+#aula-1-7 .u7-untouched p { margin:0; font-size:15px; text-align:left; }
+#aula-1-7 .u7-datum { width:240px; max-width:100%; margin:auto; }
+@media (max-width:620px) {
+  #aula-1-7 .u7-balance, #aula-1-7 .u7-transfer, #aula-1-7 .u7-anatomy { grid-template-columns:1fr; gap:14px; }
+  #aula-1-7 .u7-anatomy > div:first-child { width:220px; max-width:100%; margin:auto; }
+  #aula-1-7 .u7-arrow .u7-direction { display:inline-block; transform:rotate(90deg); }
+  #aula-1-7 .u7-transfer > .u7-input, #aula-1-7 .u7-ticket { width:200px; max-width:100%; margin:auto; }
+  #aula-1-7 .u7-notes { grid-template-columns:1fr; justify-items:center; }
+  #aula-1-7 .u7-notes > div, #aula-1-7 .u7-outputs { width:240px; max-width:100%; margin:auto; }
+  #aula-1-7 .u7-transfer { gap:16px; }
+  #aula-1-7 .u7-untouched { flex-direction:column; gap:8px; }
+  #aula-1-7 .u7-untouched p { text-align:center; }
+}
+@media print {
+  #aula-1-7 .u7-figure { break-inside:avoid; }
+}
+</style>
+<svg class="u7-defs" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><defs>
+<symbol id="u7-note" viewBox="0 0 390 230">
+<path class="obj-utxo" d="M30 30 H360 V200 H30 Z" fill="var(--u7-note-paper,#e8f5ee)" stroke="var(--u7-note-ink,#247d72)" stroke-width="3" stroke-linejoin="round" style="filter:drop-shadow(2px 3px 0 rgba(39,39,39,.12))"/>
+<path class="utxo-note-inner" d="M39 39 H351 V191 H39 Z" fill="none" stroke="var(--u7-note-ink,#247d72)" stroke-width="1.4" stroke-dasharray="3 3" opacity=".48"/>
+<g class="utxo-note-cardano-mark" fill="var(--u7-note-ink,#176c64)" opacity=".13" transform="translate(168 85) scale(.15)"><path d="M102.76,172a25.31,25.31,0,0,0,23.78,26.65c.49,0,1,0,1.46,0A25.26,25.26,0,1,0,102.76,172Z"/><path d="M8.62,165.5a8.16,8.16,0,1,0,7.69,8.61A8.15,8.15,0,0,0,8.62,165.5Z"/><path d="M101.16,25.43a8.16,8.16,0,1,0-11-3.62A8.18,8.18,0,0,0,101.16,25.43Z"/><path d="M126.78,70.1a12.61,12.61,0,1,0-16.94-5.59A12.62,12.62,0,0,0,126.78,70.1Z"/><path d="M40.58,100.82a10.39,10.39,0,1,0-3-14.38A10.39,10.39,0,0,0,40.58,100.82Z"/><path d="M55.93,161a12.62,12.62,0,1,0,11.88,13.31A12.62,12.62,0,0,0,55.93,161Z"/><path d="M42,245.72a10.39,10.39,0,1,0,13.95,4.6A10.37,10.37,0,0,0,42,245.72Z"/><path d="M91,134.89a14.84,14.84,0,1,0-4.27-20.55A14.83,14.83,0,0,0,91,134.89Z"/><path d="M246.47,69.1a12.62,12.62,0,1,0-3.63-17.47A12.61,12.61,0,0,0,246.47,69.1Z"/><path d="M272.35,24.57A8.16,8.16,0,1,0,270,13.26,8.16,8.16,0,0,0,272.35,24.57Z"/><path d="M248.45,147.91a25.25,25.25,0,0,0-2.87,50.42c.49,0,1,0,1.45,0a25.25,25.25,0,0,0,1.42-50.46Z"/><path d="M135.08,133.14A25.12,25.12,0,0,0,157.64,147a25.25,25.25,0,0,0,22.54-36.62,25.25,25.25,0,1,0-45.1,22.73Z"/><path d="M333,100.79a10.39,10.39,0,1,0-14-4.6A10.4,10.4,0,0,0,333,100.79Z"/><path d="M269,108.83a14.84,14.84,0,1,0,19.94,6.58A14.86,14.86,0,0,0,269,108.83Z"/><path d="M186.55,20.76a10.39,10.39,0,1,0-9.79-11A10.38,10.38,0,0,0,186.55,20.76Z"/><path d="M186.43,86.13a14.84,14.84,0,1,0-14-15.66A14.84,14.84,0,0,0,186.43,86.13Z"/><path d="M106,237.68a14.84,14.84,0,1,0-19.93-6.58A14.85,14.85,0,0,0,106,237.68Z"/><path d="M196,107.79a25.22,25.22,0,1,0,21.14-11.41A25.28,25.28,0,0,0,196,107.79Z"/><path d="M239.92,213.37a25.26,25.26,0,1,0-11.18,33.91A25.11,25.11,0,0,0,239.92,213.37Z"/><path d="M284,211.62a14.84,14.84,0,1,0,4.27,20.55A14.84,14.84,0,0,0,284,211.62Z"/><path d="M332.38,173.68a12.62,12.62,0,1,0-13.31,11.88A12.62,12.62,0,0,0,332.38,173.68Z"/><path d="M367.3,164.71a8.16,8.16,0,1,0,7.69,8.61A8.17,8.17,0,0,0,367.3,164.71Z"/><path d="M334.42,245.68a10.39,10.39,0,1,0,3,14.39A10.39,10.39,0,0,0,334.42,245.68Z"/><path d="M102.65,321.94a8.16,8.16,0,1,0,2.34,11.3A8.17,8.17,0,0,0,102.65,321.94Z"/><path d="M273.83,321.08a8.16,8.16,0,1,0,11,3.62A8.16,8.16,0,0,0,273.83,321.08Z"/><path d="M179,238.71a25.25,25.25,0,1,0-21.14,11.41A25.1,25.1,0,0,0,179,238.71Z"/><path d="M128.53,277.41a12.62,12.62,0,1,0,3.63,17.47A12.62,12.62,0,0,0,128.53,277.41Z"/><path d="M187.38,325.74a10.39,10.39,0,1,0,9.78,11A10.39,10.39,0,0,0,187.38,325.74Z"/><path d="M187.49,260.37a14.84,14.84,0,1,0,14,15.67A14.85,14.85,0,0,0,187.49,260.37Z"/><path d="M248.21,276.4a12.62,12.62,0,1,0,17,5.59A12.62,12.62,0,0,0,248.21,276.4Z"/></g>
+</symbol>
+<symbol id="u7-wallet" viewBox="0 0 310 205"><g transform="translate(-490 -120)">
+<path d="M509.24 137 H686.62 Q692.5 142.88 698.38 137 H765.76 Q775 137 775 146.24 V295.76 Q775 305 765.76 305 H698.38 Q692.5 299.12 686.62 305 H509.24 Q500 305 500 295.76 V146.24 Q500 137 509.24 137 Z" fill="#805034" stroke="#3b261b" stroke-width="3.5" stroke-linejoin="round"/>
+<path d="M514.15 144.56 H760.85 Q767.44 144.56 767.44 151.15 V290.85 Q767.44 297.44 760.85 297.44 H514.15 Q507.56 297.44 507.56 290.85 V151.15 Q507.56 144.56 514.15 144.56 Z" fill="none" stroke="#e1b47b" stroke-width="1.5" stroke-dasharray="3 4" opacity=".78"/>
+<path d="M692.5 149 C689.5 194.12 695.5 247.88 692.5 293" fill="none" stroke="#3b261b" stroke-width="2.3" opacity=".55"/>
+<circle cx="692.5" cy="153" r="3.02" fill="#d5a34f" stroke="#3b261b" stroke-width="1.2"/><circle cx="692.5" cy="289" r="3.02" fill="#d5a34f" stroke="#3b261b" stroke-width="1.2"/>
+<text x="520" y="163" fill="#fff1d9" font-size="17" font-family="var(--font-sans)" font-weight="600">CARTEIRA</text>
+<path d="M687.84 146 H750.16 L755 150.84 V163.16 L750.16 168 H687.84 L683 163.16 V150.84 Z" fill="#176c92" stroke="#3b261b" stroke-width="2.2"/>
+<text x="719" y="161" fill="#fbfaf7" text-anchor="middle" font-size="12" font-family="var(--font-sans)">PREPROD</text>
+<line x1="500" x2="775" y1="174" y2="174" stroke="#e1b47b" stroke-width="1.5" stroke-dasharray="4 5" opacity=".72"/>
+<path d="M525.88 187 H581.2 C593.1 198.76 616.9 198.76 628.8 187 H684.12 Q690 187 690 192.88 V279.12 Q690 285 684.12 285 H525.88 Q520 285 520 279.12 V192.88 Q520 187 525.88 187 Z" fill="#ead7b8" stroke="#4f3324" stroke-width="2.4"/>
+<text x="605" y="222" fill="#245b73" text-anchor="middle" font-size="19" font-family="var(--font-sans)">Saldo</text>
+<text x="605" y="257" fill="#272727" text-anchor="middle" font-size="30" font-weight="600" font-family="var(--font-sans)">11 ADA</text>
+<path d="M708 187 H723 C726.5 198.76 733.5 198.76 737 187 H752 Q755 187 755 190 V282 Q755 285 752 285 H708 Q705 285 705 282 V190 Q705 187 708 187 Z" fill="#c98a57" stroke="#4f3324" stroke-width="2.4"/>
+<circle cx="730" cy="221" r="10" fill="none" stroke="#6e3315" stroke-width="2.5"/><path d="M730 231 V253 M730 245 H738 M730 252 H738" fill="none" stroke="#6e3315" stroke-width="3" stroke-linecap="round"/>
+</g></symbol>
+<symbol id="u7-transaction" viewBox="0 0 300 230"><g transform="translate(-570 -235)">
+<path d="M603 245 H802 L820 263 V337 C808 337 808 361 820 361 V427 L802 445 H603 L585 427 V361 C597 361 597 337 585 337 V263 Z" fill="#fff7e3" stroke="#2f6787" stroke-width="3" stroke-linejoin="round"/>
+<text x="702" y="287" fill="#2f6787" text-anchor="middle" font-size="25" font-weight="600" font-family="var(--font-sans)">Transação</text>
+<path d="M610 307 H795 M610 405 H795" fill="none" stroke="#2f6787" stroke-width="2" stroke-dasharray="5 6"/>
+<text x="702" y="347" fill="#272727" text-anchor="middle" font-size="25" font-family="var(--font-mono)">c9047f2a61bd…</text>
+<text x="702" y="384" fill="#2f6787" text-anchor="middle" font-size="23" font-family="var(--font-sans)">Taxa: 0,2 ADA</text>
+</g></symbol>
+<symbol id="u7-datum" viewBox="0 0 390 290">
+<use href="#u7-note" width="390" height="230"/>
+<text x="48" y="61" style="fill:#176c64;font:600 18px var(--font-sans)">UTxO</text><text x="340" y="63" style="fill:#176c64;font:600 32px var(--font-mono);text-anchor:end">7 ₳</text><text x="48" y="108" style="fill:#272727;font:600 27px var(--font-mono)">6d18a4c79e02…#0</text><text x="48" y="160" style="fill:#404040;font:400 21px var(--font-sans)">Endereço de script</text>
+<path class="obj-datum-string" d="M252 197 C256 210 263 215 275 222" fill="none" stroke="#176c64" stroke-width="2.5" stroke-linecap="round"/>
+<g transform="rotate(-2 275 250)"><rect class="obj-datum-tag" height="60" rx="7" width="192" x="179" y="218" fill="#dff5e9" stroke="#247d72" stroke-width="3" style="filter:drop-shadow(2px 3px 0 rgba(39,39,39,.13))"/>
+<circle class="obj-datum-eyelet" cx="275" cy="224" r="5" fill="#c8eadc" stroke="#176c64" stroke-width="2.5"/>
+<text x="275" y="249" fill="#176c64" font-size="22" font-weight="600" text-anchor="middle" font-family="var(--font-sans)">Datum</text>
+<text x="275" y="271" fill="#272727" font-size="22" text-anchor="middle" font-family="var(--font-sans)">versão = 3</text></g>
+</symbol>
+</defs></svg>
+
+<h3 id="aula-1-7-s1">1. O saldo que a carteira mostra</h3>
+<p>Você abre a carteira e vê 11 ADA. Esse número pode reunir valores recebidos em momentos diferentes: uma saída de 7 ADA e outra de 4 ADA, por exemplo. A carteira consulta as saídas disponíveis nos seus endereços e soma os valores para apresentar o saldo.</p>
+<p>Cada uma dessas saídas é uma <strong>UTxO</strong>, abreviação de <em>Unspent Transaction Output</em>: uma saída de transação ainda não gasta. Ela foi criada por uma transação anterior e continua disponível para ser usada em outra.</p>
+<figure class="fig u7-figure" id="fig-aula-1-7-saldo" aria-labelledby="caption-aula-1-7-saldo">
+<div class="u7-balance">
+<div><span class="u7-label">Saídas não gastas no ledger</span><div class="u7-notes">
+<div><svg viewBox="24 24 342 182" role="img" aria-label="Saída com hash de transação iniciado em 8f3c2a91d6e4, índice zero, com 7 ADA"><use href="#u7-note" width="390" height="230"/><text class="u7-kind" x="48" y="61">UTxO</text><text class="u7-denomination" x="340" y="63">7 ₳</text><text class="u7-serial" x="48" y="108">8f3c2a91d6e4…#0</text><text class="u7-address" x="48" y="160">Endereço de pagamento</text></svg></div>
+<span class="u7-sum" aria-hidden="true">+</span>
+<div><svg viewBox="24 24 342 182" role="img" aria-label="Saída com hash de transação iniciado em 2b7e4d90a6c1, índice zero, com 4 ADA"><use href="#u7-note" width="390" height="230"/><text class="u7-kind" x="48" y="61">UTxO</text><text class="u7-denomination" x="340" y="63">4 ₳</text><text class="u7-serial" x="48" y="108">2b7e4d90a6c1…#0</text><text class="u7-address" x="48" y="160">Endereço de pagamento</text></svg></div>
+</div></div>
+<div class="u7-arrow" aria-hidden="true"><small>soma</small><span class="u7-direction">→</span></div>
+<div class="u7-wallet"><svg viewBox="0 0 310 205" role="img" aria-label="A carteira mostra o saldo de 11 ADA"><use href="#u7-wallet"/></svg></div>
+</div><figcaption id="caption-aula-1-7-saldo">A carteira mostra 11 ADA, mas há duas saídas distintas disponíveis para gasto. Hashes ilustrativos e abreviados.</figcaption>
+</figure>
+<p>Pense nessas saídas como notas de dinheiro, cada uma com seu valor. Em Cardano, cada “nota” também está associada a um endereço que identifica a condição para gastá-la. Os valores não precisam seguir denominações fixas, como as cédulas de papel.</p>
+
+<h3 id="aula-1-7-s2">2. Qual saída será gasta, e quem pode gastá-la?</h3>
+<p>Conhecer o saldo não basta para construir uma transação. É preciso identificar as saídas que serão usadas como entradas. Cada saída é identificada pelo <strong>hash da transação que a criou e pelo índice que ocupa na lista de saídas</strong>, começando em zero.</p>
+<figure class="fig u7-figure" id="fig-aula-1-7-referencia" aria-labelledby="caption-aula-1-7-referencia">
+<div class="u7-anatomy">
+<div><svg viewBox="24 24 342 182" role="img" aria-label="Saída de 7 ADA com hash de transação iniciado em 8f3c2a91d6e4, índice zero, e endereço de pagamento"><use href="#u7-note" width="390" height="230"/><text class="u7-kind" x="48" y="61">UTxO</text><text class="u7-denomination" x="340" y="63">7 ₳</text><text class="u7-serial" x="48" y="108">8f3c2a91d6e4…#0</text><text class="u7-address" x="48" y="160">Endereço de pagamento</text></svg></div>
+<div><p><code>8f3c2a91d6e4…</code> é o hash abreviado da transação que criou a saída. <code>#0</code> indica sua primeira saída.</p><p>O endereço identifica a condição de gasto. A referência identifica <em>qual</em> saída será gasta. Várias saídas podem ter o mesmo endereço e, ainda assim, referências diferentes.</p></div>
+</div><figcaption id="caption-aula-1-7-referencia">Uma entrada aponta para a saída pelo par hash e índice; não apenas pelo endereço.</figcaption>
+</figure>
+<p>Para consumir uma saída, a transação precisa satisfazer a condição identificada pela credencial de pagamento. No caso de uma chave, isso exige a chave pública correspondente e uma assinatura válida. Se a credencial for de script, o gasto precisa satisfazer a regra desse script. Copiar o endereço ou conhecer a referência não fornece essa autorização.</p>
+
+<h3 id="aula-1-7-s3">3. O pagamento consome a saída inteira</h3>
+<p>Considere que Ana controla as duas saídas do exemplo e quer pagar 5 ADA a Bruno. Suponha uma taxa de 0,2 ADA para essa transação. A saída de 7 ADA é suficiente para cobrir os dois valores; a de 4 ADA pode ficar sem uso.</p>
+<p>A entrada referencia <code>8f3c2a91d6e4…#0</code>. Quando a transação é aceita, essa saída de 7 ADA é consumida por inteiro. O pagamento de 5 ADA e os 1,8 ADA de <strong>troco</strong> são novas saídas, criadas pela transação <code>c9047f2a61bd…</code>.</p>
+<figure class="fig u7-figure" id="fig-aula-1-7-pagamento" aria-labelledby="caption-aula-1-7-pagamento">
+<div class="u7-transfer">
+<div class="u7-input"><span class="u7-label">Entrada de Ana</span><svg class="u7-spent" viewBox="24 24 342 182" role="img" aria-label="A saída com hash de transação iniciado em 8f3c2a91d6e4, índice zero, de 7 ADA é consumida"><use href="#u7-note" width="390" height="230"/><text class="u7-kind" x="48" y="61">SAÍDA</text><text class="u7-denomination" x="340" y="63">7 ₳</text><text class="u7-serial" x="48" y="108">8f3c2a91d6e4…#0</text><g class="u7-cancellation" transform="translate(0 8) rotate(-8 195 142)"><line x1="72" x2="318" y1="124" y2="124" stroke-width="3"/><text x="195" y="151">CONSUMIDA</text><line x1="72" x2="318" y1="164" y2="164" stroke-width="3"/></g></svg><span class="u7-consumed">Permanece no histórico</span></div>
+<span class="u7-arrow" aria-hidden="true"><span class="u7-direction">→</span></span>
+<div class="u7-ticket"><svg viewBox="0 0 300 230" role="img" aria-label="Transação com hash iniciado em c9047f2a61bd, com taxa de 0,2 ADA"><use href="#u7-transaction"/></svg></div>
+<span class="u7-arrow" aria-hidden="true"><span class="u7-direction">→</span></span>
+<div class="u7-outputs">
+<div><span class="u7-label">Pagamento a Bruno</span><svg viewBox="24 24 342 182" role="img" aria-label="Nova saída com hash de transação iniciado em c9047f2a61bd, índice zero, de 5 ADA para Bruno"><use href="#u7-note" width="390" height="230"/><text class="u7-kind" x="48" y="61">UTxO</text><text class="u7-denomination" x="340" y="63">5 ₳</text><text class="u7-serial" x="48" y="108">c9047f2a61bd…#0</text><text class="u7-address" x="48" y="160">Endereço de Bruno</text></svg></div>
+<div><span class="u7-label">Troco de Ana</span><svg viewBox="24 24 342 182" role="img" aria-label="Nova saída com hash de transação iniciado em c9047f2a61bd, índice um, de 1,8 ADA para Ana"><use href="#u7-note" width="390" height="230"/><text class="u7-kind" x="48" y="61">UTxO</text><text class="u7-denomination" x="340" y="63">1,8 ₳</text><text class="u7-serial" x="48" y="108">c9047f2a61bd…#1</text><text class="u7-address" x="48" y="160">Endereço de Ana</text></svg></div>
+</div></div>
+<div class="u7-untouched"><svg viewBox="24 24 342 182" role="img" aria-label="A saída com hash de transação iniciado em 2b7e4d90a6c1, índice zero, de 4 ADA permanece não gasta"><use href="#u7-note" width="390" height="230"/><text class="u7-kind" x="48" y="61">UTxO</text><text class="u7-denomination" x="340" y="63">4 ₳</text><text class="u7-serial" x="48" y="108">2b7e4d90a6c1…#0</text><text class="u7-address" x="48" y="160">Endereço de Ana</text></svg><p>Não foi usada.<br>Continua disponível para Ana.</p></div>
+<figcaption id="caption-aula-1-7-pagamento">7 ADA = 5 ADA de pagamento + 1,8 ADA de troco + 0,2 ADA de taxa. A taxa não é uma saída de pagamento.</figcaption>
+</figure>
+<p>O troco pode voltar ao mesmo endereço de Ana, mas tem uma nova referência: <code>c9047f2a61bd…#1</code>. A antiga <code>8f3c2a91d6e4…#0</code> permanece no histórico como saída gasta e não pode ser usada novamente. A carteira agora soma os 4 ADA que ficaram intactos aos 1,8 ADA de troco e mostra 5,8 ADA.</p>
+<p>Se duas transações tentarem gastar a mesma saída, ambas podem ser preparadas, mas não podem efetivar esse gasto na mesma cadeia. Depois que uma consome a saída, a outra precisa ser reconstruída com entradas ainda disponíveis. Por isso, uma aplicação acompanha as referências usadas, além do saldo total.</p>
+<p>Em um pagamento simples de ADA, o valor das entradas deve cobrir o valor das saídas e a taxa. O troco precisa ser incluído na construção; ele não aparece automaticamente no ledger. A carteira ou o SDK costuma fazer essa seleção e esse cálculo. A taxa de uma transação real e o ADA mínimo de cada saída dependem de seus dados e dos parâmetros vigentes. Na próxima aula, calcularemos a taxa e definiremos a validade da transação.</p>
+
+<h3 id="aula-1-7-s4">4. O que o eUTxO acrescenta</h3>
+<p>Além de transferir valores, uma aplicação pode precisar guardar dados que serão usados para decidir um gasto futuro. O modelo <strong>eUTxO</strong>, ou <em>extended UTxO</em>, mantém o consumo e a criação de saídas e amplia o que uma regra de script pode verificar.</p>
+<div class="u7-anatomy">
+<figure class="fig u7-figure" id="fig-aula-1-7-datum" aria-labelledby="caption-aula-1-7-datum"><div class="u7-datum"><svg viewBox="0 0 390 290" role="img" aria-label="Uma saída em endereço de script tem um datum associado, contendo versão igual a 3"><use href="#u7-datum"/></svg></div><figcaption id="caption-aula-1-7-datum">O datum contém dados associados à saída.</figcaption></figure>
+<div><p>Esses dados são chamados de <strong>datum</strong>. Uma saída pode conter o datum ou o hash que o identifica. No segundo caso, quem a gasta fornece o dado correspondente quando ele é exigido pelo script.</p><p>O datum não é a regra de gasto. A regra é código: o script lê os dados e verifica as condições previstas para aquela transação.</p></div>
+</div>
+<p>Por exemplo, o datum pode registrar <code>versão = 3</code>, enquanto o script exige que uma atualização crie uma nova saída com <code>versão = 4</code>. A mudança ocorre pelo consumo da saída anterior e pela criação da sucessora, sem editar o datum da saída antiga. Quais sucessoras são exigidas depende da regra escrita no script.</p>
+<p>Ao gastar, a transação pode fornecer também um <strong>redeemer</strong>, com informações sobre a ação pretendida. O script verifica essa ação junto do datum e do contexto da transação. Vamos trabalhar com esses elementos na Aula 1.12; por enquanto, a distinção importante é entre o dado associado à saída e o código que decide se ela pode ser gasta.</p>
+
+<div class="activity"><div class="box-label">Atividade 1: selecione as entradas</div>
+<p>Você tem três saídas disponíveis: 7 ADA, 4 ADA e 1 ADA. Quer fazer um pagamento de 8 ADA, com taxa de 0,2 ADA.</p>
+<form class="activity-quiz" id="quiz-aula-1-7-a1" data-answer="answer-aula-1-7-a1">
+<fieldset class="quiz-question"><legend>Qual construção cobre o pagamento e a taxa usando o menor número de entradas?</legend><div class="quiz-options">
+<label class="quiz-option"><input name="q-aula-1-7-a1" type="radio" value="a"/><span class="quiz-option-text">Consumir 7 + 1 ADA; criar um pagamento de 8 ADA, sem troco.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-7-a1" type="radio" value="b"/><span class="quiz-option-text">Consumir 7 + 4 ADA; criar um pagamento de 8 ADA e 3 ADA de troco.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-7-a1" type="radio" value="c" data-correct="true"/><span class="quiz-option-text">Consumir 7 + 4 ADA; criar um pagamento de 8 ADA e 2,8 ADA de troco.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-7-a1" type="radio" value="d"/><span class="quiz-option-text">Consumir 7 + 4 + 1 ADA; criar um pagamento de 8 ADA e 3,8 ADA de troco.</span><span class="quiz-verdict"></span></label>
+</div><p class="quiz-question-feedback" aria-live="polite"></p></fieldset>
+<div class="quiz-actions"><button class="quiz-check" disabled="" type="submit">Conferir respostas</button><p class="quiz-status" aria-live="polite" tabindex="-1">0 de 1 pergunta respondida.</p></div>
+</form>
+<details class="answer" id="answer-aula-1-7-a1"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Conferir resposta</summary><div class="answer-body">
+<p>A alternativa C é a correta. São necessários 8,2 ADA. Nenhuma saída isolada cobre esse valor, mas as de 7 e 4 ADA cobrem: <code>11 − 8 − 0,2 = 2,8</code> ADA de troco. A saída de 1 ADA continua disponível. A alternativa D também fecha a conta, mas usa uma entrada desnecessária; A e B não deixam valor para a taxa.</p>
+</div></details>
+</div>
+
+<div class="activity"><div class="box-label">Atividade 2: acompanhe a referência</div>
+<p>No pagamento ilustrado, <code>8f3c2a91d6e4…#0</code> foi consumida, <code>c9047f2a61bd…#1</code> recebeu o troco e <code>2b7e4d90a6c1…#0</code> permaneceu intacta. O troco foi enviado ao mesmo endereço da saída consumida.</p>
+<form class="activity-quiz" id="quiz-aula-1-7-a2" data-answer="answer-aula-1-7-a2">
+<fieldset class="quiz-question"><legend>Quais referências ficam disponíveis para quem fez o pagamento?</legend><div class="quiz-options">
+<label class="quiz-option"><input name="q-aula-1-7-a2" type="radio" value="a"/><span class="quiz-option-text"><code>8f3c2a91d6e4…#0</code> e <code>2b7e4d90a6c1…#0</code>, pois o endereço que controla o troco é o mesmo.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-7-a2" type="radio" value="b" data-correct="true"/><span class="quiz-option-text"><code>c9047f2a61bd…#1</code> e <code>2b7e4d90a6c1…#0</code>, pois o troco e a saída não utilizada continuam disponíveis para gasto.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-7-a2" type="radio" value="c"/><span class="quiz-option-text"><code>c9047f2a61bd…#0</code> e <code>c9047f2a61bd…#1</code>, pois ambas foram criadas pela transação que essa pessoa assinou.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-7-a2" type="radio" value="d"/><span class="quiz-option-text">Apenas <code>c9047f2a61bd…#1</code>, pois a nova transação substituiu todas as saídas anteriores da carteira.</span><span class="quiz-verdict"></span></label>
+</div><p class="quiz-question-feedback" aria-live="polite"></p></fieldset>
+<div class="quiz-actions"><button class="quiz-check" disabled="" type="submit">Conferir respostas</button><p class="quiz-status" aria-live="polite" tabindex="-1">0 de 1 pergunta respondida.</p></div>
+</form>
+<details class="answer" id="answer-aula-1-7-a2"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Conferir resposta</summary><div class="answer-body">
+<p>A alternativa B é a correta. O troco é uma nova saída de 1,8 ADA, identificada por <code>c9047f2a61bd…#1</code>. A saída <code>2b7e4d90a6c1…#0</code>, de 4 ADA, não foi consumida. Já <code>8f3c2a91d6e4…#0</code> foi gasta e <code>c9047f2a61bd…#0</code> está sob a condição de gasto do destinatário. Assinar a transação que criou um pagamento não concede autorização para gastá-lo depois.</p>
+</div></details>
+</div>
+
+<div class="closing"><h3>O que aprendemos</h3><ul>
+<li>A carteira calcula o saldo a partir das saídas não gastas associadas aos seus endereços.</li>
+<li>Uma entrada identifica a saída pelo hash da transação que a criou e pelo índice. O endereço identifica a condição de gasto.</li>
+<li>A saída selecionada é consumida inteira. Pagamento e troco têm novas referências; saídas não utilizadas permanecem disponíveis.</li>
+<li>No eUTxO, o datum fornece dados associados à saída. O script contém a regra que usa esses dados para verificar um gasto.</li>
+</ul></div>
+<div class="bridge"><h3>Próxima aula</h3><p>O pagamento fechou a conta porque já tínhamos um valor de taxa. Na próxima aula, veremos como calcular esse custo a partir dos bytes da transação e dos parâmetros da rede, definir sua validade e usar a carteira para assinar e submeter o resultado.</p></div>

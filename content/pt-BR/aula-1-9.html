@@ -1,0 +1,49 @@
+---
+title: 'Metadata: anexar uma mensagem à transação'
+short_title: Metadata
+map_title: Metadata
+summary: Criar metadata com PyCardano e observar como uma mudança no texto altera seu hash.
+---
+
+<div class="objectives"><div class="box-label">Objetivos</div><ol class="objective-list">
+<li>Criar metadata a partir de um dicionário Python.</li>
+<li>Observar sua representação em CBOR e seu hash.</li>
+<li>Explicar como o corpo da transação fica ligado a esses dados.</li>
+</ol></div>
+<div class="prereq"><div class="box-label">Antes de começar</div><p>Retome o cálculo de hashes na <a href="#aula-0-2">Aula 0.2</a> e a representação da transação em CBOR na <a href="#aula-1-6">Aula 1.6</a>.</p><div class="guide-q"><span class="guide-q-label">Pergunta-guia</span><p>Se alguém alterar uma mensagem anexada à transação, o que acontece com o hash desses dados?</p></div></div>
+
+<h3 id="aula-1-9-s1">1. Uma mensagem na transação</h3>
+<p>Metadata são dados opcionais que podem acompanhar uma transação, como uma mensagem. Escrever uma mensagem não cria tokens nem faz a rede verificar se o texto é verdadeiro.</p>
+<p>Em Python, podemos representar esses dados com um dicionário: <code>{1001: {"mensagem": "Olá, Cardano!"}}</code>. A chave externa precisa ser um inteiro; escolhemos <code>1001</code> para este exemplo. A chave <code>mensagem</code> e seu texto são escolhidos por quem prepara os dados.</p>
+
+<h3 id="aula-1-9-s2">2. Criar metadata com PyCardano</h3>
+<p><code>Metadata</code> recebe o dicionário. As classes <code>AlonzoMetadata</code> e <code>AuxiliaryData</code> montam o anexo no formato usado pela transação. Execute o exemplo: ele mostra a mensagem, o anexo em CBOR escrito como hexadecimal e o hash do anexo.</p>
+<pre data-python-runner="true" data-python-packages="pycardano-workshop-0.19.2-pyodide-314.0.7-v1" data-exercise-id="metadata-auxiliary-commitment" data-exercise-version="3"><code class="language-python">from pycardano import Metadata, AlonzoMetadata, AuxiliaryData
+
+mensagem = "Olá, Cardano!"
+dados = Metadata({1001: {"mensagem": mensagem}})
+anexo = AuxiliaryData(AlonzoMetadata(metadata=dados))
+
+print("mensagem:", dados[1001]["mensagem"])
+print("CBOR:", anexo.to_cbor_hex())
+print("hash:", anexo.hash().payload.hex())
+</code></pre>
+<p>Use mensagens curtas: cada texto de metadata pode ocupar até 64 bytes. Caracteres como <code>á</code> ocupam mais de um byte em UTF-8.</p>
+
+<div class="activity" data-progress-id="metadata-message-change-activity"><div class="box-label">Atividade: altere a mensagem</div>
+<p>Execute o código acima. Troque <code>Olá, Cardano!</code> por <code>Olá, Ada!</code> e execute novamente. O que mudou no CBOR e no hash?</p>
+<p>Depois restaure a mensagem original e execute mais uma vez. Compare o resultado com o da primeira execução.</p>
+<details class="answer"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Conferir resposta</summary><div class="answer-body"><p>Alterar a mensagem muda os bytes do anexo e seu hash. Ao restaurar a mensagem original, o mesmo código produz novamente o CBOR e o hash iniciais. O cálculo depende dos dados, não do momento da execução.</p></div></details>
+</div>
+
+<h3 id="aula-1-9-s3">3. Como esses dados ficam ligados à transação</h3>
+<p>O anexo fica nos <em>auxiliary data</em>, fora do corpo da transação. O corpo guarda o hash desse anexo no campo <code>auxiliary_data_hash</code>.</p>
+<p>Se a mensagem mudar, é preciso atualizar esse campo. Isso muda o corpo e seu body hash. Portanto, uma transação já assinada precisa de novas assinaturas depois dessa alteração.</p>
+<p>Ao publicar a transação, a mensagem fica acessível junto dos demais dados.</p>
+
+<div class="closing"><h3>O que aprendemos</h3><ul>
+<li>Um dicionário Python pode fornecer os dados para criar metadata com PyCardano.</li>
+<li>Alterar a mensagem muda o CBOR e o hash do anexo.</li>
+<li>O campo <code>auxiliary_data_hash</code> liga o corpo da transação ao anexo.</li>
+</ul></div>
+<div class="bridge"><h3>Próxima aula</h3><p>Uma mensagem em metadata não cria unidades transferíveis. Na próxima aula veremos como os ativos nativos aparecem nos valores da transação.</p></div>

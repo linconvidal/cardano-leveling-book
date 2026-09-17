@@ -1,0 +1,137 @@
+---
+title: 'Plutus: validar os efeitos de uma mudança de estado'
+short_title: Plutus e transições
+map_title: Plutus
+summary: Comparar datum, redeemer e contexto; distinguir fases de validação e planejar migração.
+---
+
+<div class="objectives"><div class="box-label">Objetivos</div><ol class="objective-list">
+<li>Localizar estado, ação solicitada e efeitos observáveis em uma tentativa de gasto.</li>
+<li>Testar uma regra de continuação de estado, sem confiar apenas no redeemer.</li>
+<li>Distinguir falhas de fase 1, fase 2 e migração entre versões de script.</li>
+</ol></div>
+<div class="prereq"><div class="box-label">Antes de começar</div><p>Retome eUTxO na Aula 1.7, taxa e validade na Aula 1.8 e native scripts na Aula 1.10. Você já sabe que uma transação propõe consumir outputs e criar outros; agora examinaremos a regra que aceita ou recusa essa proposta.</p><div class="guide-q"><span class="guide-q-label">Pergunta-guia</span><p>O redeemer pede “incrementar”. Como impedir que a transação crie uma versão diferente da solicitada?</p></div></div>
+
+<h3 id="aula-1-12-s1">1. Uma regra que precisa enxergar os outputs</h3>
+<p>Um registro tem versão 3 e deve avançar exatamente para 4. Exigir duas assinaturas antes de um prazo caberia em native script. Exigir que a nova saída mantenha o registro e contenha a versão correta exige observar dados e efeitos da transação. Esse é um uso de <strong>Plutus</strong>.</p>
+<p>Um spending validator Plutus é executado quando a transação tenta consumir um output protegido por sua credencial de script. Ele não é um serviço que fica rodando nem uma função que altera o ledger por dentro. O builder propõe inputs e outputs; o script decide se a tentativa satisfaz suas condições. O ledger aplica a transição somente sob as regras de validação e inclusão pertinentes.</p>
+<p>Native script e Plutus são alternativas conforme a informação necessária. Plutus acrescenta expressividade e custos de execução; não é uma etapa obrigatória de toda emissão ou transferência. Linguagens como Aiken, OpShin e plu-ts permitem escrever essas regras. Seus compiladores produzem código em UPLC (Untyped Plutus Core), que a rede avalia. O programa escrito pelo desenvolvedor e o código executado pelo ledger são representações diferentes; compilar sem erros não demonstra que a regra está correta.</p>
+
+<h3 id="aula-1-12-s2">2. Datum, redeemer e contexto</h3>
+<p>O <strong>datum</strong> é o dado associado ao estado protegido. Pode estar diretamente no output como inline datum, conforme CIP-32, ou ser comprometido por um datum hash e fornecido quando necessário. O <strong>redeemer</strong> é fornecido na transação candidata: declara qual ação está sendo solicitada. O <strong>ScriptContext</strong> é construído pelo ledger e expõe informações da transação relevantes à finalidade do script.</p>
+<p>Inputs, outputs, mint, intervalo de validade, signatários e reference inputs podem entrar na decisão conforme a versão de Plutus e o propósito. A forma exata dos argumentos varia entre versões; a separação entre estado, pedido e contexto continua útil. Os signatários visíveis ao script não são uma lista arbitrária de todas as witnesses: o builder deve declarar os required signers pertinentes no corpo, e o ledger exige suas assinaturas.</p>
+<!-- Reuse the banknote symbol introduced in Lesson 1.7 (u7-note) within the complete book.
+     Workshop objects/utxo-active.svg, datum-compact.svg and transaction-body.svg.
+     Preserve note and ticket proportions. Both outputs show 2 ADA, matching valor: 2
+     in the exercise; only the datum version changes. This is a proposal, not an accepted spend. -->
+<style id="aula-1-12-objects-styles">
+#aula-1-12 .u12-figure { width:100%; max-width:100%; margin:30px 0; font-family:var(--font-sans); }
+#aula-1-12 .u12-flow { display:grid; grid-template-columns:minmax(0,1fr) 24px 140px 24px minmax(0,1fr); gap:8px; align-items:center; }
+#aula-1-12 .u12-flow > * { min-width:0; }
+#aula-1-12 .u12-figure svg { display:block; width:100%; height:auto; }
+#aula-1-12 .u12-label { display:block; margin-bottom:8px; font-size:14px; color:var(--ink-dim); }
+#aula-1-12 .u12-arrow { color:var(--deck-blue); font-size:28px; }
+#aula-1-12 .u12-kind { fill:#176c64; font:600 22px var(--font-sans); }
+#aula-1-12 .u12-value { fill:#176c64; font:600 32px var(--font-mono); text-anchor:end; }
+#aula-1-12 .u12-serial { fill:#272727; font:600 30px var(--font-mono); }
+#aula-1-12 .u12-address { fill:#404040; font:22px var(--font-sans); }
+#aula-1-12 .u12-datum-title { fill:#176c64; font:600 22px var(--font-sans); text-anchor:middle; }
+#aula-1-12 .u12-version { fill:#272727; font:24px var(--font-sans); text-anchor:middle; }
+#aula-1-12 .u12-ticket-title { fill:#2f6787; font:600 28px var(--font-sans); text-anchor:middle; }
+#aula-1-12 .u12-action { fill:#272727; font:27px var(--font-mono); text-anchor:middle; }
+#aula-1-12 .u12-rule { margin:20px 0 12px; font-size:16px; }
+@media(max-width:620px) {
+  #aula-1-12 .u12-flow { grid-template-columns:1fr; gap:12px; }
+  #aula-1-12 .u12-state { width:280px; max-width:100%; margin:auto; }
+  #aula-1-12 .u12-ticket { width:160px; max-width:100%; margin:auto; }
+  #aula-1-12 .u12-arrow { transform:rotate(90deg); }
+}
+@media print { #aula-1-12 .u12-figure { break-inside:avoid; } }
+</style>
+<figure class="fig u12-figure" id="fig-aula-1-12-proposta" aria-labelledby="caption-aula-1-12-proposta" data-visual-revision="f4536110de13ab69c1b42311b823f84afdc2b6f7">
+<div class="u12-flow">
+<div class="u12-state"><span class="u12-label">Saída atual</span>
+<svg viewBox="20 20 355 282" role="img" aria-label="Saída da transação com hash iniciado em a61f8e4c2d90, índice zero: 2 ADA no script contador, com datum do registro REC-0042 na versão 3">
+<use href="#u7-note" width="390" height="230" data-visual-asset="objects/utxo-active.svg"/>
+<text class="u12-kind" x="48" y="61">UTxO</text><text class="u12-value" x="340" y="63">2 ₳</text>
+<text class="u12-serial" x="48" y="108">a61f8e4c2d90…#0</text><text class="u12-address" x="48" y="160">Script: contador</text>
+<path d="M252 197 C256 210 263 215 275 222" fill="none" stroke="#176c64" stroke-width="2.5" stroke-linecap="round"/>
+<g transform="rotate(-2 275 250)" data-visual-asset="objects/datum-compact.svg">
+<rect x="179" y="218" width="192" height="60" rx="7" fill="#dff5e9" stroke="#247d72" stroke-width="3" style="filter:drop-shadow(2px 3px 0 rgba(39,39,39,.13))"/>
+<circle cx="275" cy="224" r="5" fill="#c8eadc" stroke="#176c64" stroke-width="2.5"/>
+<text class="u12-datum-title" x="275" y="249">Datum · REC-0042</text><text class="u12-version" x="275" y="271">versão = 3</text>
+</g></svg></div>
+<span class="u12-arrow" aria-hidden="true">→</span>
+<div class="u12-ticket"><span class="u12-label">Transação candidata</span>
+<svg viewBox="0 0 270 230" role="img" aria-label="A transação candidata pede Incrementar por meio do redeemer">
+<g transform="translate(-570 -235)">
+<path data-visual-asset="objects/transaction-body.svg" d="M603 245 H802 L820 263 V337 C808 337 808 361 820 361 V427 L802 445 H603 L585 427 V361 C597 361 597 337 585 337 V263 Z" fill="#fff7e3" stroke="#2f6787" stroke-width="3" stroke-linejoin="round" style="filter:drop-shadow(2px 3px 0 rgba(39,39,39,.14))"/>
+<text class="u12-ticket-title" x="702" y="287">Redeemer</text>
+<path d="M610 307 H795 M610 405 H795" fill="none" stroke="#2f6787" stroke-width="2" stroke-dasharray="5 6"/>
+<text class="u12-action" x="702" y="363">Incrementar</text>
+</g></svg></div>
+<span class="u12-arrow" aria-hidden="true">→</span>
+<div class="u12-state"><span class="u12-label">Saída proposta</span>
+<svg viewBox="20 20 355 282" role="img" aria-label="Saída proposta da transação com hash iniciado em c8b03a7d19e2, índice zero: os mesmos 2 ADA no script contador, com datum do registro REC-0042 na versão 4">
+<use href="#u7-note" width="390" height="230" data-visual-asset="objects/utxo-active.svg"/>
+<text class="u12-kind" x="48" y="61">UTxO</text><text class="u12-value" x="340" y="63">2 ₳</text>
+<text class="u12-serial" x="48" y="108">c8b03a7d19e2…#0</text><text class="u12-address" x="48" y="160">Script: contador</text>
+<path d="M252 197 C256 210 263 215 275 222" fill="none" stroke="#176c64" stroke-width="2.5" stroke-linecap="round"/>
+<g transform="rotate(-2 275 250)" data-visual-asset="objects/datum-compact.svg">
+<rect x="179" y="218" width="192" height="60" rx="7" fill="#dff5e9" stroke="#247d72" stroke-width="3" style="filter:drop-shadow(2px 3px 0 rgba(39,39,39,.13))"/>
+<circle cx="275" cy="224" r="5" fill="#c8eadc" stroke="#176c64" stroke-width="2.5"/>
+<text class="u12-datum-title" x="275" y="249">Datum · REC-0042</text><text class="u12-version" x="275" y="271">versão = 4</text>
+</g></svg></div>
+</div>
+<p class="u12-rule">O script contador exige uma única sucessora, no mesmo script, com o mesmo valor e versão anterior + 1.</p>
+<figcaption id="caption-aula-1-12-proposta">Pedir “Incrementar” não autoriza um salto para a versão 7. A saída proposta só é criada se a transação for validada e incluída. Hashes ilustrativos e abreviados; taxas e outras entradas e saídas omitidas.</figcaption>
+</figure>
+<p>Transaction metadata é auxiliary data e não aparece no ScriptContext. Colocar <code>aprovado: true</code> em metadata não oferece ao validator uma condição verificável. Informações necessárias à regra precisam chegar por estruturas visíveis, como datum, redeemer ou outputs. O script também não baixa um relatório pela URL; verifica os dados fornecidos e os compromissos definidos na aplicação.</p>
+
+<h3 id="aula-1-12-s3">3. Conferir a saída, não apenas o pedido</h3>
+<p>O exemplo acompanha a continuação de um único registro. A lista <code>sucessoras</code> contém todas as saídas candidatas para esse registro. A regra exige exatamente uma, presa ao mesmo script, com o mesmo valor e versão anterior mais um. Em uma aplicação real, é preciso identificar o estado sem ambiguidade, por exemplo com um token único cuja policy garanta essa unicidade. Apenas encontrar um output com o mesmo nome ou datum não autentica a origem do estado.</p>
+<div class="activity" data-progress-id="plutus-successor-effects-activity"><div class="box-label">Atividade 1: valide a continuação</div>
+<p>O código inicial confere somente o redeemer. Corrija <code>continua</code> para conferir também a quantidade de sucessoras, o script, o valor e a versão de fato proposta. Mantenha os dados de teste: a função precisa aceitar a atualização correta e rejeitar as demais. O código é Python didático, não um validator compilável nem uma transação completa.</p>
+<pre data-python-runner="true" data-exercise-id="plutus-successor-effects" data-exercise-version="1" data-validator="plutus-successor-effects-tests"><code class="language-python">def continua(anterior, redeemer, sucessoras):
+    return redeemer == "Incrementar"
+
+anterior = {"script": "contador", "valor": 2, "versao": 3}
+correta = {"script": "contador", "valor": 2, "versao": 4}
+salto = {"script": "contador", "valor": 2, "versao": 7}
+print("incremento:", continua(anterior, "Incrementar", [correta]))
+print("salto:", continua(anterior, "Incrementar", [salto]))
+</code></pre>
+<details class="answer"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Conferir resposta</summary><div class="answer-body"><p>Primeiro rejeite redeemer diferente de <code>Incrementar</code> ou lista com tamanho diferente de 1. Depois compare a única sucessora: script e valor iguais aos anteriores e <code>versao == anterior["versao"] + 1</code>. A tentativa correta passa; o salto para 7 falha. Preservar dois campos não compensa a violação do terceiro. O builder deve ainda satisfazer taxa, contabilidade, identificação do estado e demais regras fora desse recorte.</p></div></details>
+</div>
+<script type="application/json" id="plutus-successor-effects-tests">
+{"version":1,"tests":[
+{"name":"Continuação correta","code":"a = {'script': 'contador', 'valor': 2, 'versao': 3}\nb = {'script': 'contador', 'valor': 2, 'versao': 4}\nassert continua(a, 'Incrementar', [b]) is True, 'Aceite a sucessora única que preserva script e valor e incrementa a versão.'\nassert continua({**a, 'versao': 8}, 'Incrementar', [{**b, 'versao': 9}]) is True, 'Calcule o incremento a partir do estado recebido.'"},
+{"name":"Pedido não substitui os efeitos","code":"for campo, valor in [('versao', 7), ('script', 'chave-do-atacante'), ('valor', 1)]:\n    assert continua(a, 'Incrementar', [{**b, campo: valor}]) is False, 'Confira versão, script e valor no output, não só o redeemer.'\nassert continua(a, 'Encerrar', [b]) is False, 'Esta regra aceita somente Incrementar.'"},
+{"name":"Uma única sucessora","code":"assert continua(a, 'Incrementar', []) is False, 'A regra não permite eliminar o estado.'\nassert continua(a, 'Incrementar', [b, b]) is False, 'Não aceite duas sucessoras para o mesmo estado.'"}
+]}</script>
+
+
+<h3 id="aula-1-12-s4">4. Falha de fase 1, fase 2 e collateral</h3>
+<p>A fase 1 verifica condições como estrutura, inputs disponíveis, conservação de valor, witnesses de chave, native scripts e validade temporal. Uma falha nessa fase rejeita a transação sem executar o caminho de cobrança por falha Plutus. Na fase 2, os scripts Plutus são avaliados com budgets de CPU e memória. Uma regra lógica correta ainda pode falhar por recursos insuficientes ou montagem incorreta.</p>
+<p>Se a avaliação Plutus for válida e a transação for incluída pelo caminho normal, os inputs normais são consumidos e os outputs propostos são criados. O collateral não é coletado nesse caminho. Se uma transação passar pela fase 1 e for incluída marcada como inválida em fase 2, a transição normal não ocorre: a eUTxO do registro continua disponível e os outputs normais não são criados. O ledger aplica separadamente o caminho de collateral.</p>
+<p><strong>Collateral inputs</strong> são referências explícitas a UTxOs apropriadas, não um saldo abstrato na wallet. A quantia líquida coletável deve atender às regras e aos parâmetros vigentes. Nas regras com collateral return, o excesso pode voltar em um output próprio; tokens eventualmente presentes precisam voltar, pois a coleta líquida é em ADA. Uma seleção simples usa collateral somente em ADA. <code>total_collateral</code>, quando presente, deve corresponder à diferença aplicável. Uma simulação local que falha não cobra automaticamente collateral: é preciso distinguir avaliação, submissão e inclusão.</p>
+<p>O mínimo de ADA dos outputs depende do tamanho e dos parâmetros da era, não é universalmente 1 ADA. Use uma biblioteca compatível e a avaliação de scripts antes de solicitar assinatura.</p>
+<div class="activity" data-progress-id="plutus-failure-path-activity"><div class="box-label">Atividade 2: acompanhe a tentativa inválida</div><p>A transação que propõe versão 7 passa pela fase 1, falha na fase 2 e é incluída marcada como inválida. Qual estado permanece?</p><form class="activity-quiz" data-progress-id="plutus-failure-path-quiz" data-answer="answer-plutus-failure-path" id="quiz-plutus-failure-path"><fieldset class="quiz-question"><legend>Qual consequência corresponde ao caminho de fase 2 inválida?</legend><div class="quiz-options">
+<label class="quiz-option"><input name="plutus-failure-path" type="radio" value="a"/><span class="quiz-option-text">O registro vira versão 7, mas a taxa adicional sinaliza que a atualização foi incorreta.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="plutus-failure-path" type="radio" value="b" data-correct="true"/><span class="quiz-option-text">O registro continua na versão 3; não há sucessora normal. Aplica-se o caminho de collateral conforme os campos e as regras.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="plutus-failure-path" type="radio" value="c"/><span class="quiz-option-text">O registro anterior é consumido, sem sucessora; o collateral substitui o valor do registro perdido.</span><span class="quiz-verdict"></span></label>
+</div><p aria-live="polite" class="quiz-question-feedback"></p></fieldset><div class="quiz-actions"><button class="quiz-check" disabled="" type="submit">Conferir respostas</button><p aria-live="polite" class="quiz-status" tabindex="-1">0 de 1 pergunta respondida.</p></div></form>
+<details class="answer" id="answer-plutus-failure-path"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Conferir resposta</summary><div class="answer-body"><p>A segunda alternativa preserva os inputs normais e separa a cobrança de collateral. Não existe aplicação parcial do incremento rejeitado. A versão 3 continua no output de script.</p></div></details>
+</div>
+
+<h3 id="aula-1-12-s5">5. Uma nova versão de código não move o estado</h3>
+<p>Mudar os bytes do script muda seu hash e a credencial do endereço. Publicar V2 ou apontar a interface para outro endereço não transfere os outputs protegidos por V1. Uma migração precisa consumir o estado antigo por uma transação aceita pelas regras de V1 e criar estado compatível com V2.</p>
+<p>Planeje essa saída antes de bloquear valor: destino permitido, autorização, formato do novo datum e preservação dos ativos. Teste o caminho normal, tentativas inválidas e migração, com auditoria e monitoramento proporcionais ao risco. Se V1 não permite uma saída adequada, não se pode acrescentar retroativamente essa permissão só publicando outro script; o estado pode ficar imobilizado.</p>
+
+<div class="closing"><h3>O que aprendemos</h3><ul>
+<li>Plutus confere uma transação candidata usando estado, pedido e contexto.</li>
+<li>O redeemer não substitui a conferência dos efeitos nos outputs.</li>
+<li>Fase 2 inválida não aplica a transição normal; collateral tem um caminho separado.</li>
+<li>Migrar estado exige uma transação aceita pelo script que atualmente o protege.</li>
+</ul></div>
+<div class="bridge"><h3>Próxima aula</h3><p>Usaremos essa regra de continuação para entender CIP-68: um token pode circular com o usuário enquanto outro identifica o output que contém o estado de referência atualizável.</p></div>

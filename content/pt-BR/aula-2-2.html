@@ -1,0 +1,175 @@
+---
+title: Árvores Merkle e provas de inclusão
+map_title: Merkle
+summary: Construir uma raiz e verificar um item com os hashes irmãos e a ordem correta.
+---
+
+<div class="objectives"><div class="box-label">Objetivos</div><ol class="objective-list">
+<li>Transformar bytes em folhas e combinar hashes até uma raiz.</li>
+<li>Montar uma prova mínima para um item entre quatro.</li>
+<li>Reparar um verificador que confunde a ordem esquerda/direita.</li>
+</ol></div>
+<div class="prereq"><div class="box-label">Antes de começar</div><p>Você precisa calcular hashes de bytes e entender por que a referência esperada deve vir de fora do material apresentado. Retome a Aula 2.1 para essa segunda distinção.</p><div class="guide-q"><span class="guide-q-label">Pergunta-guia</span><p>Como conferir o evento B sem receber também os arquivos A, C e D?</p></div></div>
+
+<h3 id="aula-2-2-s1">1. Quatro arquivos, um compromisso</h3>
+<p>Um serviço fecha um lote com quatro arquivos de eventos, chamados A, B, C e D. O destinatário de B quer verificar que recebeu os bytes incluídos naquele lote. Entregar todos os arquivos funcionaria, mas aumentaria o tráfego e daria acesso a conteúdo que ele não solicitou.</p>
+<p>Uma <strong>árvore Merkle</strong> combina hashes em níveis. Cada arquivo produz uma folha. Dois hashes adjacentes produzem um hash pai, e o processo continua até sobrar a <strong>raiz</strong>, também chamada <span lang="en">root</span>. Uma raiz SHA-256 tem 32 bytes, mesmo quando resume muitos arquivos. Isso não comprime os arquivos de forma recuperável: a raiz não permite reconstruí-los.</p>
+<p>A ordem do lote faz parte do desenho. A ocupa o índice 0; B, o índice 1; C, o índice 2; D, o índice 3. O serviço preserva essa ordem e a receita de cálculo junto dos arquivos.</p>
+
+<h3 id="aula-2-2-s2">2. A receita vem antes da árvore</h3>
+<p>O exemplo usa quatro folhas. Os arquivos são textos exatos codificados em UTF-8, sem quebra de linha no final. <code>H</code> significa SHA-256; <code>||</code> significa concatenar bytes, não suas representações hexadecimais.</p>
+<ul>
+<li>Folha: <code>H(0x00 || dados)</code>.</li>
+<li>Nó interno: <code>H(0x01 || hash_esquerdo || hash_direito)</code>.</li>
+</ul>
+<p>Os prefixos <code>0x00</code> e <code>0x01</code> distinguem uma folha de um nó interno. A folha depende dos bytes do arquivo. Sua posição é dada pelo caminho na árvore. Cada nó interno combina dois digests binários de 32 bytes, mantendo a ordem esquerda/direita.</p>
+<p>Ordenar os digests por valor ou concatenar seus textos hexadecimais mudaria a receita. Quem constrói e quem verifica a árvore precisam usar as mesmas regras.</p>
+<!-- Workshop visual language f4536110de13ab69c1b42311b823f84afdc2b6f7.
+     Recomposition of scenes/merkle-proof-path.svg and merkle-recompute-root.svg:
+     blue target, orange supplied siblings, mint computed nodes, charcoal public reference.
+     Folded files reuse objects/document.svg. Leaves hash 0x00 followed by file bytes;
+     sibling E/D ordering determines the path in the lesson and code. -->
+<figure class="fig deck-figure m2-workshop merkle-tree" aria-labelledby="caption-merkle-path" data-visual-source="cardano-workshop-visual-language/assets/svg/scenes/merkle-proof-path.svg" data-visual-revision="f4536110de13ab69c1b42311b823f84afdc2b6f7">
+<p class="m2-stage" id="merkle-proof-heading">Partir de B e reconstruir a raiz</p>
+<p class="m2-scroll-hint">Deslize o desenho para acompanhar os dois ramos.</p>
+<div class="m2-scroll" tabindex="0" role="region" aria-labelledby="merkle-proof-heading">
+<svg class="m2-scene" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 530" role="img" aria-labelledby="merkle-proof-title merkle-proof-desc">
+<title id="merkle-proof-title">B e dois hashes irmãos bastam para recalcular a raiz.</title>
+<desc id="merkle-proof-desc">A árvore tem quatro folhas, na ordem A, B, C, D. O verificador recebe o arquivo B, seu índice 1, LA à esquerda e N(C,D) à direita. Calcula LB a partir dos bytes de B, depois N(A,B) como no(LA,LB), depois a raiz como no(N(A,B),N(C,D)). Compara essa raiz calculada com a raiz esperada obtida da publicação conferida. A, C, D, LC e LD aparecem apenas para situar a árvore e não precisam ser recebidos.</desc>
+<g aria-hidden="true">
+<path class="m2-wire" d="M166 178 L267 103 M558 178 L345 103 M74 307 L128 246 M252 307 L209 246 M450 307 L520 246 M632 307 L592 246 M74 410 V373 M252 410 V373 M450 410 V373 M632 410 V373"/>
+<rect class="m2-computed" x="206" y="36" width="200" height="66" rx="2"/>
+<text class="m2-bold m2-computed-text" x="306" y="65" text-anchor="middle">R calculada</text>
+<text class="m2-small m2-computed-text" x="306" y="89" text-anchor="middle">no(N(A,B), N(C,D))</text>
+<text class="m2-small" x="462" y="50" text-anchor="middle">Comparar</text>
+<text class="m2-letter" x="462" y="91" text-anchor="middle">=?</text>
+<rect class="m2-published" x="520" y="36" width="183" height="66" rx="2"/>
+<text class="m2-bold m2-published-text" x="611" y="65" text-anchor="middle">R esperada</text>
+<text class="m2-small m2-published-text" x="611" y="89" text-anchor="middle">da publicação</text>
+<text class="m2-small" x="611" y="126" text-anchor="middle">conferida à parte</text>
+<rect class="m2-computed" x="68" y="178" width="196" height="68" rx="2"/>
+<text class="m2-mono m2-computed-text" x="166" y="207" text-anchor="middle">N(A,B)</text>
+<text class="m2-small m2-computed-text" x="166" y="231" text-anchor="middle">calcular no(LA, LB)</text>
+<rect class="m2-supplied" x="470" y="178" width="176" height="68" rx="2"/>
+<text class="m2-mono m2-supplied-text" x="558" y="207" text-anchor="middle">N(C,D)</text>
+<text class="m2-small" x="558" y="231" text-anchor="middle">hash recebido</text>
+<text class="m2-mono m2-supplied-text" x="84" y="279">E</text>
+<text class="m2-mono m2-supplied-text" x="418" y="155">D</text>
+<rect class="m2-supplied" x="18" y="307" width="112" height="66" rx="2"/>
+<text class="m2-mono m2-supplied-text" x="74" y="336" text-anchor="middle">LA</text>
+<text class="m2-small" x="74" y="360" text-anchor="middle">recebido</text>
+<rect class="m2-target" x="196" y="307" width="112" height="66" rx="2"/>
+<text class="m2-mono m2-target-text" x="252" y="336" text-anchor="middle">LB</text>
+<text class="m2-small" x="252" y="360" text-anchor="middle">folha(B)</text>
+<rect class="m2-context" x="394" y="307" width="112" height="66" rx="2"/>
+<text class="m2-mono" x="450" y="346" text-anchor="middle">LC</text>
+<rect class="m2-context" x="576" y="307" width="112" height="66" rx="2"/>
+<text class="m2-mono" x="632" y="346" text-anchor="middle">LD</text>
+<path class="obj-document" data-visual-asset="objects/document.svg" d="M72 32 H210 L250 72 V232 H72 Z M210 32 V72 H250" transform="translate(41 410) scale(.37) translate(-72 -32)"/>
+<text class="m2-letter" x="70" y="461" text-anchor="middle">A</text>
+<path class="obj-document" d="M72 32 H210 L250 72 V232 H72 Z M210 32 V72 H250" transform="translate(219 410) scale(.37) translate(-72 -32)" style="stroke:var(--deck-blue)"/>
+<text class="m2-letter m2-target-text" x="248" y="461" text-anchor="middle">B</text>
+<path class="obj-document" d="M72 32 H210 L250 72 V232 H72 Z M210 32 V72 H250" transform="translate(417 410) scale(.37) translate(-72 -32)"/>
+<text class="m2-letter" x="446" y="461" text-anchor="middle">C</text>
+<path class="obj-document" d="M72 32 H210 L250 72 V232 H72 Z M210 32 V72 H250" transform="translate(599 410) scale(.37) translate(-72 -32)"/>
+<text class="m2-letter" x="628" y="461" text-anchor="middle">D</text>
+<text class="m2-small" x="74" y="514" text-anchor="middle">índice 0</text>
+<text class="m2-small m2-target-text" x="252" y="514" text-anchor="middle">índice 1</text>
+<text class="m2-small" x="450" y="514" text-anchor="middle">índice 2</text>
+<text class="m2-small" x="632" y="514" text-anchor="middle">índice 3</text>
+</g></svg></div>
+<figcaption id="caption-merkle-path">Leia de baixo para cima. O verificador calcula LB a partir de B. Os dois irmãos recebidos estão em laranja: LA entra à esquerda de LB; N(C,D), à direita do pai calculado. Os nós verdes são recalculados. A raiz escura vem da publicação conferida, não do remetente de B. A, C, D, LC e LD aparecem só como contexto.</figcaption>
+</figure>
+
+<h3 id="aula-2-2-s3">3. Calcule a raiz e abra um caminho</h3>
+<p>Execute o código. As funções retornam digests binários; <code>.hex()</code> aparece somente na exibição. A prova de B contém dois pares: lado do irmão e hash desse irmão. O caminho é percorrido de baixo para cima.</p>
+<pre data-python-runner="true" data-exercise-id="merkle-four-leaf-demo" data-exercise-version="2"><code class="language-python">import hashlib
+
+def folha(dados):
+    return hashlib.sha256(b"\x00" + dados).digest()
+
+def no(esquerdo, direito):
+    return hashlib.sha256(b"\x01" + esquerdo + direito).digest()
+
+arquivos = [texto.encode("utf-8") for texto in [
+    "T-0141|criado", "T-0142|revisão",
+    "T-0143|criado", "T-0144|correção",
+]]
+A, B, C, D = [folha(dados) for dados in arquivos]
+raiz_publicada = no(no(A, B), no(C, D))
+prova_B = [("E", A), ("D", no(C, D))]
+
+recalculada = folha(arquivos[1])
+for lado, irmao in prova_B:
+    recalculada = (no(irmao, recalculada) if lado == "E"
+                  else no(recalculada, irmao))
+print("raiz:", raiz_publicada.hex())
+print("inclusão:", recalculada == raiz_publicada)
+
+B_alterado = folha(arquivos[1] + b"!")
+print("arquivo alterado:", no(no(A, B_alterado), no(C, D))
+      == raiz_publicada)
+print("bytes de hashes na prova:", sum(len(h) for _, h in prova_B))
+</code></pre>
+<p>A saída mostra inclusão <code>True</code>, arquivo alterado <code>False</code> e 64 bytes de hashes na prova. O pacote ainda precisa levar o arquivo B, os lados e a localização da raiz. Se a consulta especifica um índice, o caminho também precisa corresponder a essa posição. “64 bytes” não é o tamanho de uma transação nem de todo o pacote.</p>
+<p>Experimente trocar o primeiro lado da prova, de <code>("E", A)</code> para <code>("D", A)</code>, mantendo a raiz publicada. A comparação falha. Se também trocar a raiz esperada, deixará de testar o compromisso anterior. Na aplicação, obtenha a raiz da publicação já conferida, não de um campo substituível no pacote do remetente.</p>
+
+<p>Veja também o <a href="https://github.com/linconvidal/merkle-tree-cardano-demo" target="_blank" rel="noopener">demo de Merkle em Cardano</a>.</p>
+
+<h3 id="aula-2-2-s4">4. Repare a orientação</h3>
+<div class="activity" data-progress-id="merkle-sibling-order-activity"><div class="box-label">Atividade: o irmão pode estar à esquerda</div>
+<p>Este verificador usa o irmão à direita em todos os passos. Ele funciona para A, mas rejeita B. Repare o cálculo dentro do laço para respeitar <code>E</code> e <code>D</code>. Preserve as checagens do índice, do número de irmãos e do lado esperado. Execute para observar a falha e use <strong>Validar solução</strong> para testar outros arquivos, posições e adulterações.</p>
+<p>A checagem do caminho já está pronta: em uma posição par, o irmão fica à direita; em uma posição ímpar, à esquerda. A divisão inteira por dois encontra a posição do pai no nível seguinte.</p>
+<pre data-python-runner="true" data-exercise-id="merkle-sibling-order" data-exercise-version="2" data-validator="merkle-sibling-order-tests"><code class="language-python">import hashlib
+
+def folha(dados):
+    return hashlib.sha256(b"\x00" + dados).digest()
+
+def no(esquerdo, direito):
+    return hashlib.sha256(b"\x01" + esquerdo + direito).digest()
+
+def verificar_inclusao(indice, dados, prova, raiz):
+    if not 0 &lt;= indice &lt; 4 or len(prova) != 2:
+        return False
+    atual = folha(dados)
+    posicao = indice
+    for lado, irmao in prova:
+        lado_esperado = "E" if posicao % 2 else "D"
+        if lado != lado_esperado:
+            return False
+        atual = no(atual, irmao)
+        posicao //= 2
+    return atual == raiz
+
+arquivos = [b"A", b"B", b"C", b"D"]
+A, B, C, D = [folha(d) for d in arquivos]
+raiz = no(no(A, B), no(C, D))
+prova = [("E", A), ("D", no(C, D))]
+print("B incluído:", verificar_inclusao(1, b"B", prova, raiz))
+</code></pre>
+<details class="answer" id="answer-merkle-sibling-order"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Conferir resposta</summary><div class="answer-body"><p>Para <code>E</code>, use <code>no(irmao, atual)</code>; para <code>D</code>, use <code>no(atual, irmao)</code>. B precisa primeiro de LA à esquerda e depois de N(C,D) à direita. D exige irmãos à esquerda nos dois níveis. Por isso, testar somente A esconderia o defeito.</p><p>O verificador mantém a raiz fixa. Se uma comparação falhar, obtenha o arquivo original e confira a receita, o índice e a prova antes de atribuir a divergência a uma adulteração.</p></div></details>
+</div>
+<script type="application/json" id="merkle-sibling-order-tests">
+{"version":1,"tests":[
+{"name":"Quatro posições e bytes UTF-8","code":"import hashlib as ref_hash\ndef ref_f(d):\n    return ref_hash.sha256(b'\\x00' + d).digest()\ndef ref_n(a, b):\n    return ref_hash.sha256(b'\\x01' + a + b).digest()\nds = [b'primeiro', 'revisão'.encode('utf-8'), b'terceiro', b'quarto']\nfs = [ref_f(d) for d in ds]\nr = ref_n(ref_n(fs[0], fs[1]), ref_n(fs[2], fs[3]))\nps = [[('D', fs[1]), ('D', ref_n(fs[2], fs[3]))], [('E', fs[0]), ('D', ref_n(fs[2], fs[3]))], [('D', fs[3]), ('E', ref_n(fs[0], fs[1]))], [('E', fs[2]), ('E', ref_n(fs[0], fs[1]))]]\nfor i in range(4):\n    assert verificar_inclusao(i, ds[i], ps[i], r) is True, f'Falhou no índice {i}: E põe o irmão antes do hash atual; D o põe depois.'"},
+{"name":"Arquivo ou posição alterados","code":"assert verificar_inclusao(1, ds[1] + b'!', ps[1], r) is False, 'Recalcule a folha dos bytes recebidos.'\nassert verificar_inclusao(0, ds[1], ps[1], r) is False, 'O caminho precisa corresponder ao índice informado.'"},
+{"name":"Irmão e raiz alterados","code":"assert verificar_inclusao(1, ds[1], [('E', bytes(32)), ps[1][1]], r) is False, 'Um irmão diferente deve invalidar a prova contra esta raiz.'\nassert verificar_inclusao(1, ds[1], ps[1], bytes(32)) is False, 'Compare com a raiz recebida, sem substituí-la pela raiz calculada.'"},
+{"name":"Ordem e lado inválidos","code":"assert verificar_inclusao(1, ds[1], list(reversed(ps[1])), r) is False, 'Percorra a prova de baixo para cima.'\nassert verificar_inclusao(1, ds[1], [('D', fs[0]), ps[1][1]], r) is False, 'Trocar o lado muda o compromisso.'\nassert verificar_inclusao(1, ds[1], [('X', fs[0]), ps[1][1]], r) is False, 'Um lado desconhecido não é D por padrão.'"},
+{"name":"Prova incompleta e índice fora do lote","code":"assert verificar_inclusao(1, ds[1], ps[1][:1], r) is False, 'Esta árvore de quatro folhas exige dois irmãos.'\nassert verificar_inclusao(4, ds[1], ps[1], r) is False, 'Os índices válidos vão de 0 a 3.'\nassert verificar_inclusao(-1, ds[1], ps[1], r) is False, 'Rejeite índice negativo antes de percorrer o caminho.'"},
+{"name":"Caminho e índice com arquivos iguais","code":"iguais = [ref_f(b'same')] * 4\npar = ref_n(iguais[0], iguais[1])\nraiz_iguais = ref_n(par, par)\nlados = [('D', 'D'), ('E', 'D'), ('D', 'E'), ('E', 'E')]\nfor i in range(4):\n    caminho = [(lados[i][0], iguais[0]), (lados[i][1], par)]\n    for j in range(4):\n        assert verificar_inclusao(j, b'same', caminho, raiz_iguais) == (i == j), 'Mesmo com bytes iguais, confira o índice contra os lados em todos os níveis.'"}
+]}
+</script>
+
+
+<h3 id="aula-2-2-s5">5. O que cresce e o que permanece fora da prova</h3>
+<p>Em uma árvore binária completa com 1.024 folhas, cada caminho tem dez níveis. Bastam dez irmãos, ou 320 bytes de hashes SHA-256, em vez dos outros 1.023 arquivos. O número de irmãos cresce como o logaritmo do número de folhas, enquanto construir a árvore ainda exige processar o lote.</p>
+<p>Esta aula fixa quatro folhas para não esconder uma decisão de formato. Para lotes de tamanho arbitrário, a construção precisa definir a forma da árvore, o tratamento de níveis ímpares e o compromisso com a quantidade. Duplicar a última folha e separar subárvores de tamanhos diferentes são convenções distintas. Uma prova de inclusão também não é uma prova de que um log novo preservou todo o antigo. Logs crescentes podem usar provas de consistência específicas; isso exige outra receita.</p>
+<p>A inclusão confirma que aqueles bytes, naquela posição, recompõem a raiz esperada. Ela não revela arquivos ausentes da captura nem comprova que o resultado de B é verdadeiro. Também não oferece sigilo automático: hashes irmãos de dados previsíveis podem permitir tentativas. Trataremos dessa exposição na Aula 2.4.</p>
+
+<div class="closing"><h3>O que aprendemos</h3><ul>
+<li>Folhas e nós internos têm receitas diferentes, com bytes e ordem explícitos.</li>
+<li>A prova de B contém LA e N(C,D), com seus lados, sem exigir os outros arquivos.</li>
+<li>Alterar arquivo, posição, irmão ou orientação invalida a comparação contra a mesma raiz.</li>
+<li>A raiz compromete o lote; disponibilidade, completude da captura e sigilo exigem controles adicionais.</li>
+</ul></div>
+<div class="bridge"><h3>Próxima aula</h3><p>Na Aula 2.3 calcularemos quantas publicações restam ao agrupar eventos, qual espera esse agrupamento introduz e quando a interação entre participantes pode justificar um Hydra Head.</p></div>

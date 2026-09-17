@@ -1,0 +1,13 @@
+language: pt-BR
+title: Guia de nivelamento técnico de Cardano
+output: index.html
+modules:
+- id: '0'
+  title: Bytes, hashes, chaves e assinaturas
+  summary: Vamos partir de um arquivo para entender quais bytes um programa recebe e o que muda quando esses bytes são reescritos. A partir daí, calcularemos hashes e usaremos chaves para assinar mensagens, distinguindo o que cada verificação permite concluir e o que continua dependendo de outras evidências.
+- id: '1'
+  title: A rede Cardano e seu funcionamento
+  summary: Acompanharemos uma operação desde a aplicação que a prepara até a rede que a verifica e registra. Veremos como endereços e saídas identificam valores e autorizações, como construir e conferir transações e como ativos e scripts permitem representar mudanças de estado sem entregar todas as responsabilidades à blockchain.
+- id: '2'
+  title: Eventos, provas, escala e privacidade
+  summary: Um sistema pode preservar seus registros fora da blockchain e publicar referências que permitam verificá-los depois. Vamos construir esse caminho, do histórico de eventos à prova de um item, e avaliar o custo, a espera e a exposição dos dados. Também veremos quando a interação entre participantes justifica um Hydra Head.

@@ -1,0 +1,121 @@
+---
+title: Endereços Shelley, credenciais e rede
+short_title: Endereços Shelley e credenciais
+map_title: Endereços e credenciais
+summary: Distinguir pagamento e stake, comparar base, enterprise e reward e interpretar a rede de um endereço.
+---
+
+<div class="objectives"><div class="box-label">Objetivos</div><ol class="objective-list">
+<li>Distinguir as funções das credenciais de pagamento e de stake.</li>
+<li>Comparar os formatos base, enterprise e reward e reconhecer o uso de credenciais de chave ou de script.</li>
+<li>Inspecionar um endereço com uma biblioteca e explicar por que testnet não identifica uma rede de teste específica.</li>
+</ol></div>
+<div class="prereq"><div class="box-label">Antes de começar</div><p>Retome bytes, codificações, hashes e assinaturas do Módulo 0. A separação entre aplicação e rede e a participação associada ao stake, vistas neste módulo, ajudam a interpretar as funções do endereço.</p>
+<div class="guide-q"><span class="guide-q-label">Pergunta-guia</span><p>O que um endereço informa sobre pagamento, stake e rede, e o que ele não permite concluir sozinho?</p></div></div>
+
+<h3 id="aula-1-5-s1">1. O que está por trás do endereço</h3>
+<p>Ao preparar um recebimento, uma aplicação precisa indicar para onde o valor será destinado e sob qual condição ele poderá ser gasto. Na Cardano, o endereço carrega informações sobre essa condição. Ele não é apenas o nome de uma conta nem uma chave privada que deve ser entregue a quem vai pagar.</p>
+<p>Os formatos introduzidos com Shelley continuam em uso nas eras seguintes. A <a href="https://cips.cardano.org/cip/CIP-0019">CIP-19</a> descreve sua estrutura: um <strong>header</strong>, ou cabeçalho, identifica o tipo e a rede; os bytes seguintes identificam as credenciais previstas por aquele tipo.</p>
+<p>Uma <strong>credencial</strong> identifica uma chave pública ou um script por meio de um hash. No caso de uma chave, Cardano usa BLAKE2b-224 para produzir esse hash de 28 bytes. A chave privada permanece fora do endereço.</p>
+
+<h3 id="aula-1-5-s2">2. Pagamento e stake são funções separadas</h3>
+<p>A <strong>credencial de pagamento</strong> identifica a autorização necessária para gastar os valores destinados ao endereço. Quando é uma credencial de chave, a transação apresenta a chave pública correspondente e uma assinatura válida. Quando é de script, o gasto precisa satisfazer a regra identificada por esse script.</p>
+<p>A <strong>credencial de stake</strong> participa de operações como delegação para uma stake pool e saque de recompensas. Na governança atual, também é usada para delegar poder de voto a um DRep. Controlar essa credencial não concede a autorização de gasto da credencial de pagamento.</p>
+<p>Uma carteira normalmente gerencia as duas funções, mas usa chaves distintas para elas. É possível combinar uma credencial de pagamento e uma de stake controladas por responsáveis diferentes. Essa separação permite decidir quem movimenta os valores e quem administra a participação associada ao stake.</p>
+<h4>Uma carteira, vários endereços</h4>
+<p>Carteiras hierárquicas podem derivar várias chaves a partir do mesmo material de recuperação, seguindo um esquema como o da <a href="https://cips.cardano.org/cip/CIP-1852">CIP-1852</a>. Por isso, uma carteira pode apresentar vários endereços, em vez de um único identificador fixo. Ela consulta o ledger para encontrar os valores associados a eles.</p>
+<p>A frase de recuperação permite reconstruir chaves em uma carteira compatível. Ela não é um endereço de recebimento e não deve ser fornecida a um dApp ou a quem vai enviar um pagamento.</p>
+
+<h3 id="aula-1-5-s3">3. Base, enterprise e reward</h3>
+<p>Vamos comparar três formatos que aparecem nas aplicações. A diferença está nas credenciais que cada um reúne e na função que exerce.</p>
+<h4>Base: pagamento e stake</h4>
+<p>Um <strong>base address</strong> reúne uma credencial de pagamento e uma de stake. Pode receber valores e associar o ADA daquele endereço à participação em stake. Ter as duas partes no mesmo endereço não mistura suas autorizações.</p>
+<h4>Enterprise: apenas pagamento</h4>
+<p>Um <strong>enterprise address</strong> tem a credencial de pagamento, sem a parte de stake. Permite recebimentos e gastos, mas o ADA nesse endereço não fica associado a uma credencial de stake para delegação.</p>
+<h4>Reward: conta de recompensas</h4>
+<p>Um <strong>reward address</strong>, também chamado de stake address, identifica uma conta de recompensas pela credencial de stake. Ele aparece em operações como o saque dessas recompensas. Não pode ser usado como destino de uma saída de transação para receber ADA ou tokens. O saque leva as recompensas dessa conta para um endereço de pagamento.</p>
+<style id="aula-1-5-address-structure-styles">
+/* Component order follows CIP-19 and the CIMATEC address-decode slides.
+   Hash pills reuse the workshop visual library's anchor geometry. */
+#aula-1-5 .address-structure { width:100%; margin:28px 0; font-family:var(--font-sans); }
+#aula-1-5 .as-row { display:grid; grid-template-columns:95px 68px minmax(0,1fr) minmax(0,1fr) 65px; gap:10px; align-items:center; padding:14px 0; }
+#aula-1-5 .as-label { color:var(--ink); font-size:16px; font-weight:600; }
+#aula-1-5 .as-header { padding:10px 4px; border:1px solid var(--ink-dim); border-radius:3px; color:var(--ink); text-align:center; font-size:13px; }
+#aula-1-5 .as-credential { padding:10px 7px; border:2px solid var(--deck-orange-dark); border-radius:999px; background:var(--deck-orange-fill); color:var(--ink); text-align:center; font-size:15px; }
+#aula-1-5 .as-header small, #aula-1-5 .as-credential small { display:block; color:var(--ink-dim); font-size:13px; margin-top:3px; }
+#aula-1-5 .as-size { color:var(--ink); text-align:right; font-size:14px; }
+@media (max-width:600px) {
+  #aula-1-5 .as-row { grid-template-columns:56px minmax(0,1fr) minmax(0,1fr); gap:8px; padding:14px 0 18px; }
+  #aula-1-5 .as-label { grid-column:1 / -1; }
+  #aula-1-5 .as-size { grid-column:1 / -1; }
+  #aula-1-5 .as-credential { font-size:13px; padding:10px 4px; }
+}
+@media print { #aula-1-5 .address-structure { break-inside:avoid; } }
+</style>
+<figure class="fig address-structure" id="fig-aula-1-5-formatos" aria-labelledby="caption-aula-1-5-formatos">
+<div class="as-row"><span class="as-label">Base</span><span class="as-header">Header<small>1 byte</small></span><span class="as-credential">Pagamento<small>28 bytes</small></span><span class="as-credential">Stake<small>28 bytes</small></span><span class="as-size">57 bytes</span></div>
+<div class="as-row"><span class="as-label">Enterprise</span><span class="as-header">Header<small>1 byte</small></span><span class="as-credential">Pagamento<small>28 bytes</small></span><span aria-hidden="true"></span><span class="as-size">29 bytes</span></div>
+<div class="as-row"><span class="as-label">Reward</span><span class="as-header">Header<small>1 byte</small></span><span class="as-credential">Stake<small>28 bytes</small></span><span aria-hidden="true"></span><span class="as-size">29 bytes</span></div>
+<figcaption id="caption-aula-1-5-formatos">O header identifica tipo e rede. Cada credencial ocupa 28 bytes: base tem duas; enterprise e reward têm uma, com funções diferentes.</figcaption>
+</figure>
+<h4>E os endereços de script?</h4>
+<p>Base e enterprise podem ter uma credencial de pagamento de chave ou de script. Assim, <q>endereço de script</q> descreve o mecanismo de autorização, não uma quarta alternativa aos três formatos acima. Uma credencial de stake também pode ser de script.</p>
+<p>Por exemplo, uma aplicação pode receber valores em um enterprise address cuja credencial de pagamento é o hash de um script. Para gastá-los, a transação precisa satisfazer esse script; não existe uma chave privada do script que possa ser recuperada por uma frase.</p>
+
+<h3 id="aula-1-5-s4">4. Bech32 apresenta os bytes; a rede dá o contexto</h3>
+<p>A forma que copiamos da carteira normalmente é uma codificação <strong>Bech32</strong> do endereço. Como hexadecimal e base64, ela escreve bytes em texto; também inclui uma verificação que ajuda a detectar erros de digitação. O protocolo trabalha com os bytes, não com a aparência do texto na tela.</p>
+<p>Os prefixos definidos na <a href="https://cips.cardano.org/cip/CIP-0005">CIP-5</a> ajudam na leitura:</p>
+<ul>
+<li><code>addr1…</code> e <code>addr_test1…</code> são usados para endereços de pagamento de mainnet e de teste, respectivamente. O formato base ou enterprise é confirmado pela decodificação.</li>
+<li><code>stake1…</code> e <code>stake_test1…</code> são usados para endereços de recompensas de mainnet e de teste.</li>
+</ul>
+<p>No header, o identificador de rede é <code>1</code> para mainnet e <code>0</code> para testnets. <strong>Preprod e Preview usam o mesmo identificador de teste.</strong> Portanto, um endereço <code>addr_test1…</code> não informa sozinho qual delas deve ser consultada.</p>
+<p>A aplicação precisa combinar o endereço com a rede pretendida e o serviço de acesso correspondente. Alternar a rede na carteira muda o ambiente consultado; não transfere valores entre redes. Um endereço bem formado também não confirma a identidade de quem o forneceu: confira o destino completo com a origem esperada.</p>
+
+<h3 id="aula-1-5-s5">5. Inspecionar e compor endereços</h3>
+<p>A biblioteca PyCardano permite ler as partes de um endereço e compor outros formatos. O exemplo usa um endereço base público dos <a href="https://cips.cardano.org/cip/CIP-0019#test-vectors">vetores de teste da CIP-19</a>. Depois, usa apenas sua parte de pagamento para formar um enterprise e apenas sua parte de stake para formar um reward.</p>
+<pre data-python-runner="true" data-exercise-id="shelley-address-components" data-exercise-version="1" data-python-packages="pycardano-workshop-0.19.2-pyodide-314.0.7-v1"><code class="language-python">from pycardano import Address
+
+endereco_base = Address.from_primitive(
+    "addr_test1qz2fxv2umyhttkxyxp8x0dlpdt3k6cwng5pxj3jhsydzer3n"
+    "0d3vllmyqwsx5wktcd8cc3sq835lu7drv2xwl2wywfgs68faae"
+)
+endereco_enterprise = Address(endereco_base.payment_part, network=endereco_base.network)
+endereco_reward = Address(staking_part=endereco_base.staking_part, network=endereco_base.network)
+
+print("Rede:", endereco_base.network.name)
+print("Base:", len(bytes(endereco_base)), "bytes")
+print("Enterprise:", len(bytes(endereco_enterprise)), "bytes")
+print("Reward:", len(bytes(endereco_reward)), "bytes")
+</code></pre>
+<p>A saída mostra <code>TESTNET</code> e os comprimentos de 57, 29 e 29 bytes. As credenciais foram reaproveitadas, mas os três endereços têm estruturas e funções diferentes. O código apenas compõe endereços; não consulta a rede nem movimenta valores.</p>
+
+<div class="activity"><div class="box-label">Atividade: escolha pela função</div>
+<form class="activity-quiz" id="quiz-aula-1-5-a1" data-answer="answer-aula-1-5-a1">
+<fieldset class="quiz-question"><legend>1. Uma aplicação quer receber valores sob uma regra de script, sem associá-los a stake. Qual estrutura corresponde a esse uso?</legend><div class="quiz-options">
+<label class="quiz-option"><input name="q-aula-1-5-a1-1" type="radio" value="a"/><span class="quiz-option-text">Base com pagamento por chave e stake por script.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-5-a1-1" type="radio" value="b" data-correct="true"/><span class="quiz-option-text">Enterprise com credencial de pagamento de script.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-5-a1-1" type="radio" value="c"/><span class="quiz-option-text">Reward com credencial de stake de script.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-5-a1-1" type="radio" value="d"/><span class="quiz-option-text">Enterprise com credencial de pagamento de chave.</span><span class="quiz-verdict"></span></label>
+</div><p class="quiz-question-feedback" aria-live="polite"></p></fieldset>
+<fieldset class="quiz-question"><legend>2. A biblioteca decodificou um endereço base e informou TESTNET. Qual informação ainda falta para consultar seus recebimentos?</legend><div class="quiz-options">
+<label class="quiz-option"><input name="q-aula-1-5-a1-2" type="radio" value="a"/><span class="quiz-option-text">A confirmação de que o endereço tem exatamente 57 bytes.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-5-a1-2" type="radio" value="b"/><span class="quiz-option-text">A presença do prefixo addr_test na forma textual.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-5-a1-2" type="radio" value="c" data-correct="true"/><span class="quiz-option-text">A rede de teste específica, como Preprod ou Preview, e o endpoint correspondente.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-5-a1-2" type="radio" value="d"/><span class="quiz-option-text">A chave privada de stake associada ao endereço recebido.</span><span class="quiz-verdict"></span></label>
+</div><p class="quiz-question-feedback" aria-live="polite"></p></fieldset>
+<div class="quiz-actions"><button class="quiz-check" disabled="" type="submit">Conferir respostas</button><p class="quiz-status" aria-live="polite" tabindex="-1">0 de 2 perguntas respondidas.</p></div>
+</form>
+<details class="answer" id="answer-aula-1-5-a1"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Conferir resposta</summary><div class="answer-body"><ol>
+<li>A alternativa B é a correta. Enterprise omite a parte de stake, e a credencial de pagamento de script identifica a regra exigida para gastar. Colocar o script na parte de stake não controla o gasto de pagamentos; reward identifica a conta de recompensas, não um destino de pagamento.</li>
+<li>A alternativa C é a correta. TESTNET e o prefixo addr_test não distinguem Preprod de Preview. A consulta precisa apontar para o ambiente pretendido. O tamanho identifica a estrutura, não essa escolha de rede, e consultar um endereço público não exige sua chave privada.</li>
+</ol></div></details>
+</div>
+
+<div class="closing"><h3>O que aprendemos</h3><ul>
+<li>Pagamento e stake são funções distintas. Controlar uma delas não concede automaticamente o controle da outra.</li>
+<li>Base reúne pagamento e stake; enterprise tem apenas pagamento; reward identifica a conta de recompensas.</li>
+<li>Uma credencial pode identificar uma chave ou um script. O formato do endereço e a regra de autorização são escolhas relacionadas, mas diferentes.</li>
+<li>Bech32 apresenta os bytes do endereço. O identificador de testnet não distingue Preprod de Preview; a aplicação também precisa saber qual rede acessar.</li>
+</ul></div>
+<div class="bridge"><h3>Próxima aula</h3><p>Com o endereço de destino e suas condições de autorização identificados, falta descrever a operação. Na próxima aula, veremos quais dados compõem uma transação e quais bytes serão usados na assinatura e na verificação.</p></div>

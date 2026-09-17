@@ -1,0 +1,167 @@
+---
+title: 'Taxas, validade e CIP-30: preparar, assinar e submeter'
+short_title: Taxas, validade e CIP-30
+map_title: Taxas e CIP-30
+summary: Calcular custos, fechar o corpo e mesclar witnesses recebidas por CIP-30 antes de submeter.
+description: Fechar custo e validade antes de pedir assinatura por CIP-30, preservar witnesses e acompanhar a submissão.
+---
+
+
+<div class="objectives"><div class="box-label">Objetivos</div><p>Ao final desta aula, você será capaz de:</p>
+<ol class="objective-list">
+<li>explicar taxa como uma regra de uso de recursos da rede;</li>
+<li>medir a transação serializada e calcular sua taxa mínima com parâmetros consultados;</li>
+<li>usar o contrato CIP-30 para separar construção, assinatura, merge de witnesses e submissão sem transferir a custódia da chave ao dApp;</li>
+
+
+</ol></div>
+<div class="prereq"><div class="box-label">Antes de começar</div><p>Você precisa lembrar que uma transação consome saídas, cria novas saídas, carrega campos verificáveis e depende de bytes finais. Também precisa lembrar que a taxa entra na contabilidade: entradas precisam cobrir pagamentos, troco e taxa.</p>
+
+<div class="guide-q"><span class="guide-q-label">Pergunta-guia</span><p>Se uma transação já expressa entradas, saídas e condições técnicas de gasto, o que ainda precisa estar correto para que a rede aceite o custo e o momento de validade desse pacote?</p></div></div>
+<h3 id="aula-1-8-s1">1. Taxa como regra de recurso</h3>
+<p>Uma taxa é uma parte verificável do desenho do pacote, não apenas um preço colocado por fora da transação. A rede precisa limitar uso de espaço, processamento e armazenamento. Se qualquer pessoa pudesse enviar pacotes grandes ou caros sem custo proporcional, os nós teriam de gastar recursos sem contrapartida e a rede ficaria mais fácil de saturar.</p>
+<p>A taxa cumpre duas funções técnicas ao mesmo tempo. Primeiro, atribui um custo mínimo ao espaço e ao processamento exigidos, o que torna abuso em massa mais caro. Segundo, fornece uma condição objetiva do ledger: a taxa declarada precisa ser pelo menos a taxa mínima calculada para a transação sob os parâmetros vigentes.</p>
+
+<p>Nas regras atuais, a parcela básica usa uma fórmula linear sobre o tamanho serializado, <code>a × tamanho(tx) + b</code>. Transações Plutus acrescentam o preço das execution units de memória e CPU; reference scripts usados pela transação podem acrescentar custo próprio. Os parâmetros pertencem ao protocolo e podem mudar. Você não precisa decorá-los agora: precisa construir o pacote final e consultar os valores da rede e da era usadas.</p>
+<h3 id="aula-1-8-s2">2. Tamanho e complexidade</h3>
+<p>O tamanho de uma transação importa porque os nós precisam receber, propagar, armazenar e validar seus bytes. Mais campos, mais metadados e mais witnesses aumentam o pacote. Mesmo quando o conteúdo parece pequeno na tela, a representação final pode incluir estruturas que não aparecem no resumo amigável da carteira.</p>
+<p>O pacote abaixo já contém uma assinatura e um anexo contendo um hash de 32 bytes. PyCardano recupera a transação do CBOR e mede sua serialização completa. Depois retiramos a assinatura de uma cópia para mostrar quanto uma estimativa sobre o pacote incompleto deixaria de contar.</p>
+<p>Usamos <code>a = 44</code> lovelace por byte e <code>b = 155381</code> lovelace, consultados para Preprod na <a href="https://preprod.koios.rest/api/v1/cli_protocol_params" target="_blank" rel="noopener noreferrer">API Koios</a> em 17/09/2026 (versão de protocolo 11.0). São valores de referência daquela consulta, não parâmetros a manter fixos numa aplicação. O exemplo não usa execução Plutus nem reference scripts.</p>
+
+<pre data-python-runner="true" data-python-packages="pycardano-workshop-0.19.2-pyodide-314.0.7-v1" data-exercise-id="serialized-publication-fee" data-exercise-version="2"><code class="language-python">from copy import deepcopy
+from pycardano import Transaction, TransactionWitnessSet
+
+publicacao = Transaction.from_cbor(
+    "84a5008182582000000000000000000000000000000000000000000000000000"
+    "0000000000000000018182583900a8129b4a8cd0c92c493951812832b9b1db83"
+    "c30e47505235ccb28236afd30edc1f4f7586430510ee4026385e22a7b0fb1d14"
+    "6844841077bb1a05f5e100021a00030d40031903e8075820c2ddb7ed36466d97"
+    "3a1f247b271c5eea6ecb42f689c2590704b8667eac2f9f2ba100818258207ba0"
+    "6f84ca4c85d83b1ab9e73fb37dd5a005658c2515b026a0cf26f5130ad42a5840"
+    "907414df5ba4ef1d1a362e2eabd3dd40081a24d9b4b6bb8b5e78e76c98345eed"
+    "277f427ba99fc70d5980ae4604d1175f3b4ced3a16f7ccc27b2a69d77e212606"
+    "f5d90103a100a11903e9a164726f6f7458202da39bbe8eb68096f77d903e70fb"
+    "6b88b3d8d55ad8b4e8efa5f6f092c673163a"
+)
+a, b = 44, 155381
+tamanho = len(publicacao.to_cbor())
+print("com assinatura:", tamanho, "bytes; mínimo:", a * tamanho + b, "lovelace")
+
+sem_assinatura = deepcopy(publicacao)
+sem_assinatura.transaction_witness_set = TransactionWitnessSet()
+tamanho_incompleto = len(sem_assinatura.to_cbor())
+print("sem assinatura:", tamanho_incompleto, "bytes; conta incompleta:",
+      a * tamanho_incompleto + b, "lovelace")
+</code></pre>
+<p>O pacote assinado mede 306 bytes: o mínimo calculado é 168845 lovelace. Sem a assinatura, a conta daria 164313, uma diferença de 4532 lovelace. A taxa declarada no corpo é 200000, acima do mínimo; o cálculo não altera esse campo. Se precisar alterá-lo, reconstrua o corpo e recolha novas assinaturas.</p>
+<p>As chaves são de estudo e o input é fictício, como na Aula 1.6. A medição usa CBOR e assinatura reais, mas o pacote não é uma transferência pronta para envio.</p>
+
+
+
+<figure class="fig"><div class="table-scroll" tabindex="0" role="region" aria-label="Tamanho do pacote com e sem assinatura"><svg style="width:100%; min-width:620px" role="img" aria-label="A assinatura acrescenta 103 bytes ao pacote, que passa de 203 a 306 bytes" viewBox="0 0 660 160"><text x="24" y="27">Antes da assinatura: 203 bytes</text><rect x="24" y="40" width="360" height="38" fill="var(--tint)" stroke="var(--ink)"/><text x="42" y="64">corpo, anexo e estrutura do pacote</text><text x="24" y="111">Com a assinatura: 306 bytes</text><rect x="24" y="124" width="360" height="26" fill="var(--tint)" stroke="var(--ink)"/><rect x="384" y="124" width="183" height="26" fill="var(--paper)" stroke="var(--ink)"/><text x="400" y="142">+103 bytes</text></svg></div><figcaption>A diferença medida na serialização inclui a witness e sua estrutura CBOR. Contar apenas os 64 bytes da assinatura também subestimaria o pacote.</figcaption></figure>
+
+<h3 id="aula-1-8-s3">3. Validade temporal</h3>
+<p>Uma aplicação costuma declarar uma janela de validade para limitar quando a intenção pode ser aceita. No ledger Cardano, os limites inferior e superior são campos opcionais conforme a era; sua ausência ou presença precisa seguir as regras vigentes e a política da aplicação. Um limite superior finito evita que aquela proposta específica permaneça aceitável indefinidamente.</p>
+<p>Pense em uma carteira que monta uma transação agora. Ela seleciona entradas, calcula taxa, cria troco e pede assinatura. Se esse pacote ficar parado por muito tempo, várias coisas podem mudar: uma entrada pode ser consumida por outra transação, os parâmetros da rede podem mudar, o usuário pode desistir, ou a aplicação pode não querer mais registrar aquela operação.</p>
+
+
+
+<p>Uma assinatura matematicamente válida não torna a transação eterna. Se o corpo assinado inclui um intervalo de validade, o ledger só pode aceitar o pacote dentro desse intervalo.</p>
+<p>Em Cardano, o corpo pode declarar um intervalo com limite inferior inclusivo (<code>invalid_before</code>) e limite superior exclusivo (<code>invalid_hereafter</code>). Para um slot <code>s</code>, a condição é <code>invalid_before &lt;= s &lt; invalid_hereafter</code> quando os dois limites existem. O ledger compara esse intervalo com o slot em que a transação é processada. O “slot atual” mostrado por wallet, API ou explorer não é um campo mágico da transação: é uma observação externa usada pelo builder para escolher margens e pelo operador para decidir se ainda há tempo de submeter.</p>
+<figure class="fig"><svg aria-label="Linha do tempo de um intervalo de validade que termina no slot 182500" role="img" viewBox="0 0 660 180"><rect fill="var(--tint)" height="66" stroke="var(--rule-soft)" stroke-dasharray="6 4" stroke-width="1" width="330" x="120" y="52"></rect><text class="cap" x="130" y="70">janela de validade</text><rect fill="none" height="66" stroke="var(--rule-soft)" stroke-dasharray="6 4" stroke-width="1" width="180" x="450" y="52"></rect><text class="dim" text-anchor="start" x="460" y="70">expirada: recusada</text><text class="dim" text-anchor="start" x="460" y="88">mesmo bem assinada</text><line stroke="var(--ink)" stroke-width="1.1" x1="30" x2="646" y1="140" y2="140"></line><polygon fill="var(--ink)" points="646,140 639.6,142.9 639.6,137.1"></polygon><text class="dim" text-anchor="end" x="640" y="158">slots</text><line stroke="var(--ink)" stroke-width="1.1" x1="120" x2="120" y1="134" y2="146"></line><text class="mono" text-anchor="middle" x="120" y="162">182440</text><text class="dim" text-anchor="middle" x="120" y="42">monta e assina</text><line stroke="var(--ink)" stroke-width="1.1" x1="300" x2="300" y1="134" y2="146"></line><text class="mono" text-anchor="middle" x="300" y="162">182470</text><text class="dim" text-anchor="middle" x="300" y="42">submete e propaga</text><line stroke="var(--ink)" stroke-width="1.1" x1="450" x2="450" y1="134" y2="146"></line><text class="mono" text-anchor="middle" x="450" y="162">182500</text><text class="dim" text-anchor="middle" x="450" y="42">invalid_hereafter</text></svg><figcaption>O pacote só é válido no intervalo declarado no corpo: no slot 182500 e depois ele está expirado, ainda que a assinatura continue matematicamente correta.</figcaption></figure>
+
+
+
+<h3 id="aula-1-8-s4">4. Do builder à wallet por CIP-30</h3>
+<p>Uma aplicação que já conhece inputs, outputs e parâmetros pode construir o corpo sem custodiar a chave privada. O <strong>builder</strong> seleciona inputs ainda disponíveis, calcula taxa para o tamanho final esperado, cria troco e fixa a validade. O <strong>signer</strong> revisa a transação e produz witnesses sobre o body hash. CIP-30 padroniza essa conversa entre dApp e wallet externa no navegador.</p>
+<p>A pessoa autoriza a conexão por <code>enable()</code>. O dApp consulta <code>getNetworkId()</code>, <code>getUtxos()</code> e <code>getChangeAddress()</code>. O ID de rede 0 identifica ambiente de teste, mas não distingue Preprod de Preview: wallet e provedor do builder ainda precisam apontar para a mesma testnet. UTxOs retornam como CBOR em hexadecimal; o endereço de troco também vem em representação binária hex, não necessariamente no texto Bech32 exibido na tela.</p>
+<div class="table-scroll"><table><thead><tr><th>Chamada CIP-30</th><th>Objeto que atravessa a fronteira</th><th>Trabalho que ainda falta</th></tr></thead><tbody>
+<tr><td><code>signTx(txCborHex, true)</code></td><td>Entra a transação CBOR; sai somente o witness set produzido pela wallet.</td><td>Validar e mesclar o retorno à mesma transação.</td></tr>
+<tr><td><code>submitTx(txCompletaCborHex)</code></td><td>Entra a transação completa; retorna seu transaction ID.</td><td>Observar inclusão em bloco na rede correta.</td></tr>
+</tbody></table></div>
+<p><code>partialSign=true</code> permite que a wallet assine apenas a parte que consegue. Com <code>false</code>, ela deve retornar erro se não puder assinar a transação inteira. Um retorno parcial não demonstra que todas as condições foram satisfeitas. A aplicação precisa reunir os demais signers e preservar scripts, datums e redeemers existentes. Substituir o witness set inteiro pelo retorno da última wallet perde componentes já coletados.</p>
+<p>A taxa deve prever todas as witnesses esperadas. Se a transação pronta exige outra taxa, a mudança afeta o corpo e o troco: é necessário reconstruir, revisar e assinar novamente. Auxiliary data fica fora do body, comprometido pelo hash nele; <code>is_valid</code> também fica fora e não é diretamente assinado pela vkey witness. Portanto, verificar o body hash não dispensa preservar o pacote completo revisado.</p>
+
+<h3 id="aula-1-8-s5">5. Mesclar sem perder a primeira assinatura</h3>
+<p>Primeiro, veja o que uma assinatura produz. O digest abaixo é o body hash da publicação medida na seção 2. Uma chave descartável assina esses 32 bytes; <code>VerificationKeyWitness</code> reúne a chave pública e a assinatura. A verificação usa a chave pública, a mesma mensagem e a assinatura recebida.</p>
+<pre data-python-runner="true" data-python-packages="pycardano-workshop-0.19.2-pyodide-314.0.7-v1" data-exercise-id="key-witness-sign-verify" data-exercise-version="2"><code class="language-python">from pycardano import PaymentSigningKey, VerificationKeyWitness, TransactionWitnessSet
+from nacl.signing import VerifyKey
+
+mensagem = bytes.fromhex("1a2232772e3aeca8ec28f1f2bc82d36761ef1ca7084b9e010786245157a6e0f1")
+chave = PaymentSigningKey.generate()
+witness = VerificationKeyWitness(chave.to_verification_key(), chave.sign(mensagem))
+VerifyKey(witness.vkey.payload).verify(mensagem, witness.signature)
+pacote = TransactionWitnessSet(vkey_witnesses=[witness])
+print("chave pública:", len(witness.vkey.payload), "bytes")
+print("assinatura:", len(witness.signature), "bytes")
+print("witness set CBOR:", pacote.to_cbor_hex())
+</code></pre>
+<p>Troque apenas a mensagem passada a <code>verify</code> por <code>bytes(32)</code>. A verificação deve falhar: a assinatura continua tendo 64 bytes, mas pertence a outro corpo. Restaure a mensagem. As chaves geradas aqui são descartáveis e não controlam fundos.</p>
+<p>Um retorno CIP-30 traz o witness set em CBOR. <code>TransactionWitnessSet.from_cbor()</code> recupera seus componentes. No exercício seguinte, os dois conjuntos já têm assinaturas compatíveis com o mesmo corpo. O recorte reúne vkey witnesses e scripts nativos; outros componentes exigem tratamento próprio.</p>
+<div class="activity" data-progress-id="cip30-witness-merge-activity"><div class="box-label">Atividade: preserve o pacote já reunido</div>
+<p>O primeiro conjunto contém uma assinatura e um script. O segundo acrescenta outra assinatura. A função já copia o pacote e reúne scripts sem repetição, mas deixa de incluir a primeira assinatura. Corrija o argumento <code>None</code> na chamada a <code>unir</code> e use <strong>Validar solução</strong>. O resultado deve ter duas assinaturas e um script.</p>
+<pre data-python-runner="true" data-python-packages="pycardano-workshop-0.19.2-pyodide-314.0.7-v1" data-exercise-id="cip30-witness-merge" data-exercise-version="3" data-validator="cip30-witness-merge-tests"><code class="language-python">from copy import deepcopy
+from pycardano import TransactionWitnessSet, NonEmptyOrderedSet
+
+def unir(a, b):
+    return NonEmptyOrderedSet([*(a or []), *(b or [])]) or None
+
+def mesclar(existentes, recebidas):
+    resultado = deepcopy(existentes)
+    resultado.vkey_witnesses = unir(None, recebidas.vkey_witnesses)
+    resultado.native_scripts = unir(existentes.native_scripts, recebidas.native_scripts)
+    return resultado
+
+existentes = TransactionWitnessSet.from_cbor(
+    "a200818258207ba06f84ca4c85d83b1ab9e73fb37dd5a005658c2515b026a0cf"
+    "26f5130ad42a5840907414df5ba4ef1d1a362e2eabd3dd40081a24d9b4b6bb8b"
+    "5e78e76c98345eed277f427ba99fc70d5980ae4604d1175f3b4ced3a16f7ccc2"
+    "7b2a69d77e21260601818200581c70e402284201ec81d7aa495d17e52209c8bb"
+    "47489395b16bcd7a2a67"
+)
+recebidas = TransactionWitnessSet.from_cbor(
+    "a100818258209be9aca30d6e4c708ec6c0642454e623edbeabf6975013520337"
+    "780b3d7fa0ea5840fb04a8dafb497689bc14f7d9432f538b30953667772d9596"
+    "8f99dff898213254175e9925b6e49159890a21ad3d1c49378c569c3eafcef571"
+    "a2f52dbdf18f9102"
+)
+resultado = mesclar(existentes, recebidas)
+print("assinaturas:", len(resultado.vkey_witnesses or []))
+print("scripts:", len(resultado.native_scripts or []))
+</code></pre>
+<details class="answer"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Conferir resposta</summary><div class="answer-body"><p>Substitua <code>None</code> por <code>existentes.vkey_witnesses</code>. A função passa a reunir as duas coleções, e <code>NonEmptyOrderedSet</code> evita repetir componentes iguais. A cópia preserva os scripts e mantém os pacotes de entrada intactos. O merge não modifica o corpo nem substitui a verificação das assinaturas mostrada antes da atividade.</p></div></details>
+</div>
+<script type="application/json" id="cip30-witness-merge-tests">
+{
+  "version": 1,
+  "tests": [
+    {
+      "name": "Duas witnesses reais verificáveis após o merge",
+      "code": "from nacl.signing import VerifyKey\nr = TransactionWitnessSet.from_cbor(mesclar(existentes, recebidas).to_cbor())\nassert len(r.vkey_witnesses or []) == 2, 'Inclua a assinatura que já estava no pacote.'\nassert len(r.native_scripts or []) == 1, 'Preserve o script existente.'\nmensagem = bytes.fromhex('1a2232772e3aeca8ec28f1f2bc82d36761ef1ca7084b9e010786245157a6e0f1')\nfor w in r.vkey_witnesses:\n    VerifyKey(w.vkey.payload).verify(mensagem, w.signature)"
+    },
+    {
+      "name": "Retorno vazio não apaga dados",
+      "code": "vazio = TransactionWitnessSet()\nr = mesclar(existentes, vazio)\nassert [w.to_cbor() for w in (r.vkey_witnesses or [])] == [w.to_cbor() for w in existentes.vkey_witnesses], 'Um retorno vazio não apaga assinaturas.'\nassert [s.to_cbor() for s in (r.native_scripts or [])] == [s.to_cbor() for s in existentes.native_scripts]\nassert mesclar(vazio, vazio).is_empty(), 'Não crie conjuntos não vazios sem componentes.'"
+    },
+    {
+      "name": "Componentes sem duplicação e entradas intactas",
+      "code": "from pycardano import ScriptPubkey\na, b = deepcopy(existentes), deepcopy(recebidas)\nb.vkey_witnesses = [*a.vkey_witnesses, *b.vkey_witnesses]\nb.native_scripts = [*a.native_scripts, ScriptPubkey(b.vkey_witnesses[-1].vkey.hash())]\nantes = (a.to_cbor(), b.to_cbor())\nr = mesclar(a, b)\nassert len(r.vkey_witnesses or []) == 2 and len(r.native_scripts or []) == 2, 'Mantenha todos os componentes uma única vez.'\nassert (a.to_cbor(), b.to_cbor()) == antes, 'Não modifique os pacotes recebidos.'\nassert r is not a and r is not b, 'Devolva um novo objeto.'"
+    }
+  ]
+}
+</script>
+
+<p>Ao recusar a assinatura ou quando a janela expira, a aplicação interrompe o envio. O retorno de <code>submitTx</code> indica submissão, não inclusão. Se houver timeout, consulte o ID antes de criar outra operação: falta de resposta não demonstra ausência na rede.</p>
+<p>Na rota CIP-30, a chave permanece na wallet externa, e o dApp depende da disponibilidade e da aprovação do signer. Um aplicativo que incorpora uma wallet por SDK assume a custódia local; um signer no servidor assume a proteção do segredo e os controles de autorização do serviço. Automatizar não exige entregar a seed ao frontend. Um dApp comum nunca deve pedir frase de recuperação, e conectar uma wallet não autoriza silenciosamente todos os gastos futuros.</p>
+<div class="closing"><h3>O que aprendemos</h3>
+<ul>
+<li>Taxa, tamanho e uso de recursos fazem parte da construção da transação.</li>
+<li>A medição deve incluir witnesses e dados auxiliares. Os parâmetros consultados determinam o mínimo; scripts podem acrescentar parcelas específicas.</li>
+<li>O intervalo de validade limita quando a transação pode ser aceita. Uma transação construída corretamente pode deixar de ser utilizável com a passagem do tempo.</li>
+<li>CIP-30 devolve witnesses, que precisam ser mescladas à mesma transação. Submissão não comprova inclusão em bloco.</li>
+</ul>
+
+
+</div>
+
+<div class="bridge"><h3>Próxima aula</h3><p>Se anexar metadata muda os bytes, o tamanho e a taxa do pacote, o que vale publicar como anexo e o que deve permanecer em um documento externo?</p></div>

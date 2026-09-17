@@ -1,0 +1,69 @@
+---
+title: CIPs, governança e parâmetros da rede
+short_title: CIPs, governança e parâmetros
+map_title: Governança e parâmetros
+summary: Entender como propostas técnicas e governança se relacionam com os parâmetros usados pelas aplicações.
+---
+
+<div class="objectives"><div class="box-label">Objetivos</div><ol class="objective-list">
+<li>Distinguir o papel de uma CIP do processo que coloca uma mudança em vigor na rede.</li>
+<li>Reconhecer os participantes da governança e sua relação com alterações de parâmetros.</li>
+<li>Explicar por que a construção de uma transação depende dos parâmetros vigentes.</li>
+</ol></div>
+<div class="prereq"><div class="box-label">Antes de começar</div><p>Retome a distinção entre aplicação e protocolo, apresentada na Aula 1.1, e o conceito de epoch da Aula 1.3.</p>
+<div class="guide-q"><span class="guide-q-label">Pergunta-guia</span><p>Como uma mudança discutida no ecossistema passa a afetar as transações que uma aplicação pode enviar?</p></div></div>
+
+<h3 id="aula-1-4-s1">1. CIPs: combinar como as ferramentas funcionam</h3>
+<p>Uma carteira e uma aplicação desenvolvidas por equipes diferentes precisam concordar sobre formatos e interfaces. As <strong>Cardano Improvement Proposals</strong>, ou CIPs, documentam propostas, padrões e convenções para esse trabalho conjunto. Também registram discussões sobre mudanças no protocolo.</p>
+<p>A <a href="https://cips.cardano.org/cip/CIP-0019">CIP-19</a>, por exemplo, descreve a estrutura dos endereços que estudaremos na próxima aula. A <a href="https://cips.cardano.org/cip/CIP-0030">CIP-30</a> padroniza a comunicação entre uma aplicação e uma carteira no navegador. Nesse segundo caso, carteiras e aplicações implementam a interface; isso não exige que cada chamada seja decidida por uma votação da rede.</p>
+<p>O processo de elaboração e revisão está descrito na <a href="https://cips.cardano.org/cip/CIP-0001">CIP-1</a>. O status de uma CIP informa sua situação nesse processo. Publicar o documento não instala software, não garante que toda ferramenta o implemente e não altera automaticamente as regras aplicadas pelos nós.</p>
+
+<h3 id="aula-1-4-s2">2. O que a governança decide</h3>
+<p>As escolhas que afetam toda a rede exigem mecanismos de decisão comuns. A <strong>governança on-chain</strong> registra ações e votos para decisões previstas no protocolo, como alterar parâmetros, iniciar uma atualização de protocolo ou autorizar uma retirada da tesouraria.</p>
+<p>O modelo descrito na <a href="https://cips.cardano.org/cip/CIP-1694">CIP-1694</a> reúne três grupos com funções distintas:</p>
+<ul>
+<li><strong>DReps</strong> são representantes aos quais detentores de ADA podem delegar poder de voto. Eles votam nas ações em que esse grupo participa.</li>
+<li><strong>Operadores de stake pools (SPOs)</strong> participam de decisões previstas para esse grupo, incluindo atualizações de protocolo e mudanças de parâmetros relevantes para a segurança.</li>
+<li>O <strong>comitê constitucional</strong> avalia a conformidade das ações com a Constituição da Cardano nas decisões em que sua aprovação é exigida.</li>
+</ul>
+<p>Os grupos participantes e os limiares de aprovação dependem do tipo de ação. Delegar poder de voto a um DRep não transfere ADA para ele nem lhe entrega as chaves que autorizam pagamentos.</p>
+<p>Uma CIP pode fundamentar tecnicamente uma mudança. A ação de governança, seus votos e sua entrada em vigor são acontecimentos distintos do processo editorial desse documento.</p>
+
+<h3 id="aula-1-4-s3">3. Parâmetros que chegam à aplicação</h3>
+<p>O protocolo usa parâmetros para definir limites e custos. Eles afetam diretamente o trabalho de quem constrói transações:</p>
+<ul>
+<li>O tamanho máximo de uma transação limita quantos bytes ela pode ocupar.</li>
+<li>Os coeficientes de taxa participam do cálculo de quanto a transação precisa pagar.</li>
+<li>Os limites de execução restringem os recursos que scripts podem consumir.</li>
+</ul>
+<p>O tamanho máximo de um bloco também é um parâmetro. Aumentá-lo pode permitir mais dados por bloco, mas exige mais dos nós na transmissão e no processamento. Essa escolha afeta operadores e aplicações, não apenas a tela de um produto.</p>
+<p>Alterar um parâmetro já previsto no protocolo é diferente de introduzir uma regra nova que o software ainda não conhece. Uma atualização de protocolo pode exigir novas versões dos nós e uma transição coordenada, como um hard fork.</p>
+
+<h3 id="aula-1-4-s4">4. Da aprovação ao valor vigente</h3>
+<p>Uma ação <strong>ratificada</strong> cumpriu as condições de aprovação. Seu efeito acontece quando ela <strong>entra em vigor</strong>, conforme as regras do protocolo. Atualizações de parâmetros são aplicadas na transição entre epochs; receber votos favoráveis não muda imediatamente o limite que um nó usa para verificar uma transação.</p>
+<p>Suponha que uma mudança aumente o tamanho máximo permitido. Uma transação que ultrapassa o limite atual não passa a ser aceita apenas porque a mudança foi anunciada ou aprovada. Até a entrada em vigor, o limite anterior continua sendo aplicado.</p>
+<p>Ao construir uma transação, a aplicação obtém os parâmetros vigentes da rede pretendida por um nó ou serviço de acesso. Não deve usar um valor copiado de uma proposta como se ele já fosse a configuração da rede. Se a preparação atravessar uma mudança de epoch, é preciso conferir novamente os parâmetros antes de concluir ou submeter a transação. Uma mudança no corpo pode exigir novas assinaturas.</p>
+
+<div class="activity"><div class="box-label">Atividade: use o limite vigente</div>
+<p>Uma ação que aumenta o tamanho máximo de transação foi ratificada, mas ainda não entrou em vigor. A aplicação está prestes a enviar uma transação que ultrapassa o limite atual e cabe no novo.</p>
+<form class="activity-quiz" id="quiz-aula-1-4-a1" data-answer="answer-aula-1-4-a1">
+<fieldset class="quiz-question"><legend>Qual conduta respeita as regras da rede?</legend><div class="quiz-options">
+<label class="quiz-option"><input name="q-aula-1-4-a1" type="radio" value="a"/><span class="quiz-option-text">Enviar agora, pois a ratificação já substituiu o limite anterior.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-4-a1" type="radio" value="b"/><span class="quiz-option-text">Enviar por outro provedor, que poderá antecipar o novo limite.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-4-a1" type="radio" value="c" data-correct="true"/><span class="quiz-option-text">Respeitar o limite vigente e só usar o novo depois de confirmar sua entrada em vigor.</span><span class="quiz-verdict"></span></label>
+<label class="quiz-option"><input name="q-aula-1-4-a1" type="radio" value="d"/><span class="quiz-option-text">Atualizar apenas a biblioteca da aplicação para que os nós aceitem o novo limite.</span><span class="quiz-verdict"></span></label>
+</div><p class="quiz-question-feedback" aria-live="polite"></p></fieldset>
+<div class="quiz-actions"><button class="quiz-check" disabled="" type="submit">Conferir respostas</button><p class="quiz-status" aria-live="polite" tabindex="-1">0 de 1 pergunta respondida.</p></div>
+</form>
+<details class="answer" id="answer-aula-1-4-a1"><summary><span aria-hidden="true" class="gi gi-resposta"></span>Conferir resposta</summary><div class="answer-body">
+<p>A alternativa C é a correta. A aprovação permite que a ação avance no processo, mas não antecipa seu efeito. A aplicação pode preparar uma transação que respeite o limite atual ou esperar a mudança e confirmar os parâmetros então vigentes. Trocar de provedor ou atualizar uma biblioteca não altera a regra aplicada pelos nós.</p>
+</div></details>
+</div>
+
+<div class="closing"><h3>O que aprendemos</h3><ul>
+<li>CIPs documentam propostas e padrões que ajudam ferramentas e participantes a trabalhar de forma compatível.</li>
+<li>A governança envolve DReps, operadores de stake pools e comitê constitucional, com participação e condições definidas por tipo de ação.</li>
+<li>Parâmetros da rede afetam o tamanho, os custos e os limites de execução das transações.</li>
+<li>Ratificação e entrada em vigor são etapas diferentes. A aplicação precisa trabalhar com os valores vigentes.</li>
+</ul></div>
+<div class="bridge"><h3>Próxima aula</h3><p>A participação associada ao stake e a autorização de pagamentos têm funções distintas. Na próxima aula, veremos como os endereços Shelley combinam credenciais de pagamento, stake e identificação de rede.</p></div>
